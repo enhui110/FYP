@@ -317,6 +317,26 @@
             text-align: left;
             border: 1px solid #eee;
         }
+
+        /* 模态窗样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: fadeIn 0.3s ease;
+        }
     </style>
 </head>
 
@@ -344,6 +364,7 @@
         <ul class="nav-links">
             <li><a id="n-dash" onclick="show('dashboard')">Overview</a></li>
             <li><a id="n-lib" onclick="show('library')">Library</a></li>
+            <li><a id="n-groups" onclick="show('groups')">👥 Groups</a></li>
             <li><a id="n-up" onclick="show('upload')">Upload</a></li>
             <li><a id="n-prof" onclick="show('profile')">Profile</a></li>
             <div class="nav-divider"></div>
@@ -402,6 +423,30 @@
             <div id="score-list" class="grid"></div>
         </div>
 
+        <div id="groups" class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1>Private Groups</h1>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-start" onclick="promptCreateGroup()">Create Group</button>
+                    <button class="btn" style="background:var(--info); color:white;" onclick="promptJoinGroup()">Join with Code</button>
+                </div>
+            </div>
+            
+            <h3 style="color: var(--primary);">My Groups</h3>
+            <div id="groups-list" class="grid"></div>
+
+            <hr style="border: 0; border-top: 1px solid #ddd; margin: 40px 0;">
+
+            <div id="group-detail-view" style="display: none; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
+                    <h2 id="gd-title" style="margin: 0; color: var(--primary);">Group Name</h2>
+                    <p style="margin: 0; font-size: 16px;">Invite Code: <strong id="gd-code" style="color: var(--accent); background: #e8f8f5; padding: 5px 10px; border-radius: 5px;"></strong></p>
+                </div>
+                <h3>Shared Scores in this Group</h3>
+                <div id="gd-scores" class="grid"></div>
+            </div>
+        </div>
+
         <div id="upload" class="section">
             <h1>Upload Score</h1>
             <form id="upForm" onsubmit="handleUpload(event); return false;"
@@ -452,6 +497,18 @@
         </div>
     </div>
 
+    <div id="share-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-top: 0;">Share Score to Group</h3>
+            <p style="font-size: 14px; color: #666;">Select a private group to share this score with:</p>
+            <select id="share-group-select" class="input-box"></select>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn btn-start" style="flex: 1;" onclick="submitShareScore()">Share</button>
+                <button class="btn" style="background: #ccc; flex: 1;" onclick="closeShareModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API = window.location.hostname === 'localhost' ? "http://localhost:3000/api" : "/api";
         const isLoggedIn = localStorage.getItem('mutice_logged_in') === 'true';
@@ -460,6 +517,8 @@
         let currentUserName = String(localStorage.getItem('mutice_user') || '').trim();
 
         let allScores = [];
+        let myGroupsList = [];
+        let currentShareScoreId = null;
         let currentSort = 'recent';
         let isDesc = true;
         let myChart = null;
@@ -517,7 +576,7 @@
         }
 
         function show(id) {
-            if (!isLoggedIn && (id === 'upload' || id === 'profile')) {
+            if (!isLoggedIn && (id === 'upload' || id === 'profile' || id === 'groups')) {
                 window.location.href = 'auth.html';
                 return;
             }
@@ -529,12 +588,138 @@
 
             if (document.getElementById('n-dash')) document.getElementById('n-dash').className = (id === 'dashboard' ? 'nav-active' : '');
             if (document.getElementById('n-lib')) document.getElementById('n-lib').className = (id === 'library' ? 'nav-active' : '');
+            if (document.getElementById('n-groups')) document.getElementById('n-groups').className = (id === 'groups' ? 'nav-active' : '');
             if (document.getElementById('n-up')) document.getElementById('n-up').className = (id === 'upload' ? 'nav-active' : '');
             if (document.getElementById('n-prof')) document.getElementById('n-prof').className = (id === 'profile' ? 'nav-active' : '');
 
             if (id === 'dashboard') loadDash();
             if (id === 'library') loadLib();
+            if (id === 'groups') loadGroups();
             if (id === 'profile') loadProfile();
+        }
+
+        async function loadGroups() {
+            if (!isLoggedIn) return;
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/my-groups`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
+                myGroupsList = await res.json();
+                
+                const list = document.getElementById('groups-list');
+                if (myGroupsList.length === 0) {
+                    list.innerHTML = `<p style="color:#888;">You haven't joined any groups yet.</p>`;
+                    document.getElementById('group-detail-view').style.display = 'none';
+                    return;
+                }
+
+                list.innerHTML = myGroupsList.map(g => `
+                    <div class="card" onclick="openGroupDetail(${g.id}, '${g.group_name}', '${g.invite_code}')" style="border-left-color: var(--info);">
+                        <h3 style="margin-top:0;">${g.group_name}</h3>
+                        <p style="color:#777; font-size:14px; margin-bottom:0;">Invite Code: <strong>${g.invite_code}</strong></p>
+                    </div>
+                `).join('');
+            } catch (err) { console.error("Error loading groups", err); }
+        }
+
+        async function promptCreateGroup() {
+            const name = prompt("Enter a name for your new group:");
+            if (!name) return;
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/groups`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${latestToken}` },
+                    body: JSON.stringify({ groupName: name })
+                });
+                const data = await res.json();
+                alert(data.message);
+                if (data.success) loadGroups();
+            } catch (err) { alert("Server error"); }
+        }
+
+        async function promptJoinGroup() {
+            const code = prompt("Enter the 6-character Invite Code:");
+            if (!code) return;
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/groups/join`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${latestToken}` },
+                    body: JSON.stringify({ inviteCode: code.trim().toUpperCase() })
+                });
+                const data = await res.json();
+                alert(data.message);
+                if (data.success) loadGroups();
+            } catch (err) { alert("Server error"); }
+        }
+
+        async function openGroupDetail(groupId, groupName, inviteCode) {
+            document.getElementById('group-detail-view').style.display = 'block';
+            document.getElementById('gd-title').innerText = groupName;
+            document.getElementById('gd-code').innerText = inviteCode;
+
+            const scoresContainer = document.getElementById('gd-scores');
+            scoresContainer.innerHTML = `<p>Loading scores...</p>`;
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/groups/${groupId}/scores`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
+                const scores = await res.json();
+
+                if (scores.length === 0) {
+                    scoresContainer.innerHTML = `<p style="color:#888;">No scores shared in this group yet.</p>`;
+                    return;
+                }
+
+                scoresContainer.innerHTML = scores.map(i => `
+                    <div class="card" onclick="goToPractice(${i.id})">
+                        <h3 style="margin-top:0;">${i.title}</h3>
+                        <p style="font-size: 13px; color: #666; margin:5px 0;"><strong>Shared by:</strong> ${i.uploader_name || 'Unknown'}</p>
+                        <p style="font-size: 12px; color: #7f8c8d; margin:5px 0;">${i.instrument} | ${i.difficulty}</p>
+                        <div class="btn-group">
+                            <button class="btn btn-start">Start Practice</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) { scoresContainer.innerHTML = `<p style="color:red;">Error loading shared scores.</p>`; }
+        }
+
+        function openShareModal(scoreId) {
+            if (!isLoggedIn) { alert("Please login first!"); return; }
+            if (myGroupsList.length === 0) {
+                alert("You need to create or join a group first before sharing!");
+                show('groups');
+                return;
+            }
+            currentShareScoreId = scoreId;
+            const select = document.getElementById('share-group-select');
+            select.innerHTML = myGroupsList.map(g => `<option value="${g.id}">${g.group_name}</option>`).join('');
+            document.getElementById('share-modal').style.display = 'flex';
+        }
+
+        function closeShareModal() {
+            document.getElementById('share-modal').style.display = 'none';
+            currentShareScoreId = null;
+        }
+
+        async function submitShareScore() {
+            const groupId = document.getElementById('share-group-select').value;
+            if (!groupId || !currentShareScoreId) return;
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/groups/${groupId}/scores`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${latestToken}` },
+                    body: JSON.stringify({ scoreId: currentShareScoreId })
+                });
+                const data = await res.json();
+                alert(data.message);
+                closeShareModal();
+            } catch (err) {
+                alert("Server Error");
+                closeShareModal();
+            }
         }
 
         async function loadProfile() {
@@ -1033,8 +1218,96 @@
             try {
                 const res = await fetch(`${API}/scores`);
                 allScores = await res.json();
+                
+                // 为了分享功能，顺便加载一下用户的 groups 列表
+                if (isLoggedIn && myGroupsList.length === 0) {
+                    const latestToken = localStorage.getItem('mutice_token') || token;
+                    const groupRes = await fetch(`${API}/my-groups`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
+                    if(groupRes.ok) myGroupsList = await groupRes.json();
+                }
+
                 filter();
             } catch (e) { }
+        }
+
+        async function handleUpload(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            if (uploadInProgress) return;
+
+            const titleInput = document.getElementById('u-title').value;
+            const composerInput = (document.getElementById('u-composer')?.value || '').trim() || 'Unknown Composer';
+            const fileInput = document.getElementById('u-file').files[0];
+
+            if (!titleInput || !fileInput) {
+                alert("Please provide a Score Title and select a file!");
+                return;
+            }
+
+            const ext = (fileInput.name.split('.').pop() || '').toLowerCase();
+            const allowedExt = ['pdf', 'jpg', 'jpeg', 'png'];
+            if (!allowedExt.includes(ext)) {
+                alert('Only PDF, JPG, JPEG, PNG files are allowed.');
+                return;
+            }
+
+            const maxSize = 1024 * 1024 * 1024;
+            if (fileInput.size > maxSize) {
+                alert('File too large. Maximum size is 1GB.');
+                return;
+            }
+
+            const btn = document.getElementById('upBtn');
+            const progWrapper = document.getElementById('progress-wrapper');
+            const progBar = document.getElementById('progress-bar');
+
+            const formData = new FormData();
+            formData.append('title', titleInput);
+            formData.append('composer', composerInput);
+            formData.append('instrument', document.getElementById('u-inst').value);
+            formData.append('difficulty', document.getElementById('u-diff').value);
+            formData.append('scoreFile', fileInput);
+
+            uploadInProgress = true;
+            btn.disabled = true;
+            btn.innerText = "Uploading... Please wait";
+            progWrapper.style.display = 'block';
+            progBar.style.width = '50%';
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${latestToken}` },
+                    body: formData
+                });
+                
+                const rawText = await res.text();
+                let data = {};
+                try {
+                    data = rawText ? JSON.parse(rawText) : {};
+                } catch (parseError) {
+                    data = { message: rawText };
+                }
+
+                if (res.ok) {
+                    progBar.style.width = '100%';
+                    alert("Upload Successful!");
+                    document.getElementById('upForm').reset();
+                    show('library');
+                } else {
+                    alert(`Upload Failed (${res.status}): ` + (data.message || "Error"));
+                }
+            } catch (err) {
+                alert("Server Connection Failed: " + (err?.message || "Unknown error"));
+            } finally {
+                uploadInProgress = false;
+                btn.disabled = false;
+                btn.innerText = "Upload to System";
+                setTimeout(() => { progWrapper.style.display = 'none'; }, 1000);
+            }
         }
 
         function popup(msg) {
@@ -1187,8 +1460,9 @@
                     <p style="font-size: 11px; color: #95a5a6; margin-top: 5px;">👤 Uploaded by: ${i.uploader || 'System'}</p>
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn-start">Start Practice</button>
-                    ${canDeleteScore(i) ? `<button class="btn" style="background:var(--danger); color:white; flex:1;"onclick="event.stopPropagation(); removeScore(${i.id})">🗑️</button>` : ''}
+                    <button class="btn btn-start" onclick="event.stopPropagation(); goToPractice(${i.id})">Start</button>
+                    <button class="btn" style="background:var(--warning); color:white; flex:1;" onclick="event.stopPropagation(); openShareModal(${i.id})">🔗 Share</button>
+                    ${canDeleteScore(i) ? `<button class="btn" style="background:var(--danger); color:white; flex:1;" onclick="event.stopPropagation(); removeScore(${i.id})">🗑️</button>` : ''}
                 </div>
             </div>`}).join('');
         }
