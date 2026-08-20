@@ -752,6 +752,129 @@ app.post('/api/logs', authGuard, async (req, res) => {
     }
 });
 
+// ==========================================
+// GROUPS APIs (Private Group & Score Sharing)
+// ==========================================
+
+// 1. CREATE GROUP
+app.post('/api/groups', authGuard, async (req, res) => {
+    try {
+        const { groupName } = req.body;
+        const userId = req.user.id;
+        
+        if (!groupName) return res.status(400).json({ success: false, message: "Group name is required" });
+
+        const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+        const [result] = await db.query(
+            'INSERT INTO \`groups\` (group_name, invite_code, creator_id) VALUES (?, ?, ?)',
+            [groupName, inviteCode, userId]
+        );
+        const groupId = result.insertId;
+
+        await db.query(
+            'INSERT INTO group_members (group_id, user_id) VALUES (?, ?)',
+            [groupId, userId]
+        );
+
+        res.json({ success: true, groupId, inviteCode, message: "Group created successfully!" });
+    } catch (err) {
+        console.error('Create group error:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 2. JOIN GROUP
+app.post('/api/groups/join', authGuard, async (req, res) => {
+    try {
+        const { inviteCode } = req.body;
+        const userId = req.user.id;
+
+        const [groups] = await db.query('SELECT * FROM \`groups\` WHERE invite_code = ?', [inviteCode.trim()]);
+        
+        if (groups.length === 0) return res.status(404).json({ success: false, message: "Invalid invite code" });
+
+        const group = groups[0];
+
+        const [existing] = await db.query(
+            'SELECT * FROM group_members WHERE group_id = ? AND user_id = ?',
+            [group.id, userId]
+        );
+        
+        if (existing.length > 0) return res.status(400).json({ success: false, message: "You are already in this group" });
+
+        await db.query('INSERT INTO group_members (group_id, user_id) VALUES (?, ?)', [group.id, userId]);
+
+        res.json({ success: true, message: "Joined group successfully!", groupName: group.group_name });
+    } catch (err) {
+        console.error('Join group error:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 3. GET MY GROUPS
+app.get('/api/my-groups', authGuard, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const [rows] = await db.query(`
+            SELECT g.* FROM \`groups\` g
+            JOIN group_members gm ON g.id = gm.group_id
+            WHERE gm.user_id = ?
+        `, [userId]);
+        res.json(rows);
+    } catch (err) {
+        console.error('Get my groups error:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 4. SHARE SCORE TO GROUP
+app.post('/api/groups/:groupId/scores', authGuard, async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const { scoreId } = req.body;
+        const userId = req.user.id;
+
+        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, userId]);
+        if (member.length === 0) return res.status(403).json({ success: false, message: "You are not a member of this group" });
+
+        const [existing] = await db.query('SELECT * FROM group_scores WHERE group_id = ? AND score_id = ?', [groupId, scoreId]);
+        if (existing.length > 0) return res.status(400).json({ success: false, message: "Score already shared in this group" });
+
+        await db.query('INSERT INTO group_scores (group_id, score_id, shared_by) VALUES (?, ?, ?)', [groupId, scoreId, userId]);
+
+        res.json({ success: true, message: "Score shared successfully!" });
+    } catch (err) {
+        console.error('Share score error:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 5. GET SCORES IN A GROUP
+app.get('/api/groups/:groupId/scores', authGuard, async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const userId = req.user.id;
+
+        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, userId]);
+        if (member.length === 0) return res.status(403).json({ success: false, message: "Access denied" });
+
+        const [scores] = await db.query(`
+            SELECT s.*, u.name as uploader_name, gs.shared_at 
+            FROM group_scores gs
+            JOIN scores s ON gs.score_id = s.id
+            JOIN users u ON gs.shared_by = u.id
+            WHERE gs.group_id = ?
+            ORDER BY gs.shared_at DESC
+        `, [groupId]);
+
+        res.json(scores);
+    } catch (err) {
+        console.error('Get group scores error:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 // ================= START =================
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
