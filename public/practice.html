@@ -308,7 +308,7 @@
 
 
     <script>
-        const API = 'http://localhost:3000/api';
+        const API = window.location.hostname === 'localhost' ? "http://localhost:3000/api" : "/api";
         const token = localStorage.getItem('mutice_token') || "";
         const urlParams = new URLSearchParams(window.location.search);
         const scoreId = urlParams.get('id');
@@ -408,10 +408,9 @@
             renderPage(pageNum).then(resetPdfScroll);
         }
 
-        // NEW: Function to manually snap back to perfect window size
         function fitToScreen() {
             if (!pdfDoc) return;
-            currentScale = null; // Setting to null forces exact recalculation
+            currentScale = null;
             renderPage(pageNum).then(resetPdfScroll);
         }
 
@@ -423,9 +422,8 @@
             }
         }
 
-        // When entering/exiting fullscreen, FORCE exact scaling calculation
         document.addEventListener('fullscreenchange', () => {
-            currentScale = null; // Resets scale to trigger math calculation
+            currentScale = null;
             rerenderCurrentPage();
             setTimeout(resetPdfScroll, 0);
         });
@@ -536,11 +534,9 @@
                 const viewport = page.getViewport({ scale: 1 });
                 let availableWidth, availableHeight;
 
-                // NEW: Smart Fit-to-Window Math Calculation
                 if (document.fullscreenElement) {
                     const header = document.querySelector('.practice-header');
                     const headerH = header ? header.offsetHeight : 0;
-                    // Maximize exact height and width, leaving room for header and side buttons
                     availableHeight = window.innerHeight - headerH - 40; 
                     availableWidth = window.innerWidth - 140; 
                 } else {
@@ -550,11 +546,7 @@
                 }
 
                 const targetWidth = isDoublePage ? availableWidth / 2.05 : availableWidth;
-                
-                // Calculates the exact scale needed to fit BOTH height and width perfectly
                 currentScale = Math.min(targetWidth / viewport.width, availableHeight / viewport.height);
-                
-                // Set a reasonable limit so tiny PDFs don't scale to 1000%
                 if (currentScale > 3) currentScale = 3; 
             }
 
@@ -689,9 +681,11 @@
 
                     scoreUrl = score.url;
                     scoreTitle = score.title || 'Untitled Session';
+                    
+                    const baseServerUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : window.location.origin;
                     fullUrl = scoreUrl.startsWith('http')
                         ? scoreUrl
-                        : 'http://localhost:3000/' + scoreUrl;
+                        : baseServerUrl + (scoreUrl.startsWith('/') ? '' : '/') + scoreUrl;
 
                     document.getElementById('t-name').innerText = scoreTitle;
 

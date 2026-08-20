@@ -86,8 +86,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .grid {
@@ -146,7 +153,7 @@
             border-radius: 8px;
             box-sizing: border-box;
         }
-        
+
         .input-box:disabled {
             background: #e9ecef;
             cursor: not-allowed;
@@ -237,7 +244,7 @@
             cursor: pointer;
             border-radius: 50%;
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             background: var(--primary);
         }
 
@@ -265,7 +272,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             color: white;
             font-size: 12px;
             padding: 5px 0;
@@ -294,7 +301,7 @@
             border-bottom: 1px dashed #ccc;
             padding-bottom: 8px;
         }
-        
+
         .profile-details p:last-child {
             border-bottom: none;
             padding-bottom: 0;
@@ -319,14 +326,19 @@
             <div class="logo" onclick="show('dashboard')" style="cursor: pointer; user-select: none;">
                 🎵<strong>MuTice</strong>🎶
             </div>
-            
-            <div style="border-left: 1px solid rgba(255, 255, 255, 0.2); padding-left: 15px; margin-left: 15px; display: flex; align-items: center;">
-                <div id="nav-avatar-img" style="width: 32px; height: 32px; border-radius: 50%; background: white; overflow: hidden; display: none;">
+
+            <div
+                style="border-left: 1px solid rgba(255, 255, 255, 0.2); padding-left: 15px; margin-left: 15px; display: flex; align-items: center;">
+                <div id="nav-avatar-img"
+                    style="width: 32px; height: 32px; border-radius: 50%; background: white; overflow: hidden; display: none;">
                     <img id="nav-avatar-src" src="" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <div id="nav-avatar-text" style="width: 32px; height: 32px; border-radius: 50%; background: white; color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; display: none;">👤</div>
-                
-                <span id="user-welcome" style="margin-left: 10px; font-size: 16px; color: #ffffff; font-weight: bold;"></span>
+                <div id="nav-avatar-text"
+                    style="width: 32px; height: 32px; border-radius: 50%; background: white; color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; display: none;">
+                    👤</div>
+
+                <span id="user-welcome"
+                    style="margin-left: 10px; font-size: 16px; color: #ffffff; font-weight: bold;"></span>
             </div>
         </div>
         <ul class="nav-links">
@@ -347,9 +359,13 @@
 
         <div id="library" class="section">
             <h1>Score Library</h1>
-            <div style="background: white; padding: 12px 20px; border-radius: 12px; margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);">
-                <input type="text" id="s-input" class="input-box" style="margin: 0; padding: 0 15px; height: 40px; flex: 2; min-width: 150px;" placeholder="Search title..." oninput="filter()">
-                <select id="s-inst" class="input-box" style="margin: 0; padding: 0 15px; height: 40px; flex: 1; min-width: 150px;" onchange="filter()">
+            <div
+                style="background: white; padding: 12px 20px; border-radius: 12px; margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);">
+                <input type="text" id="s-input" class="input-box"
+                    style="margin: 0; padding: 0 15px; height: 40px; flex: 2; min-width: 150px;"
+                    placeholder="Search title..." oninput="filter()">
+                <select id="s-inst" class="input-box"
+                    style="margin: 0; padding: 0 15px; height: 40px; flex: 1; min-width: 150px;" onchange="filter()">
                     <option value="All Instrument">All Instrument</option>
                     <option value="Piano">Piano</option>
                     <option value="Violin">Violin</option>
@@ -371,12 +387,16 @@
                     <option value="Percussion">Percussion</option>
                 </select>
                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                    <button id="btn-fav-filter" class="sort-btn" style="height: 40px; margin: 0; padding: 0 15px;" onclick="toggleFavFilter()">🤍 Favorites</button>
+                    <button id="btn-fav-filter" class="sort-btn" style="height: 40px; margin: 0; padding: 0 15px;"
+                        onclick="toggleFavFilter()">🤍 Favorites</button>
                     <div style="width: 1px; height: 24px; background: #ddd; margin: 0 5px;"></div>
                     <span style="font-size: 14px; font-weight: bold; color: #888; margin-right: 2px;">Sort By:</span>
-                    <button id="sort-recent" class="sort-btn active" style="height: 40px; margin: 0; padding: 0 15px;" onclick="toggleSort('recent')">Recent</button>
-                    <button id="sort-title" class="sort-btn" style="height: 40px; margin: 0; padding: 0 15px;" onclick="toggleSort('title')">Song</button>
-                    <button id="sort-instrument" class="sort-btn" style="height: 40px; margin: 0; padding: 0 15px;" onclick="toggleSort('instrument')">Instrument</button>
+                    <button id="sort-recent" class="sort-btn active" style="height: 40px; margin: 0; padding: 0 15px;"
+                        onclick="toggleSort('recent')">Recent</button>
+                    <button id="sort-title" class="sort-btn" style="height: 40px; margin: 0; padding: 0 15px;"
+                        onclick="toggleSort('title')">Song</button>
+                    <button id="sort-instrument" class="sort-btn" style="height: 40px; margin: 0; padding: 0 15px;"
+                        onclick="toggleSort('instrument')">Instrument</button>
                 </div>
             </div>
             <div id="score-list" class="grid"></div>
@@ -412,9 +432,11 @@
                     </div>
                 </div>
 
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed #ccc;">
+                <div
+                    style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed #ccc;">
                     <p style="margin:0 0 5px 0; font-size: 13px;">Upload Local File (PDF or Image) max 1GB</p>
-                    <input type="file" id="u-file" accept="image/*,.pdf" style="display:block; margin-bottom:15px;" class="input-box">
+                    <input type="file" id="u-file" accept="image/*,.pdf" style="display:block; margin-bottom:15px;"
+                        class="input-box">
                 </div>
 
                 <button type="submit" class="btn btn-start" id="upBtn">Upload to System</button>
@@ -431,7 +453,7 @@
     </div>
 
     <script>
-        const API = "http://localhost:3000/api";
+        const API = window.location.hostname === 'localhost' ? "http://localhost:3000/api" : "/api";
         const isLoggedIn = localStorage.getItem('mutice_logged_in') === 'true';
         const token = localStorage.getItem('mutice_token') || "";
         const currentUserId = Number(localStorage.getItem('mutice_user_id') || -1);
@@ -442,11 +464,11 @@
         let isDesc = true;
         let myChart = null;
         let uploadInProgress = false;
-        let showFavOnly = false; 
+        let showFavOnly = false;
 
-        let pwVerifyTimer = null; 
+        let pwVerifyTimer = null;
         let nameVerifyTimer = null;
-        let isNameValid = true; 
+        let isNameValid = true;
         let isOldPwValid = false;
 
         function initApp() {
@@ -457,7 +479,7 @@
                         `<a href="#" onclick="logout()" class="btn-account" style="background:var(--danger)">Logout</a>` :
                         `<a href="auth.html" class="btn-account">👤 Login</a>`;
                 }
-                
+
                 updateNavbarUserDisplay();
 
                 const lastPage = localStorage.getItem('mutice_page') || 'dashboard';
@@ -467,7 +489,7 @@
 
         function updateNavbarUserDisplay() {
             if (!isLoggedIn) return;
-            
+
             const welcomeEl = document.getElementById('user-welcome');
             if (welcomeEl) welcomeEl.innerText = `Welcome! ${currentUserName}`;
 
@@ -499,7 +521,7 @@
                 window.location.href = 'auth.html';
                 return;
             }
-            
+
             localStorage.setItem('mutice_page', id);
             document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
             const target = document.getElementById(id);
@@ -574,10 +596,10 @@
                 const res = await fetch(`${API}/logs`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
                 if (!res.ok) throw new Error("Failed");
                 const logs = await res.json();
-                
+
                 const totalSeconds = logs.reduce((acc, log) => acc + (Number(log.durationSeconds) || 0), 0);
-                let totalMin = Math.round(totalSeconds / 60); 
-                if (totalSeconds > 0 && totalMin === 0) totalMin = 1; 
+                let totalMin = Math.round(totalSeconds / 60);
+                if (totalSeconds > 0 && totalMin === 0) totalMin = 1;
 
                 document.getElementById('prof-total-time').innerHTML = `<b>${totalMin}</b> mins`;
                 document.getElementById('prof-total-sessions').innerHTML = `<b>${logs.length}</b> sessions`;
@@ -590,16 +612,16 @@
         function handleAvatarUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
-            
+
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 const base64Str = e.target.result;
                 localStorage.setItem(`mutice_avatar_${currentUserId}`, base64Str);
-                
+
                 document.getElementById('prof-avatar-img').src = base64Str;
                 document.getElementById('prof-avatar-img').style.display = 'block';
                 document.getElementById('prof-avatar-text').style.display = 'none';
-                
+
                 updateNavbarUserDisplay();
             };
             reader.readAsDataURL(file);
@@ -608,8 +630,7 @@
         function toggleEditForm() {
             const form = document.getElementById('profile-edit-form');
             form.style.display = form.style.display === 'block' ? 'none' : 'block';
-            
-            // Reset all fields
+
             document.getElementById('edit-name-input').value = currentUserName;
             document.getElementById('name-verify-icon').innerText = "";
             document.getElementById('name-error-text').style.display = "none";
@@ -646,7 +667,7 @@
 
             if (newName === currentUserName) {
                 isNameValid = true;
-                return; 
+                return;
             }
 
             nameVerifyTimer = setTimeout(async () => {
@@ -656,18 +677,18 @@
                     const latestToken = localStorage.getItem('mutice_token') || token;
                     const res = await fetch(`${API}/users/check-username`, {
                         method: 'POST',
-                        headers: { 
+                        headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${latestToken}` 
+                            'Authorization': `Bearer ${latestToken}`
                         },
                         body: JSON.stringify({ username: newName })
                     });
-                    
+
                     if (nameInput.value.trim() !== newName) return;
                     if (!res.ok) throw new Error("Server Error");
 
                     const data = await res.json();
-                    
+
                     if (data.isAvailable) {
                         iconEl.innerText = "✅";
                         errorTextEl.style.display = "none";
@@ -685,7 +706,7 @@
                     errorTextEl.style.display = "block";
                     isNameValid = false;
                 }
-            }, 1000); 
+            }, 1000);
         }
 
         async function verifyOldPassword() {
@@ -718,18 +739,18 @@
                     const latestToken = localStorage.getItem('mutice_token') || token;
                     const res = await fetch(`${API}/users/verify-password`, {
                         method: 'POST',
-                        headers: { 
+                        headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${latestToken}` 
+                            'Authorization': `Bearer ${latestToken}`
                         },
                         body: JSON.stringify({ password: oldPw })
                     });
-                    
+
                     if (oldPwInput.value !== oldPw) return;
                     if (!res.ok) throw new Error("Server Error");
 
                     const data = await res.json();
-                    
+
                     if (data.isValid) {
                         iconEl.innerText = "✅";
                         errorTextEl.style.display = "none";
@@ -740,7 +761,7 @@
                         iconEl.innerText = "❌";
                         errorTextEl.innerText = "Incorrect current password.";
                         errorTextEl.style.display = "block";
-                        
+
                         newPwInput.disabled = true;
                         confirmPwInput.disabled = true;
                         newPwInput.value = "";
@@ -754,7 +775,7 @@
                     errorTextEl.style.display = "block";
                     isOldPwValid = false;
                 }
-            }, 1000); 
+            }, 1000);
         }
 
         function displayProfileStatus(msg, isError) {
@@ -809,12 +830,12 @@
 
             try {
                 const latestToken = localStorage.getItem('mutice_token') || token;
-                
+
                 const res = await fetch(`${API}/users/update`, {
                     method: 'PUT',
-                    headers: { 
+                    headers: {
                         'Authorization': `Bearer ${latestToken}`,
-                        'Content-Type': 'application/json' 
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         username: newName !== currentUserName ? newName : undefined,
@@ -841,8 +862,7 @@
                 }
 
                 displayProfileStatus("✅ Profile successfully updated!", false);
-                
-                // Clear password fields on success
+
                 document.getElementById('edit-pw-old').value = "";
                 document.getElementById('edit-pw-input').value = "";
                 document.getElementById('edit-pw-confirm').value = "";
@@ -870,7 +890,7 @@
                 content.innerHTML = `<div style="text-align:center; padding:50px;"><h2>Welcome to MuTice!</h2><button class="btn btn-account" onclick="window.location.href='auth.html'">Login Now</button></div>`;
                 return;
             }
-            
+
             content.innerHTML = `
             <div class="stats-grid">
                 <div class="stat-card" style="border-top-color: var(--accent);">
@@ -936,8 +956,8 @@
                 });
 
                 const totalSeconds = currentMonthLogs.reduce((acc, log) => acc + (Number(log.durationSeconds) || 0), 0);
-                let totalMin = Math.round(totalSeconds / 60); 
-                if (totalSeconds > 0 && totalMin === 0) totalMin = 1; 
+                let totalMin = Math.round(totalSeconds / 60);
+                if (totalSeconds > 0 && totalMin === 0) totalMin = 1;
 
                 document.getElementById('total-time').innerText = totalMin;
                 document.getElementById('total-sessions').innerText = currentMonthLogs.length;
@@ -947,16 +967,16 @@
                 document.getElementById('dash-min-title').innerText = `${currentMonthName} Practical Time (minutes)`;
                 document.getElementById('dash-ses-title').innerText = `${currentMonthName} Practice Sessions`;
 
-                const topRecent = sortedLogsDesc.slice(0, 7); 
+                const topRecent = sortedLogsDesc.slice(0, 7);
                 let recentHtml = '';
-                
+
                 if (topRecent.length === 0) {
                     recentHtml = `<div style="text-align:center; color:#999; margin-top: 50px;">No practice records yet.<br>Go play some music! 🎵</div>`;
                 } else {
                     topRecent.forEach(log => {
                         const d = parsePracticeDate(log.date);
-                        const dateStr = d ? d.toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12: false }) : 'Unknown Date';
-                        
+                        const dateStr = d ? d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : 'Unknown Date';
+
                         const sec = Number(log.durationSeconds) || 0;
                         const m = Math.floor(sec / 60);
                         const s = sec % 60;
@@ -987,7 +1007,7 @@
                 const sortedData = sortedLabels.map(label => {
                     const sec = monthlySeconds[label];
                     let min = Math.round(sec / 60);
-                    if (sec > 0 && min === 0) min = 1; 
+                    if (sec > 0 && min === 0) min = 1;
                     return min;
                 });
 
@@ -1007,87 +1027,6 @@
                 data: { labels: l, datasets: [{ label: 'Minutes', data: d, backgroundColor: '#3498db', borderRadius: 5 }] },
                 options: { responsive: true, maintainAspectRatio: false }
             });
-        }
-
-        async function handleUpload(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            if (uploadInProgress) return;
-
-            const titleInput = document.getElementById('u-title').value;
-            const composerInput = (document.getElementById('u-composer')?.value || '').trim() || 'Unknown Composer';
-            const fileInput = document.getElementById('u-file').files[0];
-
-            if (!titleInput || !fileInput) {
-                // We keep standard system alerts for major file upload blocks to stop execution
-                alert("Please provide a Score Title and select a file!");
-                return;
-            }
-
-            const ext = (fileInput.name.split('.').pop() || '').toLowerCase();
-            const allowedExt = ['pdf', 'jpg', 'jpeg', 'png'];
-            if (!allowedExt.includes(ext)) {
-                alert('Only PDF, JPG, JPEG, PNG files are allowed.');
-                return;
-            }
-
-            const maxSize = 1024 * 1024 * 1024;
-            if (fileInput.size > maxSize) {
-                alert('File too large. Maximum size is 1GB.');
-                return;
-            }
-
-            const btn = document.getElementById('upBtn');
-            const progWrapper = document.getElementById('progress-wrapper');
-            const progBar = document.getElementById('progress-bar');
-
-            const formData = new FormData();
-            formData.append('title', titleInput);
-            formData.append('composer', composerInput);
-            formData.append('instrument', document.getElementById('u-inst').value);
-            formData.append('difficulty', document.getElementById('u-diff').value);
-            formData.append('scoreFile', fileInput);
-
-            uploadInProgress = true;
-            btn.disabled = true;
-            btn.innerText = "Uploading... Please wait";
-            progWrapper.style.display = 'block';
-            progBar.style.width = '50%';
-
-            try {
-                const latestToken = localStorage.getItem('mutice_token') || token;
-                const res = await fetch(`${API}/upload`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${latestToken}` },
-                    body: formData
-                });
-                
-                const rawText = await res.text();
-                let data = {};
-                try {
-                    data = rawText ? JSON.parse(rawText) : {};
-                } catch (parseError) {
-                    data = { message: rawText };
-                }
-
-                if (res.ok) {
-                    progBar.style.width = '100%';
-                    alert("Upload Successful!");
-                    document.getElementById('upForm').reset();
-                    show('library');
-                } else {
-                    alert(`Upload Failed (${res.status}): ` + (data.message || "Error"));
-                }
-            } catch (err) {
-                alert("Server Connection Failed: " + (err?.message || "Unknown error"));
-            } finally {
-                uploadInProgress = false;
-                btn.disabled = false;
-                btn.innerText = "Upload to System";
-                setTimeout(() => { progWrapper.style.display = 'none'; }, 1000);
-            }
         }
 
         async function loadLib() {
@@ -1160,19 +1099,19 @@
         }
 
         function toggleFav(e, id) {
-            e.stopPropagation(); 
-            if (!isLoggedIn) { 
-                alert('Please login to save favorites!'); 
-                return; 
+            e.stopPropagation();
+            if (!isLoggedIn) {
+                alert('Please login to save favorites!');
+                return;
             }
             let favs = getFavs();
             if (favs.includes(id)) {
                 favs = favs.filter(f => f !== id);
             } else {
-                favs.push(id); 
+                favs.push(id);
             }
             localStorage.setItem(`mutice_fav_${currentUserId}`, JSON.stringify(favs));
-            filter(); 
+            filter();
         }
 
         function toggleFavFilter() {
@@ -1192,9 +1131,9 @@
             if (currentSort === type) isDesc = !isDesc;
             else { currentSort = type; isDesc = (type === 'recent'); }
             document.querySelectorAll('.sort-btn').forEach(btn => {
-                if (btn.id !== 'btn-fav-filter') { 
-                    btn.classList.remove('active'); 
-                    btn.innerText = btn.innerText.replace(/ ⬆| ⬇/g, ''); 
+                if (btn.id !== 'btn-fav-filter') {
+                    btn.classList.remove('active');
+                    btn.innerText = btn.innerText.replace(/ ⬆| ⬇/g, '');
                 }
             });
             const btn = document.getElementById(`sort-${type}`);
@@ -1230,7 +1169,7 @@
         function render(data) {
             const list = document.getElementById('score-list');
             if (!list) return;
-            const favs = getFavs(); 
+            const favs = getFavs();
 
             list.innerHTML = data.map(i => {
                 const isFav = favs.includes(i.id);

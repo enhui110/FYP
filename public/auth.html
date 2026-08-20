@@ -152,6 +152,15 @@
     </div>
 
     <script>
+        const API = window.location.hostname === 'localhost' ? "http://localhost:3000/api" : "/api";
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options) {
+            if (typeof url === 'string' && url.includes('http://localhost:3000')) {
+                url = url.replace('http://localhost:3000', '');
+            }
+            return originalFetch(url, options);
+        };
+
         // If user is already logged in, redirect to dashboard
         if (localStorage.getItem('mutice_logged_in') === 'true') { window.location.href = "index.html"; }
 
@@ -161,7 +170,6 @@
             document.getElementById('reset-form').style.display = type === 'reset' ? 'block' : 'none';
         }
 
-        const API = window.location.hostname === 'localhost' ? "http://localhost:3000/api" : "/api";
         async function handleAuth(event, type) {
             event.preventDefault();
             const btn = event.target.querySelector('button');
@@ -197,7 +205,7 @@
                     data = rawText ? JSON.parse(rawText) : {};
                 } catch (parseError) {
                     console.error("Server returned non-JSON:", rawText);
-                    data = { message: "Server connection error. Please ensure Node.js is running on Port 3000." };
+                    data = { message: "Server connection error. Please ensure Node.js is running." };
                 }
 
                 if (res.ok && data.success) {
