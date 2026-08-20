@@ -427,8 +427,8 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h1>Private Groups</h1>
                 <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-start" onclick="promptCreateGroup()">Create Group</button>
-                    <button class="btn" style="background:var(--info); color:white;" onclick="promptJoinGroup()">Join with Code</button>
+                    <button class="btn btn-start" onclick="openCreateGroupModal()">➕ Create Group</button>
+                    <button class="btn" style="background:var(--info); color:white;" onclick="openJoinGroupModal()">🔑 Join with Code</button>
                 </div>
             </div>
             
@@ -504,7 +504,31 @@
             <select id="share-group-select" class="input-box"></select>
             <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <button class="btn btn-start" style="flex: 1;" onclick="submitShareScore()">Share</button>
-                <button class="btn" style="background: #ccc; flex: 1;" onclick="closeShareModal()">Cancel</button>
+                <button class="btn" style="background: #ccc; flex: 1;" onclick="closeModal('share-modal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="create-group-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-top: 0;">Create New Group</h3>
+            <p style="font-size: 14px; color: #666;">Enter a name for your new private group:</p>
+            <input type="text" id="new-group-name" class="input-box" placeholder="e.g. My Band, Piano Class">
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn btn-start" style="flex: 1;" onclick="submitCreateGroup()">Create</button>
+                <button class="btn" style="background: #ccc; flex: 1;" onclick="closeModal('create-group-modal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="join-group-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-top: 0;">Join Group</h3>
+            <p style="font-size: 14px; color: #666;">Enter the 6-character Invite Code:</p>
+            <input type="text" id="join-group-code" class="input-box" placeholder="e.g. A1B2C3" style="text-transform: uppercase;">
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn" style="background: var(--info); color: white; flex: 1;" onclick="submitJoinGroup()">Join</button>
+                <button class="btn" style="background: #ccc; flex: 1;" onclick="closeModal('join-group-modal')">Cancel</button>
             </div>
         </div>
     </div>
@@ -519,6 +543,7 @@
         let allScores = [];
         let myGroupsList = [];
         let currentShareScoreId = null;
+
         let currentSort = 'recent';
         let isDesc = true;
         let myChart = null;
@@ -621,9 +646,21 @@
             } catch (err) { console.error("Error loading groups", err); }
         }
 
-        async function promptCreateGroup() {
-            const name = prompt("Enter a name for your new group:");
-            if (!name) return;
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function openCreateGroupModal() {
+            document.getElementById('new-group-name').value = '';
+            document.getElementById('create-group-modal').style.display = 'flex';
+        }
+
+        async function submitCreateGroup() {
+            const name = document.getElementById('new-group-name').value.trim();
+            if (!name) {
+                alert("Please enter a group name.");
+                return;
+            }
             try {
                 const latestToken = localStorage.getItem('mutice_token') || token;
                 const res = await fetch(`${API}/groups`, {
@@ -633,23 +670,38 @@
                 });
                 const data = await res.json();
                 alert(data.message);
-                if (data.success) loadGroups();
+                if (data.success) {
+                    closeModal('create-group-modal');
+                    loadGroups();
+                }
             } catch (err) { alert("Server error"); }
         }
 
-        async function promptJoinGroup() {
-            const code = prompt("Enter the 6-character Invite Code:");
-            if (!code) return;
+        // --- Join Group Modal Logic ---
+        function openJoinGroupModal() {
+            document.getElementById('join-group-code').value = '';
+            document.getElementById('join-group-modal').style.display = 'flex';
+        }
+
+        async function submitJoinGroup() {
+            const code = document.getElementById('join-group-code').value.trim().toUpperCase();
+            if (!code) {
+                alert("Please enter an invite code.");
+                return;
+            }
             try {
                 const latestToken = localStorage.getItem('mutice_token') || token;
                 const res = await fetch(`${API}/groups/join`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${latestToken}` },
-                    body: JSON.stringify({ inviteCode: code.trim().toUpperCase() })
+                    body: JSON.stringify({ inviteCode: code })
                 });
                 const data = await res.json();
                 alert(data.message);
-                if (data.success) loadGroups();
+                if (data.success) {
+                    closeModal('join-group-modal');
+                    loadGroups();
+                }
             } catch (err) { alert("Server error"); }
         }
 
@@ -697,11 +749,6 @@
             document.getElementById('share-modal').style.display = 'flex';
         }
 
-        function closeShareModal() {
-            document.getElementById('share-modal').style.display = 'none';
-            currentShareScoreId = null;
-        }
-
         async function submitShareScore() {
             const groupId = document.getElementById('share-group-select').value;
             if (!groupId || !currentShareScoreId) return;
@@ -715,12 +762,13 @@
                 });
                 const data = await res.json();
                 alert(data.message);
-                closeShareModal();
+                closeModal('share-modal');
             } catch (err) {
                 alert("Server Error");
-                closeShareModal();
+                closeModal('share-modal');
             }
         }
+        // ==========================
 
         async function loadProfile() {
             const content = document.getElementById('profile-content');
