@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>MuTice | Authentication</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            width: 350px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            border-color: #27ae60;
+            outline: none;
+            box-shadow: 0 0 5px rgba(39, 174, 96, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background: #219150;
+        }
+
+        .toggle-link {
+            margin-top: 20px;
+            display: block;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
+
+        .forgot-inline {
+            color: #3498db;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            user-select: none;
+            display: block;
+            text-align: right;
+            margin: -5px 0 10px 0;
+        }
+
+        .forgot-inline:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 25px;
+            color: #888;
+            text-decoration: none;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .back-link:hover {
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        #signup-form {
+            display: none;
+        }
+
+        #reset-form {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-card">
+        <div id="login-form">
+            <h2>Welcome Back</h2>
+            <form onsubmit="handleAuth(event, 'login')">
+                <input type="email" id="login-email" placeholder="Email Address" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <span class="forgot-inline" onclick="toggleForm('reset')">Forgot password?</span>
+                <button type="submit" class="btn">Login</button>
+            </form>
+            <span class="toggle-link" onclick="toggleForm('signup')">Don't have an account? Sign Up</span>
+        </div>
+        <div id="signup-form">
+            <h2>Create Account</h2>
+            <form onsubmit="handleAuth(event, 'signup')">
+                <input type="text" id="signup-name" placeholder="Full Name" required>
+                <input type="email" id="signup-email" placeholder="Email Address" required>
+                <input type="password" id="signup-password" placeholder="Create Password" required>
+                <input type="password" id="signup-confirm-password" placeholder="Confirm Password" required>
+                <button type="submit" class="btn" style="background: #3498db;">Sign Up</button>
+            </form>
+            <span class="toggle-link" onclick="toggleForm('login')">Already have an account? Login</span>
+        </div>
+        <div id="reset-form">
+            <h2>Reset Password</h2>
+            <form onsubmit="handleForgotPassword(event)">
+                <input type="email" id="reset-email" placeholder="Email Address" required>
+                <input type="password" id="reset-password" placeholder="New Password (min 6 chars)" minlength="6" required>
+                <input type="password" id="reset-confirm-password" placeholder="Confirm New Password" minlength="6" required>
+                <button type="submit" class="btn" style="background: #22cfe6;">Reset Password</button>
+            </form>
+            <span class="toggle-link" onclick="toggleForm('login')">Back to Login</span>
+        </div>
+        <a href="index.html" class="back-link">← Back to Dashboard</a>
+    </div>
+
+    <script>
+        // If user is already logged in, redirect to dashboard
+        if (localStorage.getItem('mutice_logged_in') === 'true') { window.location.href = "index.html"; }
+
+        function toggleForm(type) {
+            document.getElementById('login-form').style.display = type === 'login' ? 'block' : 'none';
+            document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
+            document.getElementById('reset-form').style.display = type === 'reset' ? 'block' : 'none';
+        }
+
+        const API = window.location.hostname === 'localhost' ? "http://localhost:3000/api" : "/api";
+        async function handleAuth(event, type) {
+            event.preventDefault();
+            const btn = event.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            const email = document.getElementById(`${type}-email`).value.trim();
+            const password = document.getElementById(`${type}-password`).value;
+            const name = (type === 'signup') ? document.getElementById('signup-name').value.trim() : null;
+
+            if (type === 'signup') {
+                const confirmPassword = document.getElementById('signup-confirm-password').value;
+                if (password !== confirmPassword) {
+                    alert('Password and Confirm Password do not match.');
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+            }
+
+            try {
+                const res = await fetch(`${API}/${type}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                // Attempt to parse JSON, but handle non-JSON responses gracefully
+                const rawText = await res.text();
+                let data = {};
+                try {
+                    data = rawText ? JSON.parse(rawText) : {};
+                } catch (parseError) {
+                    console.error("Server returned non-JSON:", rawText);
+                    data = { message: "Server connection error. Please ensure Node.js is running on Port 3000." };
+                }
+
+                if (res.ok && data.success) {
+                    if (type === 'signup') {
+                        alert("Account Created! You can now login.");
+                        toggleForm('login');
+                        event.target.reset();
+                    } else {
+                        localStorage.setItem('mutice_logged_in', 'true');
+                        localStorage.setItem('mutice_token', data.token);
+                        localStorage.setItem('mutice_user', data.userName);
+                        localStorage.setItem('mutice_user_id', String(data.userId || ''));
+                        window.location.replace("index.html");
+                    }
+                } else {
+                    alert(data.message || "Operation failed!");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Server connection failed! Is your Node.js server running?");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function handleForgotPassword(event) {
+            event.preventDefault();
+            const btn = event.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Processing...';
+            btn.disabled = true;
+
+            const email = document.getElementById('reset-email').value.trim();
+            const newPassword = document.getElementById('reset-password').value;
+            const confirmNewPassword = document.getElementById('reset-confirm-password').value;
+
+            if (newPassword !== confirmNewPassword) {
+                alert('New Password and Confirm Password do not match.');
+                btn.innerText = originalText;
+                btn.disabled = false;
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, newPassword })
+                });
+
+                const rawText = await res.text();
+                let data = {};
+                try {
+                    data = rawText ? JSON.parse(rawText) : {};
+                } catch {
+                    data = { message: rawText || 'Server error' };
+                }
+
+                if (res.ok && data.success) {
+                    alert(data.message || 'Password reset successful.');
+                    event.target.reset();
+                    toggleForm('login');
+                } else {
+                    alert(data.message || 'Reset password failed.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server connection failed! Is your Node.js server running?');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

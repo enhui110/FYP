@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>MuTice | Practice Room</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    </script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60;
+            --bg: #f4f7f6;
+            --info: #3498db;
+            --danger: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            color: #333;
+            height: 100%;
+            overflow: auto;
+        }
+
+        html {
+            height: 100%;
+            overflow: auto;
+        }
+
+        .practice-container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+            transition: 0.3s ease;
+        }
+
+        .practice-header {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            border-left: 6px solid var(--primary);
+        }
+
+        .header-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            width: 100%;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-left {
+            justify-self: start;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-center {
+            justify-self: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .header-right {
+            justify-self: end;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .bpm-input {
+            width: 60px;
+            padding: 6px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-weight: bold;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .page-slider {
+            width: 120px;
+            cursor: pointer;
+            accent-color: var(--primary);
+            margin-left: 5px;
+        }
+
+        .score-wrapper {
+            text-align: center;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            overflow: visible;
+            width: 100%;
+            max-height: none;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .canvas-container {
+            display: flex;
+            justify-content: center; /* Centered for fit-to-screen */
+            gap: 10px;
+            align-items: flex-start;
+            width: fit-content;
+            margin: 0 auto;
+        }
+
+        canvas {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: width 0.3s ease;
+            background: white;
+        }
+
+        @keyframes fadePage {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+        
+        .page-fade {
+            animation: fadePage 0.4s ease-out;
+        }
+
+        #image-render {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            display: none;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+
+        :fullscreen .score-wrapper {
+            max-height: none;
+            height: auto;
+            overflow: auto;
+        }
+
+        :fullscreen .practice-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+            margin: 0;
+            padding: 12px;
+            box-sizing: border-box;
+            overflow: auto;
+        }
+
+        :fullscreen {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+
+        :fullscreen .practice-header {
+            flex: 0 0 auto;
+        }
+
+        :fullscreen .score-wrapper {
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        #pdf-container {
+            cursor: default;
+        }
+
+        /* UPDATED: Changed from absolute to fixed so they NEVER scroll away! */
+        .nav-side-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            color: var(--primary);
+            font-size: 32px;
+            padding: 40px 15px;
+            cursor: pointer;
+            border-radius: 12px;
+            z-index: 1000; /* High z-index to stay on top of everything */
+            backdrop-filter: blur(5px);
+            transition: all 0.2s ease;
+            display: none; 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-side-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .nav-side-left { left: 20px; }
+        .nav-side-right { right: 20px; }
+    </style>
+</head>
+
+<body>
+    <div class="practice-container" id="main-container">
+        <div class="practice-header">
+            <div class="header-row">
+                <div class="header-left">
+                    <div id="view-mode-controls" class="controls-group" style="display: none;">
+                        <button id="view-btn" class="btn" style="background:var(--accent); color:white;"
+                            onclick="toggleViewMode()">Single View</button>
+                        
+                        <select id="turn-mode-select" class="bpm-input" style="width: auto; font-size: 13px; display: none;">
+                            <option value="2">Turn 2 Pages (1-2 ➔ 3-4)</option>
+                            <option value="1">Shift 1 Page (1-2 ➔ 2-3)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="header-center">
+                    <h2 id="t-name" style="margin:0 0 5px 0; color: var(--primary);">Loading Score...</h2>
+                    <div id="clock"
+                        style="font-size:20px; font-family:monospace; color:var(--accent); font-weight:bold;">00:00
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div id="zoom-controls" class="controls-group" style="display: none;">
+                        <!-- NEW: Fit Screen Button -->
+                        <button class="btn" style="background:var(--accent); color:white;" onclick="fitToScreen()"
+                            title="Fit Window Size">Fit 🖵</button>
+                        <button class="btn" style="background:var(--primary); color:white;" onclick="zoomOut()"
+                            title="Zoom Out">Zoom Out -</button>
+                        <button class="btn" style="background:var(--primary); color:white;" onclick="zoomIn()"
+                            title="Zoom In">Zoom In +</button>
+                    </div>
+                </div>
+            </div>
+            <div class="header-row">
+                <div class="header-left">
+                    <div class="controls-group">
+                        <strong>Metronome</strong>
+                        <input type="number" id="bpm-input" class="bpm-input" value="120" min="40" max="250">
+                        <button id="metro-btn" class="btn" style="background:var(--info); color:white;"
+                            onclick="toggleMetronome()">▷</button>
+                    </div>
+                </div>
+                <div class="header-center">
+                    <div id="pagination-controls" class="controls-group" style="display: none; flex-wrap: wrap; justify-content: center;">
+                        <span style="font-weight:bold; font-size:16px; min-width: 80px; text-align: center;">
+                            Page <span id="page-num">0</span> / <span id="page-count">0</span>
+                        </span>
+                        <input type="range" id="page-slider" min="1" max="1" value="1" class="page-slider" 
+                            oninput="document.getElementById('page-num').textContent = this.value" 
+                            onchange="sliderTurnPage(this.value)" title="Slide to change page">
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="btn" style="background:var(--primary); color:white; font-size:15px;"
+                        onclick="toggleFullscreen()">⛶</button>
+                    <button class="btn" style="background:var(--danger); color:white; font-size:15px;"
+                        onclick="stopPractice()">End & Save</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="score-wrapper">
+            <button id="btn-prev-page" class="nav-side-btn nav-side-left" onclick="showPrevPage()" title="Previous Page">❮</button>
+            <button id="btn-next-page" class="nav-side-btn nav-side-right" onclick="showNextPage()" title="Next Page">❯</button>
+            
+            <div class="canvas-container" id="pdf-container">
+                <canvas id="pdf-render-left"></canvas>
+                <canvas id="pdf-render-right" style="display: none;"></canvas>
+            </div>
+            <img id="image-render" alt="Score Image">
+        </div>
+    </div>
+
+
+    <script>
+        const API = 'http://localhost:3000/api';
+        const token = localStorage.getItem('mutice_token') || "";
+        const urlParams = new URLSearchParams(window.location.search);
+        const scoreId = urlParams.get('id');
+
+        let scoreUrl = null;
+        let scoreTitle = 'Untitled Session';
+        let fullUrl = null;
+
+        let pdfDoc = null, pageNum = 1;
+        let currentScale = null, isDoublePage = false;
+        let practiceStartTime = Date.now();
+        let elapsedSeconds = 0;
+        let timerHandle = null;
+        let audioContext = null;
+        let metroHandle = null;
+        let metroPlaying = false;
+
+        const canvasL = document.querySelector('#pdf-render-left');
+        const canvasR = document.querySelector('#pdf-render-right');
+        const ctxL = canvasL.getContext('2d');
+        const ctxR = canvasR.getContext('2d');
+
+        const setPdfControlsVisible = (visible) => {
+            const display = visible ? 'flex' : 'none';
+            const btnDisplay = visible ? 'block' : 'none';
+            
+            const viewControls = document.getElementById('view-mode-controls');
+            const zoomControls = document.getElementById('zoom-controls');
+            const paginationControls = document.getElementById('pagination-controls');
+            const btnPrev = document.getElementById('btn-prev-page');
+            const btnNext = document.getElementById('btn-next-page');
+
+            if (viewControls) viewControls.style.display = display;
+            if (zoomControls) zoomControls.style.display = display;
+            if (paginationControls) paginationControls.style.display = display;
+            if (btnPrev) btnPrev.style.display = btnDisplay;
+            if (btnNext) btnNext.style.display = btnDisplay;
+        };
+
+        const rerenderCurrentPage = () => {
+            if (!pdfDoc) return;
+            currentScale = null;
+            renderPage(pageNum);
+        };
+
+        const resetPdfScroll = () => {
+            const fullscreenRoot = document.fullscreenElement || document.getElementById('main-container');
+            const wrapper = document.querySelector('.score-wrapper');
+            if (fullscreenRoot) {
+                fullscreenRoot.scrollTop = 0;
+                fullscreenRoot.scrollLeft = 0;
+            }
+            if (wrapper) {
+                wrapper.scrollTop = 0;
+                wrapper.scrollLeft = 0;
+            }
+        };
+
+        const updateClock = () => {
+            const totalSeconds = Math.floor((Date.now() - practiceStartTime) / 1000);
+            elapsedSeconds = totalSeconds;
+            const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            const clock = document.getElementById('clock');
+            if (clock) clock.textContent = `${minutes}:${seconds}`;
+        };
+
+        const startClock = () => {
+            updateClock();
+            if (timerHandle) clearInterval(timerHandle);
+            timerHandle = setInterval(updateClock, 1000);
+        };
+
+        function toggleViewMode() {
+            if (!pdfDoc) return;
+            isDoublePage = !isDoublePage;
+            currentScale = null;
+            
+            const viewBtn = document.getElementById('view-btn');
+            const turnModeSelect = document.getElementById('turn-mode-select');
+            
+            if (viewBtn) viewBtn.textContent = isDoublePage ? 'Double View' : 'Single View';
+            if (turnModeSelect) turnModeSelect.style.display = isDoublePage ? 'inline-block' : 'none';
+            
+            renderPage(pageNum);
+        }
+
+        function zoomIn() {
+            if (!pdfDoc) return;
+            currentScale = currentScale ? Math.min(currentScale + 0.2, 4) : 1.2;
+            renderPage(pageNum).then(resetPdfScroll);
+        }
+
+        function zoomOut() {
+            if (!pdfDoc) return;
+            currentScale = currentScale ? Math.max(currentScale - 0.2, 0.5) : 1;
+            renderPage(pageNum).then(resetPdfScroll);
+        }
+
+        // NEW: Function to manually snap back to perfect window size
+        function fitToScreen() {
+            if (!pdfDoc) return;
+            currentScale = null; // Setting to null forces exact recalculation
+            renderPage(pageNum).then(resetPdfScroll);
+        }
+
+        async function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+            } else {
+                await document.exitFullscreen();
+            }
+        }
+
+        // When entering/exiting fullscreen, FORCE exact scaling calculation
+        document.addEventListener('fullscreenchange', () => {
+            currentScale = null; // Resets scale to trigger math calculation
+            rerenderCurrentPage();
+            setTimeout(resetPdfScroll, 0);
+        });
+
+        window.addEventListener('resize', () => {
+            rerenderCurrentPage();
+        });
+
+        function stopMetronome() {
+            if (metroHandle) {
+                clearInterval(metroHandle);
+                metroHandle = null;
+            }
+            metroPlaying = false;
+            const metroBtn = document.getElementById('metro-btn');
+            if (metroBtn) metroBtn.textContent = '▷';
+            if (audioContext && audioContext.state !== 'closed') {
+                audioContext.close().catch(() => { });
+            }
+            audioContext = null;
+        }
+
+        function playClick() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.type = 'square';
+            oscillator.frequency.value = 880;
+            gainNode.gain.value = 0.05;
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.05);
+        }
+
+        function toggleMetronome() {
+            const bpmInput = document.getElementById('bpm-input');
+            const metroBtn = document.getElementById('metro-btn');
+            const bpm = Math.max(40, Math.min(250, Number(bpmInput?.value || 120)));
+            const interval = Math.round(60000 / bpm);
+
+            if (metroPlaying) {
+                stopMetronome();
+                return;
+            }
+            metroPlaying = true;
+            if (metroBtn) metroBtn.textContent = '⏹';
+            playClick();
+            metroHandle = setInterval(playClick, interval);
+        }
+
+        async function stopPractice() {
+            stopMetronome();
+            if (!scoreTitle) {
+                window.location.href = 'index.html';
+                return;
+            }
+            try {
+                const endBtn = document.querySelector('.header-right .btn-danger') || document.querySelector('button[onclick="stopPractice()"]');
+                if (endBtn) {
+                    endBtn.textContent = 'Saving...';
+                    endBtn.disabled = true;
+                }
+
+                const res = await fetch(`${API}/logs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        scoreTitle: scoreTitle,
+                        durationSeconds: elapsedSeconds, 
+                        durationMinutes: 0
+                    })
+                });
+
+                if (!res.ok) {
+                    const errData = await res.json();
+                    alert(`Save Failed \nReason: ${errData.message || 'Unknown Error'}`);
+                    
+                    if (res.status === 401 || res.status === 403) {
+                        window.location.href = 'auth.html';
+                        return; 
+                    }
+                }
+            } catch (err) {
+                console.error('Save practice failed:', err);
+                alert("Network error: Could not save practice.");
+            }
+            window.location.href = 'index.html';
+        }
+
+        const triggerPageAnimation = () => {
+            canvasL.classList.remove('page-fade');
+            canvasR.classList.remove('page-fade');
+            void canvasL.offsetWidth; 
+            canvasL.classList.add('page-fade');
+            canvasR.classList.add('page-fade');
+        }
+
+        const renderPage = async (num) => {
+            const page = await pdfDoc.getPage(num);
+
+            if (!currentScale) {
+                const viewport = page.getViewport({ scale: 1 });
+                let availableWidth, availableHeight;
+
+                // NEW: Smart Fit-to-Window Math Calculation
+                if (document.fullscreenElement) {
+                    const header = document.querySelector('.practice-header');
+                    const headerH = header ? header.offsetHeight : 0;
+                    // Maximize exact height and width, leaving room for header and side buttons
+                    availableHeight = window.innerHeight - headerH - 40; 
+                    availableWidth = window.innerWidth - 140; 
+                } else {
+                    const wrapperWidth = document.querySelector('.score-wrapper')?.clientWidth || 0;
+                    availableWidth = Math.max(wrapperWidth - 40, window.innerWidth * 0.9 - 40, 320);
+                    availableHeight = Math.max(window.innerHeight - 220, 320);
+                }
+
+                const targetWidth = isDoublePage ? availableWidth / 2.05 : availableWidth;
+                
+                // Calculates the exact scale needed to fit BOTH height and width perfectly
+                currentScale = Math.min(targetWidth / viewport.width, availableHeight / viewport.height);
+                
+                // Set a reasonable limit so tiny PDFs don't scale to 1000%
+                if (currentScale > 3) currentScale = 3; 
+            }
+
+            const viewport = page.getViewport({ scale: currentScale });
+            canvasL.height = viewport.height;
+            canvasL.width = viewport.width;
+
+            await page.render({ canvasContext: ctxL, viewport }).promise;
+
+            const pageNumEl = document.getElementById('page-num');
+            const pageCountEl = document.getElementById('page-count');
+            const pageSlider = document.getElementById('page-slider');
+
+            if (pageNumEl) pageNumEl.textContent = num;
+            if (pageCountEl) pageCountEl.textContent = pdfDoc.numPages;
+            
+            if (pageSlider) {
+                pageSlider.max = pdfDoc.numPages;
+                pageSlider.value = num;
+            }
+
+            if (isDoublePage && num + 1 <= pdfDoc.numPages) {
+                canvasR.style.display = 'block';
+                const page2 = await pdfDoc.getPage(num + 1);
+                const viewport2 = page2.getViewport({ scale: currentScale });
+
+                canvasR.height = viewport2.height;
+                canvasR.width = viewport2.width;
+
+                await page2.render({ canvasContext: ctxR, viewport: viewport2 }).promise;
+            } else {
+                canvasR.style.display = 'none';
+            }
+
+            triggerPageAnimation();
+        };
+
+        function sliderTurnPage(val) {
+            if (!pdfDoc) return;
+            pageNum = parseInt(val);
+            if (pageNum > pdfDoc.numPages) pageNum = pdfDoc.numPages;
+            if (pageNum < 1) pageNum = 1;
+            renderPage(pageNum).then(resetPdfScroll);
+        }
+
+        const showNextPage = () => {
+            if (pageNum >= pdfDoc.numPages) return;
+            let step = 1;
+            if (isDoublePage) {
+                const turnMode = document.getElementById('turn-mode-select')?.value || "2";
+                step = parseInt(turnMode);
+            }
+            pageNum += step;
+            if (pageNum > pdfDoc.numPages) pageNum = pdfDoc.numPages;
+            renderPage(pageNum).then(resetPdfScroll);
+        };
+
+        const showPrevPage = () => {
+            if (pageNum <= 1) return;
+            let step = 1;
+            if (isDoublePage) {
+                const turnMode = document.getElementById('turn-mode-select')?.value || "2";
+                step = parseInt(turnMode);
+            }
+            pageNum -= step;
+            if (pageNum < 1) pageNum = 1;
+            renderPage(pageNum).then(resetPdfScroll);
+        };
+
+        let scrollCooldown = false;
+
+        window.addEventListener('keydown', (e) => {
+            if (!pdfDoc) return;
+            if (e.target.tagName === 'INPUT') return;
+
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+                e.preventDefault();
+                showNextPage();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                showPrevPage();
+            }
+        });
+
+        const scoreWrapper = document.querySelector('.score-wrapper');
+        scoreWrapper.addEventListener('wheel', (e) => {
+            if (!pdfDoc) return;
+
+            if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                return; 
+            }
+
+            const isHorizontalScrollable = scoreWrapper.scrollWidth > scoreWrapper.clientWidth;
+
+            if (isHorizontalScrollable && e.deltaX !== 0) {
+                const atRight = Math.ceil(scoreWrapper.scrollLeft + scoreWrapper.clientWidth) >= scoreWrapper.scrollWidth - 2;
+                const atLeft = scoreWrapper.scrollLeft <= 2;
+
+                if (e.deltaX > 0 && !atRight) return; 
+                if (e.deltaX < 0 && !atLeft) return;  
+            }
+
+            e.preventDefault(); 
+
+            if (scrollCooldown) return;
+
+            if (e.deltaX > 40) {
+                scrollCooldown = true;
+                showNextPage();
+                setTimeout(() => scrollCooldown = false, 500);
+            } else if (e.deltaX < -40) {
+                scrollCooldown = true;
+                showPrevPage();
+                setTimeout(() => scrollCooldown = false, 500);
+            }
+        }, { passive: false });
+
+
+        window.onload = () => {
+            if (!scoreId) {
+                alert("No score! Redirecting to library...");
+                window.location.href = "index.html";
+                return;
+            }
+
+            startClock();
+
+            fetch(`${API}/scores/${scoreId}`)
+                .then(res => res.json())
+                .then(score => {
+                    if (!score || !score.url) throw new Error('Missing score');
+
+                    scoreUrl = score.url;
+                    scoreTitle = score.title || 'Untitled Session';
+                    fullUrl = scoreUrl.startsWith('http')
+                        ? scoreUrl
+                        : 'http://localhost:3000/' + scoreUrl;
+
+                    document.getElementById('t-name').innerText = scoreTitle;
+
+                    if (fullUrl.endsWith('.pdf')) {
+                        pdfjsLib.getDocument(fullUrl).promise.then(pdf => {
+                            pdfDoc = pdf;
+                            setPdfControlsVisible(true);
+                            document.getElementById('view-btn').textContent = 'Single View';
+                            renderPage(pageNum).then(resetPdfScroll);
+                        });
+                    } else {
+                        setPdfControlsVisible(false);
+                        document.getElementById('pdf-container').style.display = 'none';
+                        const img = document.getElementById('image-render');
+                        img.src = fullUrl;
+                        img.style.display = 'block';
+                    }
+                })
+                .catch(() => {
+                    alert("Score data not found in database!");
+                    window.location.href = 'index.html';
+                });
+        };
+    </script>
+</body>
+
+</html>

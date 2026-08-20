@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>MuTice</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60;
+            --bg: #f4f7f6;
+            --info: #3498db;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            color: #333;
+        }
+
+        .navbar {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        .nav-active {
+            background: rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid var(--info);
+        }
+
+        .nav-divider {
+            width: 1px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 0 5px;
+        }
+
+        .btn-account {
+            background: var(--accent);
+            color: white !important;
+            font-weight: bold;
+            padding: 8px 20px !important;
+            border-radius: 20px !important;
+            transition: 0.2s;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            padding-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            border-left: 6px solid var(--accent);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .progress-wrapper {
+            width: 100%;
+            background: #eee;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar {
+            height: 22px;
+            background: var(--accent);
+            width: 0%;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            line-height: 22px;
+            font-weight: bold;
+            transition: width 0.2s;
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        
+        .input-box:disabled {
+            background: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn-start {
+            background: var(--accent);
+            color: white;
+            width: 100%;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border-top: 5px solid var(--info);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card h3 {
+            margin-top: 0;
+            color: #555;
+            font-size: 16px;
+        }
+
+        .sort-btn {
+            padding: 8px 15px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            background: white;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .sort-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .logo:hover {
+            opacity: 0.8;
+            transform: scale(1.02);
+            transition: 0.2s;
+        }
+
+        #user-welcome {
+            animation: fadeIn 1s ease;
+        }
+
+        .profile-card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            max-width: 450px;
+            margin: 40px auto;
+            position: relative;
+        }
+
+        .avatar-wrapper {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            position: relative;
+            cursor: pointer;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background: var(--primary);
+        }
+
+        .profile-avatar {
+            width: 100%;
+            height: 100%;
+            color: white;
+            font-size: 40px;
+            line-height: 100px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 12px;
+            padding: 5px 0;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .avatar-wrapper:hover .avatar-overlay {
+            opacity: 1;
+        }
+
+        .profile-details {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .profile-details p {
+            margin: 12px 0;
+            font-size: 15px;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 8px;
+        }
+        
+        .profile-details p:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .edit-form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            text-align: left;
+            border: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div style="display: flex; align-items: center;">
+            <div class="logo" onclick="show('dashboard')" style="cursor: pointer; user-select: none;">
+                🎵<strong>MuTice</strong>🎶
+            </div>
+            
+            <div style="border-left: 1px solid rgba(255, 255, 255, 0.2); padding-left: 15px; margin-left: 15px; display: flex; align-items: center;">
+                <div id="nav-avatar-img" style="width: 32px; height: 32px; border-radius: 50%; background: white; overflow: hidden; display: none;">
+                    <img id="nav-avatar-src" src="" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div id="nav-avatar-text" style="width: 32px; height: 32px; border-radius: 50%; background: white; color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; display: none;">👤</div>
+                
+                <span id="user-welcome" style="margin-left: 10px; font-size: 16px; color: #ffffff; font-weight: bold;"></span>
+            </div>
+        </div>
+        <ul class="nav-links">
+            <li><a id="n-dash" onclick="show('dashboard')">Overview</a></li>
+            <li><a id="n-lib" onclick="show('library')">Library</a></li>
+            <li><a id="n-up" onclick="show('upload')">Upload</a></li>
+            <li><a id="n-prof" onclick="show('profile')">Profile</a></li>
+            <div class="nav-divider"></div>
+            <li id="auth-nav-item"></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div id="dashboard" class="section">
+            <h1>Dashboard</h1>
+            <div id="dash-content"></div>
+        </div>
+
+        <div id="library" class="section">
+            <h1>Score Library</h1>
+            <div style="background: white; padding: 12px 20px; border-radius: 12px; margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);">
+                <input type="text" id="s-input" class="input-box" style="margin: 0; padding: 0 15px; height: 40px; flex: 2; min-width: 150px;" placeholder="Search title..." oninput="filter()">
+                <select id="s-inst" class="input-box" style="margin: 0; padding: 0 15px; height: 40px; flex: 1; min-width: 150px;" onchange="filter()">
+                    <option value="All Instrument">All Instrument</option>
+                    <option value="Piano">Piano</option>
+                    <option value="Violin">Violin</option>
+                    <option value="Guitar">Guitar</option>
+                    <option value="Flute">Flute</option>
+                    <option value="Oboe">Oboe</option>
+                    <option value="Clarinet">Clarinet</option>
+                    <option value="Bass Clarinet">Bass Clarinet</option>
+                    <option value="Basson">Basson</option>
+                    <option value="Soprano Saxophone">Soprano Saxophone</option>
+                    <option value="Alto Saxophone">Alto Saxophone</option>
+                    <option value="Tenor Saxophone">Tenor Saxophone</option>
+                    <option value="Baritone Saxophone">Baritone Saxophone</option>
+                    <option value="Trumpet">Trumpet</option>
+                    <option value="French Horn">French Horn</option>
+                    <option value="Trombone">Trombone</option>
+                    <option value="Euphonium">Euphonium</option>
+                    <option value="Tuba">Tuba</option>
+                    <option value="Percussion">Percussion</option>
+                </select>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <button id="btn-fav-filter" class="sort-btn" style="height: 40px; margin: 0; padding: 0 15px;" onclick="toggleFavFilter()">🤍 Favorites</button>
+                    <div style="width: 1px; height: 24px; background: #ddd; margin: 0 5px;"></div>
+                    <span style="font-size: 14px; font-weight: bold; color: #888; margin-right: 2px;">Sort By:</span>
+                    <button id="sort-recent" class="sort-btn active" style="height: 40px; margin: 0; padding: 0 15px;" onclick="toggleSort('recent')">Recent</button>
+                    <button id="sort-title" class="sort-btn" style="height: 40px; margin: 0; padding: 0 15px;" onclick="toggleSort('title')">Song</button>
+                    <button id="sort-instrument" class="sort-btn" style="height: 40px; margin: 0; padding: 0 15px;" onclick="toggleSort('instrument')">Instrument</button>
+                </div>
+            </div>
+            <div id="score-list" class="grid"></div>
+        </div>
+
+        <div id="upload" class="section">
+            <h1>Upload Score</h1>
+            <form id="upForm" onsubmit="handleUpload(event); return false;"
+                style="background:white; padding:30px; border-radius:15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <p style="margin:0 0 5px 0;"><strong>Score Title:</strong></p>
+                <input type="text" id="u-title" class="input-box" placeholder="Title" required>
+
+                <p style="margin:0 0 5px 0;"><strong>Composer:</strong></p>
+                <input type="text" id="u-composer" class="input-box" placeholder="Composer Name">
+
+                <div style="display: flex; gap: 15px;">
+                    <div style="flex: 1;">
+                        <p style="margin:0 0 5px 0;"><strong>Instrument:</strong></p>
+                        <select id="u-inst" class="input-box">
+                            <option value="All Instrument">All Instrument</option>
+                            <option value="Piano">Piano</option>
+                            <option value="Violin">Violin</option>
+                            <option value="Guitar">Guitar</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <p style="margin:0 0 5px 0;"><strong>Difficulty:</strong></p>
+                        <select id="u-diff" class="input-box">
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed #ccc;">
+                    <p style="margin:0 0 5px 0; font-size: 13px;">Upload Local File (PDF or Image) max 1GB</p>
+                    <input type="file" id="u-file" accept="image/*,.pdf" style="display:block; margin-bottom:15px;" class="input-box">
+                </div>
+
+                <button type="submit" class="btn btn-start" id="upBtn">Upload to System</button>
+                <div id="progress-wrapper" class="progress-wrapper">
+                    <div id="progress-bar" class="progress-bar">0%</div>
+                </div>
+            </form>
+        </div>
+
+        <div id="profile" class="section">
+            <h1>User Profile</h1>
+            <div id="profile-content"></div>
+        </div>
+    </div>
+
+    <script>
+        const API = "http://localhost:3000/api";
+        const isLoggedIn = localStorage.getItem('mutice_logged_in') === 'true';
+        const token = localStorage.getItem('mutice_token') || "";
+        const currentUserId = Number(localStorage.getItem('mutice_user_id') || -1);
+        let currentUserName = String(localStorage.getItem('mutice_user') || '').trim();
+
+        let allScores = [];
+        let currentSort = 'recent';
+        let isDesc = true;
+        let myChart = null;
+        let uploadInProgress = false;
+        let showFavOnly = false; 
+
+        let pwVerifyTimer = null; 
+        let nameVerifyTimer = null;
+        let isNameValid = true; 
+        let isOldPwValid = false;
+
+        function initApp() {
+            try {
+                const authNav = document.getElementById('auth-nav-item');
+                if (authNav) {
+                    authNav.innerHTML = isLoggedIn ?
+                        `<a href="#" onclick="logout()" class="btn-account" style="background:var(--danger)">Logout</a>` :
+                        `<a href="auth.html" class="btn-account">👤 Login</a>`;
+                }
+                
+                updateNavbarUserDisplay();
+
+                const lastPage = localStorage.getItem('mutice_page') || 'dashboard';
+                show(lastPage);
+            } catch (error) { console.error("Init Error:", error); }
+        }
+
+        function updateNavbarUserDisplay() {
+            if (!isLoggedIn) return;
+            
+            const welcomeEl = document.getElementById('user-welcome');
+            if (welcomeEl) welcomeEl.innerText = `Welcome! ${currentUserName}`;
+
+            const savedAvatar = localStorage.getItem(`mutice_avatar_${currentUserId}`);
+            const navImgWrapper = document.getElementById('nav-avatar-img');
+            const navImgSrc = document.getElementById('nav-avatar-src');
+            const navTextWrapper = document.getElementById('nav-avatar-text');
+
+            if (savedAvatar) {
+                navImgSrc.src = savedAvatar;
+                navImgWrapper.style.display = 'block';
+                navTextWrapper.style.display = 'none';
+            } else {
+                navImgWrapper.style.display = 'none';
+                navTextWrapper.style.display = 'flex';
+                navTextWrapper.innerText = currentUserName ? currentUserName.charAt(0).toUpperCase() : '👤';
+            }
+        }
+
+        function logout() {
+            if (confirm("Are you sure you want to logout?")) {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
+
+        function show(id) {
+            if (!isLoggedIn && (id === 'upload' || id === 'profile')) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            
+            localStorage.setItem('mutice_page', id);
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            const target = document.getElementById(id);
+            if (target) target.style.display = 'block';
+
+            if (document.getElementById('n-dash')) document.getElementById('n-dash').className = (id === 'dashboard' ? 'nav-active' : '');
+            if (document.getElementById('n-lib')) document.getElementById('n-lib').className = (id === 'library' ? 'nav-active' : '');
+            if (document.getElementById('n-up')) document.getElementById('n-up').className = (id === 'upload' ? 'nav-active' : '');
+            if (document.getElementById('n-prof')) document.getElementById('n-prof').className = (id === 'profile' ? 'nav-active' : '');
+
+            if (id === 'dashboard') loadDash();
+            if (id === 'library') loadLib();
+            if (id === 'profile') loadProfile();
+        }
+
+        async function loadProfile() {
+            const content = document.getElementById('profile-content');
+            if (!content) return;
+
+            const savedAvatar = localStorage.getItem(`mutice_avatar_${currentUserId}`);
+            const initialChar = currentUserName ? currentUserName.charAt(0).toUpperCase() : '👤';
+
+            content.innerHTML = `
+                <div class="profile-card">
+                    <div class="avatar-wrapper" onclick="document.getElementById('prof-img-upload').click()">
+                        <img id="prof-avatar-img" class="profile-avatar-img" src="${savedAvatar || ''}" style="display: ${savedAvatar ? 'block' : 'none'};" />
+                        <div class="profile-avatar" id="prof-avatar-text" style="display: ${savedAvatar ? 'none' : 'flex'};">${initialChar}</div>
+                        <div class="avatar-overlay">📷 Change</div>
+                    </div>
+                    <input type="file" id="prof-img-upload" style="display:none" accept="image/*" onchange="handleAvatarUpload(event)">
+                    
+                    <h2 id="prof-name-display" style="margin-top: 0; color: var(--primary);">${currentUserName || 'User'}</h2>
+                    
+                    <button onclick="toggleEditForm()" class="btn" style="background:var(--info); color:white; font-size:12px; padding: 6px 15px;">✏️ Edit Profile</button>
+                    
+                    <div id="profile-edit-form" class="edit-form">
+                        <p style="margin: 0 0 5px 0; font-size: 13px;"><strong>Update Name:</strong></p>
+                        <div style="position: relative;">
+                            <input type="text" id="edit-name-input" class="input-box" value="${currentUserName}" placeholder="New Name" oninput="verifyNewName()" style="margin-bottom: 5px; padding-right: 40px;">
+                            <span id="name-verify-icon" style="position: absolute; right: 15px; top: 15px; font-size: 16px;"></span>
+                        </div>
+                        <div id="name-error-text" style="color: var(--danger); font-size: 12px; margin-bottom: 15px; display: none;"></div>
+                        
+                        <p style="margin: 15px 0 5px 0; font-size: 13px;"><strong>Change Password:</strong></p>
+                        <div style="position: relative;">
+                            <input type="password" id="edit-pw-old" class="input-box" placeholder="Current Password" oninput="verifyOldPassword()" style="margin-bottom: 5px; padding-right: 40px;">
+                            <span id="pw-verify-icon" style="position: absolute; right: 15px; top: 15px; font-size: 16px;"></span>
+                        </div>
+                        <div id="pw-error-text" style="color: var(--danger); font-size: 12px; margin-bottom: 15px; display: none;"></div>
+                        
+                        <input type="password" id="edit-pw-input" class="input-box" placeholder="New Password" disabled>
+                        <input type="password" id="edit-pw-confirm" class="input-box" placeholder="Confirm New Password" disabled>
+                        
+                        <div id="profile-status-msg" style="font-size: 13px; font-weight: bold; text-align: center; display: none; margin-bottom: 10px;"></div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button id="save-profile-btn" onclick="saveProfileDetails()" class="btn btn-start" style="flex: 1;">Save Changes</button>
+                            <button onclick="toggleEditForm()" class="btn" style="background:#ccc; flex: 1;">Cancel</button>
+                        </div>
+                    </div>
+
+                    <div class="profile-details">
+                        <p><strong>Account ID</strong> <span>#${currentUserId > 0 ? currentUserId : 'N/A'}</span></p>
+                        <p><strong>Lifetime Practice Time</strong> <span id="prof-total-time">Loading...</span></p>
+                        <p><strong>Lifetime Sessions</strong> <span id="prof-total-sessions">Loading...</span></p>
+                    </div>
+                </div>
+            `;
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/logs`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
+                if (!res.ok) throw new Error("Failed");
+                const logs = await res.json();
+                
+                const totalSeconds = logs.reduce((acc, log) => acc + (Number(log.durationSeconds) || 0), 0);
+                let totalMin = Math.round(totalSeconds / 60); 
+                if (totalSeconds > 0 && totalMin === 0) totalMin = 1; 
+
+                document.getElementById('prof-total-time').innerHTML = `<b>${totalMin}</b> mins`;
+                document.getElementById('prof-total-sessions').innerHTML = `<b>${logs.length}</b> sessions`;
+            } catch (err) {
+                document.getElementById('prof-total-time').innerText = "Data Unavailable";
+                document.getElementById('prof-total-sessions').innerText = "Data Unavailable";
+            }
+        }
+
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Str = e.target.result;
+                localStorage.setItem(`mutice_avatar_${currentUserId}`, base64Str);
+                
+                document.getElementById('prof-avatar-img').src = base64Str;
+                document.getElementById('prof-avatar-img').style.display = 'block';
+                document.getElementById('prof-avatar-text').style.display = 'none';
+                
+                updateNavbarUserDisplay();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function toggleEditForm() {
+            const form = document.getElementById('profile-edit-form');
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
+            
+            // Reset all fields
+            document.getElementById('edit-name-input').value = currentUserName;
+            document.getElementById('name-verify-icon').innerText = "";
+            document.getElementById('name-error-text').style.display = "none";
+            isNameValid = true;
+
+            document.getElementById('edit-pw-old').value = "";
+            document.getElementById('edit-pw-input').value = "";
+            document.getElementById('edit-pw-confirm').value = "";
+            document.getElementById('pw-verify-icon').innerText = "";
+            document.getElementById('pw-error-text').style.display = "none";
+            document.getElementById('edit-pw-input').disabled = true;
+            document.getElementById('edit-pw-confirm').disabled = true;
+            isOldPwValid = false;
+
+            document.getElementById('profile-status-msg').style.display = "none";
+        }
+
+        async function verifyNewName() {
+            const nameInput = document.getElementById('edit-name-input');
+            const newName = nameInput.value.trim();
+            const iconEl = document.getElementById('name-verify-icon');
+            const errorTextEl = document.getElementById('name-error-text');
+            const statusMsg = document.getElementById('profile-status-msg');
+
+            iconEl.innerText = "";
+            errorTextEl.style.display = "none";
+            statusMsg.style.display = "none";
+            clearTimeout(nameVerifyTimer);
+
+            if (!newName) {
+                isNameValid = false;
+                return;
+            }
+
+            if (newName === currentUserName) {
+                isNameValid = true;
+                return; 
+            }
+
+            nameVerifyTimer = setTimeout(async () => {
+                if (nameInput.value.trim() !== newName) return;
+
+                try {
+                    const latestToken = localStorage.getItem('mutice_token') || token;
+                    const res = await fetch(`${API}/users/check-username`, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${latestToken}` 
+                        },
+                        body: JSON.stringify({ username: newName })
+                    });
+                    
+                    if (nameInput.value.trim() !== newName) return;
+                    if (!res.ok) throw new Error("Server Error");
+
+                    const data = await res.json();
+                    
+                    if (data.isAvailable) {
+                        iconEl.innerText = "✅";
+                        errorTextEl.style.display = "none";
+                        isNameValid = true;
+                    } else {
+                        iconEl.innerText = "❌";
+                        errorTextEl.innerText = "This username is already taken.";
+                        errorTextEl.style.display = "block";
+                        isNameValid = false;
+                    }
+                } catch (e) {
+                    if (nameInput.value.trim() !== newName) return;
+                    iconEl.innerText = "❌";
+                    errorTextEl.innerText = "Check failed. Please verify connection.";
+                    errorTextEl.style.display = "block";
+                    isNameValid = false;
+                }
+            }, 1000); 
+        }
+
+        async function verifyOldPassword() {
+            const oldPwInput = document.getElementById('edit-pw-old');
+            const oldPw = oldPwInput.value;
+            const iconEl = document.getElementById('pw-verify-icon');
+            const errorTextEl = document.getElementById('pw-error-text');
+            const newPwInput = document.getElementById('edit-pw-input');
+            const confirmPwInput = document.getElementById('edit-pw-confirm');
+            const statusMsg = document.getElementById('profile-status-msg');
+
+            iconEl.innerText = "";
+            errorTextEl.style.display = "none";
+            statusMsg.style.display = "none";
+            newPwInput.disabled = true;
+            confirmPwInput.disabled = true;
+            isOldPwValid = false;
+            clearTimeout(pwVerifyTimer);
+
+            if (!oldPw) {
+                newPwInput.value = "";
+                confirmPwInput.value = "";
+                return;
+            }
+
+            pwVerifyTimer = setTimeout(async () => {
+                if (!oldPwInput.value) return;
+
+                try {
+                    const latestToken = localStorage.getItem('mutice_token') || token;
+                    const res = await fetch(`${API}/users/verify-password`, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${latestToken}` 
+                        },
+                        body: JSON.stringify({ password: oldPw })
+                    });
+                    
+                    if (oldPwInput.value !== oldPw) return;
+                    if (!res.ok) throw new Error("Server Error");
+
+                    const data = await res.json();
+                    
+                    if (data.isValid) {
+                        iconEl.innerText = "✅";
+                        errorTextEl.style.display = "none";
+                        newPwInput.disabled = false;
+                        confirmPwInput.disabled = false;
+                        isOldPwValid = true;
+                    } else {
+                        iconEl.innerText = "❌";
+                        errorTextEl.innerText = "Incorrect current password.";
+                        errorTextEl.style.display = "block";
+                        
+                        newPwInput.disabled = true;
+                        confirmPwInput.disabled = true;
+                        newPwInput.value = "";
+                        confirmPwInput.value = "";
+                        isOldPwValid = false;
+                    }
+                } catch (e) {
+                    if (oldPwInput.value !== oldPw) return;
+                    iconEl.innerText = "❌";
+                    errorTextEl.innerText = "Verification failed. Please check your connection.";
+                    errorTextEl.style.display = "block";
+                    isOldPwValid = false;
+                }
+            }, 1000); 
+        }
+
+        function displayProfileStatus(msg, isError) {
+            const statusEl = document.getElementById('profile-status-msg');
+            statusEl.innerText = msg;
+            statusEl.style.color = isError ? "var(--danger)" : "var(--accent)";
+            statusEl.style.display = "block";
+        }
+
+        async function saveProfileDetails() {
+            const newName = document.getElementById('edit-name-input').value.trim();
+            const oldPw = document.getElementById('edit-pw-old').value;
+            const newPw = document.getElementById('edit-pw-input').value;
+            const confirmPw = document.getElementById('edit-pw-confirm').value;
+            const btn = document.getElementById('save-profile-btn');
+
+            document.getElementById('profile-status-msg').style.display = "none";
+
+            if (!newName) {
+                displayProfileStatus("Name cannot be empty.", true);
+                return;
+            }
+
+            if (!isNameValid) {
+                displayProfileStatus("Please provide a valid, available username.", true);
+                return;
+            }
+
+            if (oldPw || newPw || confirmPw) {
+                if (!isOldPwValid) {
+                    displayProfileStatus("Please verify your current password first.", true);
+                    return;
+                }
+                if (newPw !== confirmPw) {
+                    displayProfileStatus("New passwords do not match.", true);
+                    return;
+                }
+                if (newPw.length < 6) {
+                    displayProfileStatus("New password must be at least 6 characters.", true);
+                    return;
+                }
+            }
+
+            if (newName === currentUserName && !newPw) {
+                displayProfileStatus("No changes detected.", true);
+                setTimeout(() => toggleEditForm(), 1500);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Saving...";
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                
+                const res = await fetch(`${API}/users/update`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${latestToken}`,
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({
+                        username: newName !== currentUserName ? newName : undefined,
+                        password: newPw ? newPw : undefined,
+                        oldPassword: oldPw ? oldPw : undefined
+                    })
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok) {
+                    displayProfileStatus(`Failed: ${data.message || 'Error occurred'}`, true);
+                    btn.disabled = false;
+                    btn.innerText = "Save Changes";
+                    return;
+                }
+
+                if (newName && newName !== currentUserName) {
+                    currentUserName = newName;
+                    localStorage.setItem('mutice_user', newName);
+                    document.getElementById('prof-name-display').innerText = newName;
+                    document.getElementById('prof-avatar-text').innerText = newName.charAt(0).toUpperCase();
+                    updateNavbarUserDisplay();
+                }
+
+                displayProfileStatus("✅ Profile successfully updated!", false);
+                
+                // Clear password fields on success
+                document.getElementById('edit-pw-old').value = "";
+                document.getElementById('edit-pw-input').value = "";
+                document.getElementById('edit-pw-confirm').value = "";
+                document.getElementById('pw-verify-icon').innerText = "";
+                document.getElementById('edit-pw-input').disabled = true;
+                document.getElementById('edit-pw-confirm').disabled = true;
+                isOldPwValid = false;
+
+                setTimeout(() => {
+                    toggleEditForm();
+                }, 1500);
+
+            } catch (err) {
+                displayProfileStatus("Server connection failed.", true);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Save Changes";
+            }
+        }
+
+        async function loadDash() {
+            const content = document.getElementById('dash-content');
+            if (!content) return;
+            if (!isLoggedIn) {
+                content.innerHTML = `<div style="text-align:center; padding:50px;"><h2>Welcome to MuTice!</h2><button class="btn btn-account" onclick="window.location.href='auth.html'">Login Now</button></div>`;
+                return;
+            }
+            
+            content.innerHTML = `
+            <div class="stats-grid">
+                <div class="stat-card" style="border-top-color: var(--accent);">
+                    <h3 id="dash-min-title">Minutes</h3>
+                    <div id="total-time" style="font-size:32px; font-weight:bold; color: var(--accent);">0</div>
+                </div>
+                <div class="stat-card" style="border-top-color: var(--info);">
+                    <h3 id="dash-ses-title">Sessions</h3>
+                    <div id="total-sessions" style="font-size:32px; font-weight:bold; color: var(--info);">0</div>
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
+                <div style="flex: 2; min-width: 300px; background:white; padding:20px; border-radius:12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <h3 style="margin-top:0; color:#555;">📊 Practice Summary</h3>
+                    <div style="position: relative; height: 300px; width: 100%;"><canvas id="practiceChart"></canvas></div>
+                </div>
+                <div style="flex: 1; min-width: 300px; background:white; padding:20px; border-radius:12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <h3 style="margin-top:0; color:#555;">🕒 Recent Activity</h3>
+                    <div id="practice-songs" style="max-height: 300px; overflow-y: auto; padding-right: 5px;"></div>
+                </div>
+            </div>`;
+
+            function parsePracticeDate(dateValue) {
+                if (dateValue instanceof Date && !isNaN(dateValue.getTime()) && dateValue.getFullYear() > 1970) {
+                    return dateValue;
+                }
+                const text = String(dateValue || '').trim();
+                if (!text) return null;
+                if (text.includes('T') || text.includes('-')) {
+                    const isoDate = new Date(text);
+                    if (!isNaN(isoDate.getTime()) && isoDate.getFullYear() > 1970) return isoDate;
+                }
+                const match = text.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:,\s*(\d{1,2}):(\d{2}):(\d{2}))?$/);
+                if (!match) return null;
+                const [, dd, mm, yyyy, hh = '00', mi = '00', ss = '00'] = match;
+                const parsed = new Date(`${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}T${hh.padStart(2, '0')}:${mi}:${ss}`);
+                if (isNaN(parsed.getTime()) || parsed.getFullYear() <= 1970) return null;
+                return parsed;
+            }
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/logs`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
+                if (!res.ok) return;
+                const logs = await res.json();
+                const now = new Date();
+
+                const filtered = logs.filter(log => {
+                    const d = parsePracticeDate(log.date);
+                    if (!d) return false;
+                    if (d.getFullYear() > now.getFullYear() || (d.getFullYear() === now.getFullYear() && d.getMonth() > now.getMonth())) return false;
+                    return true;
+                });
+
+                const sortedLogsDesc = [...filtered].sort((a, b) => {
+                    return parsePracticeDate(b.date) - parsePracticeDate(a.date);
+                });
+
+                const currentMonthLogs = filtered.filter(log => {
+                    const d = parsePracticeDate(log.date);
+                    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+                });
+
+                const totalSeconds = currentMonthLogs.reduce((acc, log) => acc + (Number(log.durationSeconds) || 0), 0);
+                let totalMin = Math.round(totalSeconds / 60); 
+                if (totalSeconds > 0 && totalMin === 0) totalMin = 1; 
+
+                document.getElementById('total-time').innerText = totalMin;
+                document.getElementById('total-sessions').innerText = currentMonthLogs.length;
+
+                const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                const currentMonthName = monthNames[now.getMonth()];
+                document.getElementById('dash-min-title').innerText = `${currentMonthName} Practical Time (minutes)`;
+                document.getElementById('dash-ses-title').innerText = `${currentMonthName} Practice Sessions`;
+
+                const topRecent = sortedLogsDesc.slice(0, 7); 
+                let recentHtml = '';
+                
+                if (topRecent.length === 0) {
+                    recentHtml = `<div style="text-align:center; color:#999; margin-top: 50px;">No practice records yet.<br>Go play some music! 🎵</div>`;
+                } else {
+                    topRecent.forEach(log => {
+                        const d = parsePracticeDate(log.date);
+                        const dateStr = d ? d.toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12: false }) : 'Unknown Date';
+                        
+                        const sec = Number(log.durationSeconds) || 0;
+                        const m = Math.floor(sec / 60);
+                        const s = sec % 60;
+                        const timeStr = m > 0 ? `${m}m ${s}s` : `${s}s`;
+
+                        recentHtml += `
+                        <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px dashed #eee;">
+                            <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 10px;">
+                                <strong style="color:var(--primary); font-size: 14px;">${log.scoreTitle || 'Unknown Score'}</strong>
+                                <div style="font-size:12px; color:#888; margin-top: 3px;">${dateStr}</div>
+                            </div>
+                            <div style="color:var(--accent); font-weight:bold; font-size: 14px; align-self:center; white-space: nowrap;">
+                                ${timeStr}
+                            </div>
+                        </div>`;
+                    });
+                }
+                document.getElementById('practice-songs').innerHTML = recentHtml;
+
+                const monthlySeconds = {};
+                filtered.forEach(log => {
+                    const d = parsePracticeDate(log.date);
+                    const mY = d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                    monthlySeconds[mY] = (monthlySeconds[mY] || 0) + (Number(log.durationSeconds) || 0);
+                });
+
+                const sortedLabels = Object.keys(monthlySeconds).sort((a, b) => new Date(a) - new Date(b));
+                const sortedData = sortedLabels.map(label => {
+                    const sec = monthlySeconds[label];
+                    let min = Math.round(sec / 60);
+                    if (sec > 0 && min === 0) min = 1; 
+                    return min;
+                });
+
+                setTimeout(() => { renderChart(sortedLabels, sortedData); }, 50);
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderChart(l, d) {
+            const canvas = document.getElementById('practiceChart');
+            if (!canvas) return;
+            if (myChart) myChart.destroy();
+            myChart = new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: { labels: l, datasets: [{ label: 'Minutes', data: d, backgroundColor: '#3498db', borderRadius: 5 }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        async function handleUpload(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            if (uploadInProgress) return;
+
+            const titleInput = document.getElementById('u-title').value;
+            const composerInput = (document.getElementById('u-composer')?.value || '').trim() || 'Unknown Composer';
+            const fileInput = document.getElementById('u-file').files[0];
+
+            if (!titleInput || !fileInput) {
+                // We keep standard system alerts for major file upload blocks to stop execution
+                alert("Please provide a Score Title and select a file!");
+                return;
+            }
+
+            const ext = (fileInput.name.split('.').pop() || '').toLowerCase();
+            const allowedExt = ['pdf', 'jpg', 'jpeg', 'png'];
+            if (!allowedExt.includes(ext)) {
+                alert('Only PDF, JPG, JPEG, PNG files are allowed.');
+                return;
+            }
+
+            const maxSize = 1024 * 1024 * 1024;
+            if (fileInput.size > maxSize) {
+                alert('File too large. Maximum size is 1GB.');
+                return;
+            }
+
+            const btn = document.getElementById('upBtn');
+            const progWrapper = document.getElementById('progress-wrapper');
+            const progBar = document.getElementById('progress-bar');
+
+            const formData = new FormData();
+            formData.append('title', titleInput);
+            formData.append('composer', composerInput);
+            formData.append('instrument', document.getElementById('u-inst').value);
+            formData.append('difficulty', document.getElementById('u-diff').value);
+            formData.append('scoreFile', fileInput);
+
+            uploadInProgress = true;
+            btn.disabled = true;
+            btn.innerText = "Uploading... Please wait";
+            progWrapper.style.display = 'block';
+            progBar.style.width = '50%';
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${latestToken}` },
+                    body: formData
+                });
+                
+                const rawText = await res.text();
+                let data = {};
+                try {
+                    data = rawText ? JSON.parse(rawText) : {};
+                } catch (parseError) {
+                    data = { message: rawText };
+                }
+
+                if (res.ok) {
+                    progBar.style.width = '100%';
+                    alert("Upload Successful!");
+                    document.getElementById('upForm').reset();
+                    show('library');
+                } else {
+                    alert(`Upload Failed (${res.status}): ` + (data.message || "Error"));
+                }
+            } catch (err) {
+                alert("Server Connection Failed: " + (err?.message || "Unknown error"));
+            } finally {
+                uploadInProgress = false;
+                btn.disabled = false;
+                btn.innerText = "Upload to System";
+                setTimeout(() => { progWrapper.style.display = 'none'; }, 1000);
+            }
+        }
+
+        async function loadLib() {
+            try {
+                const res = await fetch(`${API}/scores`);
+                allScores = await res.json();
+                filter();
+            } catch (e) { }
+        }
+
+        function popup(msg) {
+            alert(msg);
+        }
+
+        function canDeleteScore(score) {
+            if (!isLoggedIn || !score) return false;
+            const ownerId = Number(score.uploader_id || 0);
+            if (ownerId > 0 && currentUserId > 0) {
+                return ownerId === currentUserId;
+            }
+            if (ownerId <= 0 && currentUserName) {
+                return String(score.uploader || '').trim() === currentUserName;
+            }
+            return false;
+        }
+
+        async function removeScore(id) {
+            const confirmDelete = confirm("Are you sure you want to delete this score?");
+            if (!confirmDelete) return;
+
+            const target = allScores.find(s => Number(s.id) === Number(id));
+            const ownerId = Number(target?.uploader_id || 0);
+            if (target && ownerId && currentUserId && ownerId !== currentUserId) {
+                popup("This is not your file. You cannot delete it.");
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('mutice_token') || "";
+                const res = await fetch(`${API}/scores/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (res.ok && data.success) {
+                    await loadLib();
+                    const stillExists = allScores.some(s => Number(s.id) === Number(id));
+                    if (stillExists) {
+                        popup("Delete failed: This is not your file. You cannot delete it.");
+                    } else {
+                        popup("Delete successful!");
+                    }
+                } else if (res.status === 403) {
+                    popup(data.message || "This is not your file. You cannot delete it.");
+                } else if (res.status === 404) {
+                    popup(data.message || "File not found.");
+                } else {
+                    popup("Delete failed: " + (data.message || "Not allowed"));
+                }
+            } catch (err) {
+                popup("Server error: " + err.message);
+            }
+        }
+
+        function getFavs() {
+            if (!isLoggedIn) return [];
+            return JSON.parse(localStorage.getItem(`mutice_fav_${currentUserId}`) || '[]');
+        }
+
+        function toggleFav(e, id) {
+            e.stopPropagation(); 
+            if (!isLoggedIn) { 
+                alert('Please login to save favorites!'); 
+                return; 
+            }
+            let favs = getFavs();
+            if (favs.includes(id)) {
+                favs = favs.filter(f => f !== id);
+            } else {
+                favs.push(id); 
+            }
+            localStorage.setItem(`mutice_fav_${currentUserId}`, JSON.stringify(favs));
+            filter(); 
+        }
+
+        function toggleFavFilter() {
+            showFavOnly = !showFavOnly;
+            const btn = document.getElementById('btn-fav-filter');
+            if (showFavOnly) {
+                btn.classList.add('active');
+                btn.innerText = '❤️ Favorites';
+            } else {
+                btn.classList.remove('active');
+                btn.innerText = '🤍 Favorites';
+            }
+            filter();
+        }
+
+        function toggleSort(type) {
+            if (currentSort === type) isDesc = !isDesc;
+            else { currentSort = type; isDesc = (type === 'recent'); }
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                if (btn.id !== 'btn-fav-filter') { 
+                    btn.classList.remove('active'); 
+                    btn.innerText = btn.innerText.replace(/ ⬆| ⬇/g, ''); 
+                }
+            });
+            const btn = document.getElementById(`sort-${type}`);
+            if (btn) { btn.classList.add('active'); btn.innerText += isDesc ? ' ⬇' : ' ⬆'; }
+            filter();
+        }
+
+        function filter() {
+            const q = document.getElementById('s-input').value.toLowerCase();
+            const inst = document.getElementById('s-inst').value;
+            const favs = getFavs();
+
+            let data = allScores.filter(s => {
+                const titleMatch = s.title.toLowerCase().includes(q);
+                const instMatch = (inst === 'all') || (s.instrument === inst) || (inst === 'All Instrument');
+                const favMatch = showFavOnly ? favs.includes(s.id) : true;
+                return titleMatch && instMatch && favMatch;
+            });
+
+            data.sort((a, b) => {
+                let res = 0;
+                if (currentSort === 'recent') res = a.id - b.id;
+                else if (currentSort === 'title') res = a.title.localeCompare(b.title);
+                else if (currentSort === 'instrument') {
+                    res = (a.instrument || "").localeCompare(b.instrument || "");
+                    if (res === 0) res = a.title.localeCompare(b.title);
+                }
+                return isDesc ? -res : res;
+            });
+            render(data);
+        }
+
+        function render(data) {
+            const list = document.getElementById('score-list');
+            if (!list) return;
+            const favs = getFavs(); 
+
+            list.innerHTML = data.map(i => {
+                const isFav = favs.includes(i.id);
+                return `
+            <div class="card" onclick="goToPractice(${i.id})">
+                <div style="position: relative;">
+                    <div style="position: absolute; top: -5px; right: -5px; cursor: pointer; font-size: 22px; user-select: none; transition: transform 0.2s;" 
+                         onclick="toggleFav(event, ${i.id})" title="Add to Favorites" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                        ${isFav ? '❤️' : '🤍'}
+                    </div>
+                    
+                    <h3 style="margin-right: 25px;">${i.title}</h3>
+                    <p><strong>Composer:</strong> ${i.composer || 'Unknown'}</p>
+                    <p style="font-size: 12px; color: #7f8c8d;">${i.instrument} | ${i.difficulty}</p>
+                    <p style="font-size: 11px; color: #95a5a6; margin-top: 5px;">👤 Uploaded by: ${i.uploader || 'System'}</p>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-start">Start Practice</button>
+                    ${canDeleteScore(i) ? `<button class="btn" style="background:var(--danger); color:white; flex:1;"onclick="event.stopPropagation(); removeScore(${i.id})">🗑️</button>` : ''}
+                </div>
+            </div>`}).join('');
+        }
+
+        function goToPractice(id) {
+            if (!isLoggedIn) { window.location.href = 'auth.html'; }
+            else window.location.href = `practice.html?id=${encodeURIComponent(id)}`;
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+
+</html>
