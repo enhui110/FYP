@@ -318,23 +318,26 @@
             border: 1px solid #eee;
         }
 
-        /* 模态窗样式 */
         .modal-overlay {
             display: none;
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: rgba(0, 0, 0, 0.5);
             z-index: 1000;
             align-items: center;
             justify-content: center;
         }
+
         .modal-content {
             background: white;
             padding: 30px;
             border-radius: 12px;
             width: 350px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             animation: fadeIn 0.3s ease;
         }
     </style>
@@ -427,20 +430,31 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h1>Private Groups</h1>
                 <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-start" onclick="openCreateGroupModal()">➕ Create Group</button>
-                    <button class="btn" style="background:var(--info); color:white;" onclick="openJoinGroupModal()">🔑 Join with Code</button>
+                    <button class="btn btn-start" onclick="openCreateGroupModal()">Create Group</button>
+                    <button class="btn" style="background:var(--info); color:white;" onclick="openJoinGroupModal()">Join
+                        with Code</button>
                 </div>
             </div>
-            
+
             <h3 style="color: var(--primary);">My Groups</h3>
             <div id="groups-list" class="grid"></div>
 
             <hr style="border: 0; border-top: 1px solid #ddd; margin: 40px 0;">
 
-            <div id="group-detail-view" style="display: none; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
+            <div id="group-detail-view"
+                style="display: none; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
                     <h2 id="gd-title" style="margin: 0; color: var(--primary);">Group Name</h2>
-                    <p style="margin: 0; font-size: 16px;">Invite Code: <strong id="gd-code" style="color: var(--accent); background: #e8f8f5; padding: 5px 10px; border-radius: 5px;"></strong></p>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <p style="margin: 0; font-size: 16px;">Invite Code: <strong id="gd-code"
+                                style="color: var(--accent); background: #e8f8f5; padding: 5px 10px; border-radius: 5px;"></strong>
+                        </p>
+                        <!-- 退出小组按钮 -->
+                        <button id="gd-leave-btn" class="btn"
+                            style="background: var(--danger); color: white; padding: 6px 15px; font-size: 14px;">🚪
+                            Leave Group</button>
+                    </div>
                 </div>
                 <h3>Shared Scores in this Group</h3>
                 <div id="gd-scores" class="grid"></div>
@@ -465,6 +479,21 @@
                             <option value="Piano">Piano</option>
                             <option value="Violin">Violin</option>
                             <option value="Guitar">Guitar</option>
+                            <option value="Flute">Flute</option>
+                            <option value="Oboe">Oboe</option>
+                            <option value="Clarinet">Clarinet</option>
+                            <option value="Bass Clarinet">Bass Clarinet</option>
+                            <option value="Basson">Basson</option>
+                            <option value="Soprano Saxophone">Soprano Saxophone</option>
+                            <option value="Alto Saxophone">Alto Saxophone</option>
+                            <option value="Tenor Saxophone">Tenor Saxophone</option>
+                            <option value="Baritone Saxophone">Baritone Saxophone</option>
+                            <option value="Trumpet">Trumpet</option>
+                            <option value="French Horn">French Horn</option>
+                            <option value="Trombone">Trombone</option>
+                            <option value="Euphonium">Euphonium</option>
+                            <option value="Tuba">Tuba</option>
+                            <option value="Percussion">Percussion</option>
                         </select>
                     </div>
                     <div style="flex: 1;">
@@ -504,7 +533,8 @@
             <select id="share-group-select" class="input-box"></select>
             <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <button class="btn btn-start" style="flex: 1;" onclick="submitShareScore()">Share</button>
-                <button class="btn" style="background: #ccc; flex: 1;" onclick="closeModal('share-modal')">Cancel</button>
+                <button class="btn" style="background: #ccc; flex: 1;"
+                    onclick="closeModal('share-modal')">Cancel</button>
             </div>
         </div>
     </div>
@@ -516,7 +546,8 @@
             <input type="text" id="new-group-name" class="input-box" placeholder="e.g. My Band, Piano Class">
             <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <button class="btn btn-start" style="flex: 1;" onclick="submitCreateGroup()">Create</button>
-                <button class="btn" style="background: #ccc; flex: 1;" onclick="closeModal('create-group-modal')">Cancel</button>
+                <button class="btn" style="background: #ccc; flex: 1;"
+                    onclick="closeModal('create-group-modal')">Cancel</button>
             </div>
         </div>
     </div>
@@ -525,10 +556,13 @@
         <div class="modal-content">
             <h3 style="margin-top: 0;">Join Group</h3>
             <p style="font-size: 14px; color: #666;">Enter the 6-character Invite Code:</p>
-            <input type="text" id="join-group-code" class="input-box" placeholder="e.g. A1B2C3" style="text-transform: uppercase;">
+            <input type="text" id="join-group-code" class="input-box" placeholder="e.g. A1B2C3"
+                style="text-transform: uppercase;">
             <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button class="btn" style="background: var(--info); color: white; flex: 1;" onclick="submitJoinGroup()">Join</button>
-                <button class="btn" style="background: #ccc; flex: 1;" onclick="closeModal('join-group-modal')">Cancel</button>
+                <button class="btn" style="background: var(--info); color: white; flex: 1;"
+                    onclick="submitJoinGroup()">Join</button>
+                <button class="btn" style="background: #ccc; flex: 1;"
+                    onclick="closeModal('join-group-modal')">Cancel</button>
             </div>
         </div>
     </div>
@@ -629,7 +663,7 @@
                 const latestToken = localStorage.getItem('mutice_token') || token;
                 const res = await fetch(`${API}/my-groups`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
                 myGroupsList = await res.json();
-                
+
                 const list = document.getElementById('groups-list');
                 if (myGroupsList.length === 0) {
                     list.innerHTML = `<p style="color:#888;">You haven't joined any groups yet.</p>`;
@@ -650,6 +684,7 @@
             document.getElementById(modalId).style.display = 'none';
         }
 
+        // --- Create Group Modal Logic ---
         function openCreateGroupModal() {
             document.getElementById('new-group-name').value = '';
             document.getElementById('create-group-modal').style.display = 'flex';
@@ -677,7 +712,6 @@
             } catch (err) { alert("Server error"); }
         }
 
-        // --- Join Group Modal Logic ---
         function openJoinGroupModal() {
             document.getElementById('join-group-code').value = '';
             document.getElementById('join-group-modal').style.display = 'flex';
@@ -705,10 +739,32 @@
             } catch (err) { alert("Server error"); }
         }
 
+        async function leaveGroup(groupId) {
+            if (!confirm("Are you sure you want to leave this group?")) return;
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/groups/${groupId}/leave`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${latestToken}` }
+                });
+                const data = await res.json();
+                alert(data.message);
+
+                if (data.success) {
+                    document.getElementById('group-detail-view').style.display = 'none';
+                    loadGroups(); // 重新加载小组列表
+                }
+            } catch (err) { alert("Server error"); }
+        }
+
         async function openGroupDetail(groupId, groupName, inviteCode) {
             document.getElementById('group-detail-view').style.display = 'block';
             document.getElementById('gd-title').innerText = groupName;
             document.getElementById('gd-code').innerText = inviteCode;
+
+            // 绑定退出小组按钮的事件
+            document.getElementById('gd-leave-btn').onclick = () => leaveGroup(groupId);
 
             const scoresContainer = document.getElementById('gd-scores');
             scoresContainer.innerHTML = `<p>Loading scores...</p>`;
@@ -1266,12 +1322,11 @@
             try {
                 const res = await fetch(`${API}/scores`);
                 allScores = await res.json();
-                
-                // 为了分享功能，顺便加载一下用户的 groups 列表
+
                 if (isLoggedIn && myGroupsList.length === 0) {
                     const latestToken = localStorage.getItem('mutice_token') || token;
                     const groupRes = await fetch(`${API}/my-groups`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
-                    if(groupRes.ok) myGroupsList = await groupRes.json();
+                    if (groupRes.ok) myGroupsList = await groupRes.json();
                 }
 
                 filter();
@@ -1331,7 +1386,7 @@
                     headers: { 'Authorization': `Bearer ${latestToken}` },
                     body: formData
                 });
-                
+
                 const rawText = await res.text();
                 let data = {};
                 try {

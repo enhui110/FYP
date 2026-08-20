@@ -875,6 +875,26 @@ app.get('/api/groups/:groupId/scores', authGuard, async (req, res) => {
     }
 });
 
+// 6. LEAVE GROUP
+app.delete('/api/groups/:groupId/leave', authGuard, async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const userId = req.user.id;
+
+        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, userId]);
+        if (member.length === 0) {
+            return res.status(400).json({ success: false, message: "You are not a member of this group." });
+        }
+
+        await db.query('DELETE FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, userId]);
+
+        res.json({ success: true, message: "You have successfully left the group." });
+    } catch (err) {
+        console.error('Leave group error:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 // ================= START =================
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
