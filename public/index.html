@@ -524,6 +524,18 @@
         </div>
     </div>
 
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="confirm-title" style="margin-top: 0; color: var(--danger);">Confirm</h3>
+            <p id="confirm-msg" style="font-size: 15px; color: #555;">Are you sure?</p>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button id="confirm-yes-btn" class="btn" style="background: var(--danger); color: white; flex: 1;">Yes</button>
+                <button class="btn" style="background: #ccc; flex: 1;" onclick="closeModal('confirm-modal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分享到小组 -->
     <div id="share-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top: 0;">Share Score to Group</h3>
@@ -550,6 +562,7 @@
         </div>
     </div>
 
+    <!-- 加入小组 -->
     <div id="join-group-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top: 0;">Join Group</h3>
@@ -625,11 +638,27 @@
             }
         }
 
+        function showConfirmModal(title, message, onConfirm) {
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-msg').innerText = message;
+            
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            const newYesBtn = yesBtn.cloneNode(true);
+            yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+            
+            newYesBtn.onclick = () => {
+                closeModal('confirm-modal');
+                onConfirm();
+            };
+            
+            document.getElementById('confirm-modal').style.display = 'flex';
+        }
+
         function logout() {
-            if (confirm("Are you sure you want to logout?")) {
+            showConfirmModal("Logout", "Are you sure you want to logout?", () => {
                 localStorage.clear();
                 window.location.href = 'index.html';
-            }
+            });
         }
 
         function show(id) {
@@ -737,23 +766,23 @@
             } catch (err) { alert("Server error"); }
         }
 
-        async function leaveGroup(groupId) {
-            if (!confirm("Are you sure you want to leave this group?")) return;
+        function leaveGroup(groupId) {
+            showConfirmModal("Leave Group", "Are you sure you want to leave this private group?", async () => {
+                try {
+                    const latestToken = localStorage.getItem('mutice_token') || token;
+                    const res = await fetch(`${API}/groups/${groupId}/leave`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${latestToken}` }
+                    });
+                    const data = await res.json();
+                    alert(data.message);
 
-            try {
-                const latestToken = localStorage.getItem('mutice_token') || token;
-                const res = await fetch(`${API}/groups/${groupId}/leave`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${latestToken}` }
-                });
-                const data = await res.json();
-                alert(data.message);
-
-                if (data.success) {
-                    document.getElementById('group-detail-view').style.display = 'none';
-                    loadGroups(); // 重新加载小组列表
-                }
-            } catch (err) { alert("Server error"); }
+                    if (data.success) {
+                        document.getElementById('group-detail-view').style.display = 'none';
+                        loadGroups();
+                    }
+                } catch (err) { alert("Server error"); }
+            });
         }
 
         async function openGroupDetail(groupId, groupName, inviteCode) {
@@ -1320,11 +1349,10 @@
             try {
                 const res = await fetch(`${API}/scores`);
                 allScores = await res.json();
-
                 if (isLoggedIn && myGroupsList.length === 0) {
                     const latestToken = localStorage.getItem('mutice_token') || token;
                     const groupRes = await fetch(`${API}/my-groups`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
-                    if (groupRes.ok) myGroupsList = await groupRes.json();
+                    if(groupRes.ok) myGroupsList = await groupRes.json();
                 }
 
                 filter();
@@ -1384,7 +1412,7 @@
                     headers: { 'Authorization': `Bearer ${latestToken}` },
                     body: formData
                 });
-
+                
                 const rawText = await res.text();
                 let data = {};
                 try {
@@ -1427,44 +1455,43 @@
             return false;
         }
 
-        async function removeScore(id) {
-            const confirmDelete = confirm("Are you sure you want to delete this score?");
-            if (!confirmDelete) return;
-
-            const target = allScores.find(s => Number(s.id) === Number(id));
-            const ownerId = Number(target?.uploader_id || 0);
-            if (target && ownerId && currentUserId && ownerId !== currentUserId) {
-                popup("This is not your file. You cannot delete it.");
-                return;
-            }
-
-            try {
-                const token = localStorage.getItem('mutice_token') || "";
-                const res = await fetch(`${API}/scores/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                const data = await res.json().catch(() => ({}));
-
-                if (res.ok && data.success) {
-                    await loadLib();
-                    const stillExists = allScores.some(s => Number(s.id) === Number(id));
-                    if (stillExists) {
-                        popup("Delete failed: This is not your file. You cannot delete it.");
-                    } else {
-                        popup("Delete successful!");
-                    }
-                } else if (res.status === 403) {
-                    popup(data.message || "This is not your file. You cannot delete it.");
-                } else if (res.status === 404) {
-                    popup(data.message || "File not found.");
-                } else {
-                    popup("Delete failed: " + (data.message || "Not allowed"));
+        function removeScore(id) {
+            showConfirmModal("Delete Score", "Are you sure you want to delete this score? This action cannot be undone.", async () => {
+                const target = allScores.find(s => Number(s.id) === Number(id));
+                const ownerId = Number(target?.uploader_id || 0);
+                if (target && ownerId && currentUserId && ownerId !== currentUserId) {
+                    popup("This is not your file. You cannot delete it.");
+                    return;
                 }
-            } catch (err) {
-                popup("Server error: " + err.message);
-            }
+
+                try {
+                    const token = localStorage.getItem('mutice_token') || "";
+                    const res = await fetch(`${API}/scores/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    const data = await res.json().catch(() => ({}));
+
+                    if (res.ok && data.success) {
+                        await loadLib();
+                        const stillExists = allScores.some(s => Number(s.id) === Number(id));
+                        if (stillExists) {
+                            popup("Delete failed: This is not your file. You cannot delete it.");
+                        } else {
+                            popup("Delete successful!");
+                        }
+                    } else if (res.status === 403) {
+                        popup(data.message || "This is not your file. You cannot delete it.");
+                    } else if (res.status === 404) {
+                        popup(data.message || "File not found.");
+                    } else {
+                        popup("Delete failed: " + (data.message || "Not allowed"));
+                    }
+                } catch (err) {
+                    popup("Server error: " + err.message);
+                }
+            });
         }
 
         function getFavs() {
