@@ -203,7 +203,6 @@
             cursor: default;
         }
 
-        /* UPDATED: Changed from absolute to fixed so they NEVER scroll away! */
         .nav-side-btn {
             position: fixed;
             top: 50%;
@@ -215,17 +214,19 @@
             padding: 40px 15px;
             cursor: pointer;
             border-radius: 12px;
-            z-index: 1000; /* High z-index to stay on top of everything */
+            z-index: 1000;
             backdrop-filter: blur(5px);
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             display: none; 
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            opacity: 0.15;
         }
 
         .nav-side-btn:hover {
             background: rgba(255, 255, 255, 0.9);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
             transform: translateY(-50%) scale(1.05);
+            opacity: 1;
         }
 
         .nav-side-left { left: 20px; }
@@ -256,7 +257,6 @@
                 </div>
                 <div class="header-right">
                     <div id="zoom-controls" class="controls-group" style="display: none;">
-                        <!-- NEW: Fit Screen Button -->
                         <button class="btn" style="background:var(--accent); color:white;" onclick="fitToScreen()"
                             title="Fit Window Size">Fit 🖵</button>
                         <button class="btn" style="background:var(--primary); color:white;" onclick="zoomOut()"
