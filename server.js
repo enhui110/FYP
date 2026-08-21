@@ -407,6 +407,26 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// FORGOT PASSWORD (Direct Reset)
+app.post('/api/forgot-password', async (req, res) => {
+    try {
+        const { email, newPassword } = req.body;
+
+        const [users] = await db.query('SELECT id FROM users WHERE email=?', [email]);
+        if (!users.length) {
+            return res.status(404).json({ success: false, message: "Email not found in our system." });
+        }
+
+        const hash = await bcrypt.hash(newPassword, 10);
+        await db.query('UPDATE users SET password=? WHERE email=?', [hash, email]);
+
+        res.json({ success: true, message: "Password reset successfully! You can now login." });
+    } catch (err) {
+        console.error("Reset password error: ", err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
 // ==========================================
 // USER PROFILE APIs
 // ==========================================
