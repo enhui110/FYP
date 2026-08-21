@@ -338,6 +338,11 @@
             animation: fadeIn 0.3s ease;
         }
 
+        /* Ensure the Alert Modal is always on top of other modals */
+        #alert-modal {
+            z-index: 9999;
+        }
+
         /* Password Input Wrapper for Image Eye Icon */
         .password-wrapper {
             position: relative;
@@ -594,7 +599,6 @@
         </div>
     </div>
 
-    <!-- Confirm Modal -->
     <div id="confirm-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="confirm-title" style="margin-top: 0; color: var(--danger);">Confirm</h3>
@@ -606,7 +610,6 @@
         </div>
     </div>
 
-    <!-- Share to Group -->
     <div id="share-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top: 0;">Share Score to Group</h3>
@@ -620,7 +623,6 @@
         </div>
     </div>
 
-    <!-- Create Group -->
     <div id="create-group-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top: 0;">Create New Group</h3>
@@ -634,7 +636,6 @@
         </div>
     </div>
 
-    <!-- Join Group -->
     <div id="join-group-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top: 0;">Join Group</h3>
@@ -672,8 +673,9 @@
         let isNameValid = true;
         let isOldPwValid = false;
 
-        const svgEye = '<img src="pic/eye.png" width="20" height="20" alt="Show">';
-        const svgEyeOff = '<img src="pic/hide.png" width="20" height="20" alt="Hide">';
+        // --- Use Your Image Files Instead of SVG ---
+        const svgEye = '<img src="pic/image_3db743.png" width="20" height="20" alt="Show">';
+        const svgEyeOff = '<img src="pic/image_3db6e5.png" width="20" height="20" alt="Hide">';
 
         function initApp() {
             try {
@@ -746,6 +748,7 @@
             });
         }
 
+        // --- Toggle Password Visibility Logic ---
         function togglePasswordVisibility(inputId, iconEl) {
             const input = document.getElementById(inputId);
             if (input.type === "password") {
