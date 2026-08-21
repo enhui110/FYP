@@ -523,18 +523,27 @@
 
     <!-- ================== MODALS ================== -->
 
+    <!-- General Alert Modal -->
+    <div id="alert-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="alert-title" style="margin-top: 0; color: var(--primary);">Notification</h3>
+            <p id="alert-msg" style="font-size: 15px; color: #555; white-space: pre-wrap;"></p>
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+                <button type="button" class="btn btn-start" style="width: 100%;" onclick="closeModal('alert-modal')">OK</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Profile Forgot Password Modal -->
     <div id="profile-forgot-modal" class="modal-overlay">
         <div class="modal-content" style="width: 380px;">
             <h3 style="margin-top: 0; color: var(--primary);">Reset Password</h3>
             <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Enter your registered email and your new password:</p>
-            <!-- Wrap in form to prevent DOM warnings -->
             <form onsubmit="return false;" style="margin:0; padding:0;">
                 <input type="email" id="pf-email" class="input-box" placeholder="Your Registered Email">
                 <input type="password" id="pf-new-pw" class="input-box" placeholder="New Password (min 6 chars)">
                 <input type="password" id="pf-confirm-pw" class="input-box" placeholder="Confirm New Password">
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <!-- Add type="button" to prevent form submission -->
                     <button type="button" class="btn btn-start" style="flex: 1;" onclick="submitProfileForgot()">Reset Password</button>
                     <button type="button" class="btn" style="background: #ccc; flex: 1;" onclick="closeModal('profile-forgot-modal')">Cancel</button>
                 </div>
@@ -658,6 +667,16 @@
             }
         }
 
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function showAlert(message, title = "Notification") {
+            document.getElementById('alert-title').innerText = title;
+            document.getElementById('alert-msg').innerText = message;
+            document.getElementById('alert-modal').style.display = 'flex';
+        }
+
         function showConfirmModal(title, message, onConfirm) {
             document.getElementById('confirm-title').innerText = title;
             document.getElementById('confirm-msg').innerText = message;
@@ -681,7 +700,6 @@
             });
         }
 
-        // --- Profile Forgot Password Modal Logic ---
         function handleProfileForgotPassword(event) {
             event.preventDefault();
             document.getElementById('pf-email').value = '';
@@ -696,20 +714,19 @@
             const confirmNewPassword = document.getElementById('pf-confirm-pw').value;
 
             if (!email || !newPassword || !confirmNewPassword) {
-                alert("Please fill in all fields.");
+                showAlert("Please fill in all fields.");
                 return;
             }
             if (newPassword !== confirmNewPassword) {
-                alert("New passwords do not match.");
+                showAlert("New passwords do not match.");
                 return;
             }
             if (newPassword.length < 6) {
-                alert("Password must be at least 6 characters.");
+                showAlert("Password must be at least 6 characters.");
                 return;
             }
 
             try {
-                // Must include token
                 const latestToken = localStorage.getItem('mutice_token') || token;
                 const res = await fetch(`${API}/profile-forgot-password`, {
                     method: 'POST',
@@ -722,16 +739,15 @@
                 const data = await res.json();
 
                 if (res.ok && data.success) {
-                    alert("✓ " + data.message);
+                    showAlert(data.message, "Success");
                     closeModal('profile-forgot-modal');
-                    // Close edit form
                     toggleEditForm();
                     setTimeout(() => toggleEditForm(), 100);
                 } else {
-                    alert("Error: " + (data.message || "Failed to reset password."));
+                    showAlert(data.message || "Failed to reset password.", "Error");
                 }
             } catch (err) {
-                alert("Server connection failed.");
+                showAlert("Server connection failed.");
             }
         }
 
@@ -781,10 +797,6 @@
             } catch (err) { console.error("Error loading groups", err); }
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
         function openCreateGroupModal() {
             document.getElementById('new-group-name').value = '';
             document.getElementById('create-group-modal').style.display = 'flex';
@@ -793,7 +805,7 @@
         async function submitCreateGroup() {
             const name = document.getElementById('new-group-name').value.trim();
             if (!name) {
-                alert("Please enter a group name.");
+                showAlert("Please enter a group name.");
                 return;
             }
             try {
@@ -804,12 +816,12 @@
                     body: JSON.stringify({ groupName: name })
                 });
                 const data = await res.json();
-                alert(data.message);
+                showAlert(data.message);
                 if (data.success) {
                     closeModal('create-group-modal');
                     loadGroups();
                 }
-            } catch (err) { alert("Server error"); }
+            } catch (err) { showAlert("Server error"); }
         }
 
         function openJoinGroupModal() {
@@ -820,7 +832,7 @@
         async function submitJoinGroup() {
             const code = document.getElementById('join-group-code').value.trim().toUpperCase();
             if (!code) {
-                alert("Please enter an invite code.");
+                showAlert("Please enter an invite code.");
                 return;
             }
             try {
@@ -831,12 +843,12 @@
                     body: JSON.stringify({ inviteCode: code })
                 });
                 const data = await res.json();
-                alert(data.message);
+                showAlert(data.message);
                 if (data.success) {
                     closeModal('join-group-modal');
                     loadGroups();
                 }
-            } catch (err) { alert("Server error"); }
+            } catch (err) { showAlert("Server error"); }
         }
 
         function leaveGroup(groupId) {
@@ -848,13 +860,13 @@
                         headers: { 'Authorization': `Bearer ${latestToken}` }
                     });
                     const data = await res.json();
-                    alert(data.message);
+                    showAlert(data.message);
 
                     if (data.success) {
                         document.getElementById('group-detail-view').style.display = 'none';
                         loadGroups();
                     }
-                } catch (err) { alert("Server error"); }
+                } catch (err) { showAlert("Server error"); }
             });
         }
 
@@ -892,9 +904,9 @@
         }
 
         function openShareModal(scoreId) {
-            if (!isLoggedIn) { alert("Please login first!"); return; }
+            if (!isLoggedIn) { showAlert("Please login first!"); return; }
             if (myGroupsList.length === 0) {
-                alert("You need to create or join a group first before sharing!");
+                showAlert("You need to create or join a group first before sharing!");
                 show('groups');
                 return;
             }
@@ -916,10 +928,10 @@
                     body: JSON.stringify({ scoreId: currentShareScoreId })
                 });
                 const data = await res.json();
-                alert(data.message);
+                showAlert(data.message);
                 closeModal('share-modal');
             } catch (err) {
-                alert("Server Error");
+                showAlert("Server Error");
                 closeModal('share-modal');
             }
         }
@@ -942,7 +954,7 @@
                     
                     <h2 id="prof-name-display" style="margin-top: 0; color: var(--primary);">${currentUserName || 'User'}</h2>
                     
-                    <button onclick="toggleEditForm()" class="btn" style="background:var(--info); color:white; font-size:12px; padding: 6px 15px;">Edit Profile✎</button>
+                    <button onclick="toggleEditForm()" class="btn" style="background:var(--info); color:white; font-size:12px; padding: 6px 15px;">✏️ Edit Profile</button>
                     
                     <form id="profile-edit-form" class="edit-form" onsubmit="return false;">
                         <p style="margin: 0 0 5px 0; font-size: 13px;"><strong>Update Name:</strong></p>
@@ -958,7 +970,6 @@
                             <span id="pw-verify-icon" style="position: absolute; right: 15px; top: 15px; font-size: 16px;"></span>
                         </div>
                         
-                        <!-- Click here to open email verification modal -->
                         <div style="text-align: right; margin-top: -3px; margin-bottom: 12px;">
                             <a href="#" onclick="handleProfileForgotPassword(event)" style="font-size: 12px; color: var(--info); text-decoration: none; font-weight: bold; transition: 0.2s;">Forgot password?</a>
                         </div>
@@ -1254,7 +1265,7 @@
                     updateNavbarUserDisplay();
                 }
 
-                displayProfileStatus("Profile successfully updated!", false);
+                displayProfileStatus("Profile updated successfully!", false);
 
                 document.getElementById('edit-pw-old').value = "";
                 document.getElementById('edit-pw-input').value = "";
@@ -1364,7 +1375,7 @@
                 let recentHtml = '';
 
                 if (topRecent.length === 0) {
-                    recentHtml = `<div style="text-align:center; color:#999; margin-top: 50px;">No practice records yet.<br>Go play some music! 🎵</div>`;
+                    recentHtml = `<div style="text-align:center; color:#999; margin-top: 50px;">No practice records yet.<br>Go play some music!</div>`;
                 } else {
                     topRecent.forEach(log => {
                         const d = parsePracticeDate(log.date);
@@ -1449,20 +1460,20 @@
             const fileInput = document.getElementById('u-file').files[0];
 
             if (!titleInput || !fileInput) {
-                alert("Please provide a Score Title and select a file!");
+                showAlert("Please provide a Score Title and select a file!");
                 return;
             }
 
             const ext = (fileInput.name.split('.').pop() || '').toLowerCase();
             const allowedExt = ['pdf', 'jpg', 'jpeg', 'png'];
             if (!allowedExt.includes(ext)) {
-                alert('Only PDF, JPG, JPEG, PNG files are allowed.');
+                showAlert('Only PDF, JPG, JPEG, PNG files are allowed.');
                 return;
             }
 
             const maxSize = 1024 * 1024 * 1024;
             if (fileInput.size > maxSize) {
-                alert('File too large. Maximum size is 1GB.');
+                showAlert('File too large. Maximum size is 1GB.');
                 return;
             }
 
@@ -1501,24 +1512,20 @@
 
                 if (res.ok) {
                     progBar.style.width = '100%';
-                    alert("Upload Successful!");
+                    showAlert("Upload Successful!", "Success");
                     document.getElementById('upForm').reset();
                     show('library');
                 } else {
-                    alert(`Upload Failed (${res.status}): ` + (data.message || "Error"));
+                    showAlert(`Upload Failed (${res.status}): ` + (data.message || "Error"), "Error");
                 }
             } catch (err) {
-                alert("Server Connection Failed: " + (err?.message || "Unknown error"));
+                showAlert("Server Connection Failed: " + (err?.message || "Unknown error"), "Error");
             } finally {
                 uploadInProgress = false;
                 btn.disabled = false;
                 btn.innerText = "Upload to System";
                 setTimeout(() => { progWrapper.style.display = 'none'; }, 1000);
             }
-        }
-
-        function popup(msg) {
-            alert(msg);
         }
 
         function canDeleteScore(score) {
@@ -1538,7 +1545,7 @@
                 const target = allScores.find(s => Number(s.id) === Number(id));
                 const ownerId = Number(target?.uploader_id || 0);
                 if (target && ownerId && currentUserId && ownerId !== currentUserId) {
-                    popup("This is not your file. You cannot delete it.");
+                    showAlert("This is not your file. You cannot delete it.", "Error");
                     return;
                 }
 
@@ -1555,19 +1562,19 @@
                         await loadLib();
                         const stillExists = allScores.some(s => Number(s.id) === Number(id));
                         if (stillExists) {
-                            popup("Delete failed: This is not your file. You cannot delete it.");
+                            showAlert("Delete failed: This is not your file. You cannot delete it.", "Error");
                         } else {
-                            popup("Delete successful!");
+                            showAlert("Deleted successfully!", "Success");
                         }
                     } else if (res.status === 403) {
-                        popup(data.message || "This is not your file. You cannot delete it.");
+                        showAlert(data.message || "This is not your file. You cannot delete it.", "Error");
                     } else if (res.status === 404) {
-                        popup(data.message || "File not found.");
+                        showAlert(data.message || "File not found.", "Error");
                     } else {
-                        popup("Delete failed: " + (data.message || "Not allowed"));
+                        showAlert("Delete failed: " + (data.message || "Not allowed"), "Error");
                     }
                 } catch (err) {
-                    popup("Server error: " + err.message);
+                    showAlert("Server error: " + err.message, "Error");
                 }
             });
         }
@@ -1580,7 +1587,7 @@
         function toggleFav(e, id) {
             e.stopPropagation();
             if (!isLoggedIn) {
-                alert('Please login to save favorites!');
+                showAlert('Please login to save favorites!');
                 return;
             }
             let favs = getFavs();
@@ -1598,10 +1605,10 @@
             const btn = document.getElementById('btn-fav-filter');
             if (showFavOnly) {
                 btn.classList.add('active');
-                btn.innerText = '❤️ Favorites';
+                btn.innerText = 'Favorites';
             } else {
                 btn.classList.remove('active');
-                btn.innerText = '🤍 Favorites';
+                btn.innerText = 'Favorites';
             }
             filter();
         }
@@ -1657,18 +1664,18 @@
                 <div style="position: relative;">
                     <div style="position: absolute; top: -5px; right: -5px; cursor: pointer; font-size: 22px; user-select: none; transition: transform 0.2s;" 
                          onclick="toggleFav(event, ${i.id})" title="Add to Favorites" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
-                        ${isFav ? '❤️' : '🤍'}
+                        ${isFav ? 'Selected' : 'Select'}
                     </div>
                     
                     <h3 style="margin-right: 25px;">${i.title}</h3>
                     <p><strong>Composer:</strong> ${i.composer || 'Unknown'}</p>
                     <p style="font-size: 12px; color: #7f8c8d;">${i.instrument} | ${i.difficulty}</p>
-                    <p style="font-size: 11px; color: #95a5a6; margin-top: 5px;">👤 Uploaded by: ${i.uploader || 'System'}</p>
+                    <p style="font-size: 11px; color: #95a5a6; margin-top: 5px;">Uploaded by: ${i.uploader || 'System'}</p>
                 </div>
                 <div class="btn-group">
                     <button class="btn btn-start" onclick="event.stopPropagation(); goToPractice(${i.id})">Start</button>
-                    <button class="btn" style="background:var(--warning); color:white; flex:1;" onclick="event.stopPropagation(); openShareModal(${i.id})">🔗 Share</button>
-                    ${canDeleteScore(i) ? `<button class="btn" style="background:var(--danger); color:white; flex:1;" onclick="event.stopPropagation(); removeScore(${i.id})">🗑️</button>` : ''}
+                    <button class="btn" style="background:var(--warning); color:white; flex:1;" onclick="event.stopPropagation(); openShareModal(${i.id})">Share</button>
+                    ${canDeleteScore(i) ? `<button class="btn" style="background:var(--danger); color:white; flex:1;" onclick="event.stopPropagation(); removeScore(${i.id})">Delete</button>` : ''}
                 </div>
             </div>`}).join('');
         }

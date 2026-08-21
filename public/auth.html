@@ -5,6 +5,15 @@
     <meta charset="UTF-8">
     <title>MuTice | Authentication</title>
     <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60;
+            --bg: #f4f7f6;
+            --info: #3498db;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+        }
+
         body {
             font-family: 'Segoe UI', sans-serif;
             background: #2c3e50;
@@ -112,6 +121,32 @@
         #reset-form {
             display: none;
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 
@@ -151,6 +186,17 @@
         <a href="index.html" class="back-link">← Back to Dashboard</a>
     </div>
 
+    <!-- Alert Modal -->
+    <div id="alert-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="alert-title" style="margin-top: 0; color: var(--primary);">Notification</h3>
+            <p id="alert-msg" style="font-size: 15px; color: #555; white-space: pre-wrap;"></p>
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+                <button type="button" class="btn" style="background: var(--info); color: white; width: 100%;" onclick="closeModal('alert-modal')">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API = window.location.hostname === 'localhost' ? "http://localhost:3000/api" : "/api";
         const originalFetch = window.fetch;
@@ -161,8 +207,17 @@
             return originalFetch(url, options);
         };
 
-        // If user is already logged in, redirect to dashboard
         if (localStorage.getItem('mutice_logged_in') === 'true') { window.location.href = "index.html"; }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function showAlert(message, title = "Notification") {
+            document.getElementById('alert-title').innerText = title;
+            document.getElementById('alert-msg').innerText = message;
+            document.getElementById('alert-modal').style.display = 'flex';
+        }
 
         function toggleForm(type) {
             document.getElementById('login-form').style.display = type === 'login' ? 'block' : 'none';
@@ -184,7 +239,7 @@
             if (type === 'signup') {
                 const confirmPassword = document.getElementById('signup-confirm-password').value;
                 if (password !== confirmPassword) {
-                    alert('Password and Confirm Password do not match.');
+                    showAlert('Password and Confirm Password do not match.');
                     btn.innerText = originalText;
                     btn.disabled = false;
                     return;
@@ -198,19 +253,17 @@
                     body: JSON.stringify({ name, email, password })
                 });
 
-                // Attempt to parse JSON, but handle non-JSON responses gracefully
                 const rawText = await res.text();
                 let data = {};
                 try {
                     data = rawText ? JSON.parse(rawText) : {};
                 } catch (parseError) {
-                    console.error("Server returned non-JSON:", rawText);
-                    data = { message: "Server connection error. Please ensure Node.js is running." };
+                    data = { message: "Server connection error." };
                 }
 
                 if (res.ok && data.success) {
                     if (type === 'signup') {
-                        alert("Account Created! You can now login.");
+                        showAlert("Account Created! You can now login.", "Success");
                         toggleForm('login');
                         event.target.reset();
                     } else {
@@ -221,11 +274,10 @@
                         window.location.replace("index.html");
                     }
                 } else {
-                    alert(data.message || "Operation failed!");
+                    showAlert(data.message || "Operation failed!");
                 }
             } catch (err) {
-                console.error(err);
-                alert("Server connection failed! Is your Node.js server running?");
+                showAlert("Server connection failed!");
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;
@@ -244,7 +296,7 @@
             const confirmNewPassword = document.getElementById('reset-confirm-password').value;
 
             if (newPassword !== confirmNewPassword) {
-                alert('New Password and Confirm Password do not match.');
+                showAlert('New Password and Confirm Password do not match.');
                 btn.innerText = originalText;
                 btn.disabled = false;
                 return;
@@ -266,15 +318,14 @@
                 }
 
                 if (res.ok && data.success) {
-                    alert(data.message || 'Password reset successful.');
+                    showAlert(data.message || 'Password reset successful.', "Success");
                     event.target.reset();
                     toggleForm('login');
                 } else {
-                    alert(data.message || 'Reset password failed.');
+                    showAlert(data.message || 'Reset password failed.');
                 }
             } catch (err) {
-                console.error(err);
-                alert('Server connection failed! Is your Node.js server running?');
+                showAlert('Server connection failed!');
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;
