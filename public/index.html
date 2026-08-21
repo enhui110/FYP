@@ -385,6 +385,7 @@
                 <input type="text" id="s-input" class="input-box"
                     style="margin: 0; padding: 0 15px; height: 40px; flex: 2; min-width: 150px;"
                     placeholder="Search title..." oninput="filter()">
+                
                 <select id="s-inst" class="input-box"
                     style="margin: 0; padding: 0 15px; height: 40px; flex: 1; min-width: 150px;" onchange="filter()">
                     <option value="All Instrument">All Instrument</option>
@@ -407,6 +408,7 @@
                     <option value="Tuba">Tuba</option>
                     <option value="Percussion">Percussion</option>
                 </select>
+
                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                     <button id="btn-fav-filter" class="sort-btn" style="height: 40px; margin: 0; padding: 0 15px;"
                         onclick="toggleFavFilter()">🤍 Favorites</button>
@@ -419,6 +421,7 @@
                     <button id="sort-instrument" class="sort-btn" style="height: 40px; margin: 0; padding: 0 15px;"
                         onclick="toggleSort('instrument')">Instrument</button>
                 </div>
+
             </div>
             <div id="score-list" class="grid"></div>
         </div>
@@ -1664,18 +1667,18 @@
                 <div style="position: relative;">
                     <div style="position: absolute; top: -5px; right: -5px; cursor: pointer; font-size: 22px; user-select: none; transition: transform 0.2s;" 
                          onclick="toggleFav(event, ${i.id})" title="Add to Favorites" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
-                        ${isFav ? 'Selected' : 'Select'}
+                        ${isFav ? '❤️' : '🤍'}
                     </div>
                     
                     <h3 style="margin-right: 25px;">${i.title}</h3>
                     <p><strong>Composer:</strong> ${i.composer || 'Unknown'}</p>
                     <p style="font-size: 12px; color: #7f8c8d;">${i.instrument} | ${i.difficulty}</p>
-                    <p style="font-size: 11px; color: #95a5a6; margin-top: 5px;">Uploaded by: ${i.uploader || 'System'}</p>
+                    <p style="font-size: 11px; color: #95a5a6; margin-top: 5px;">👤 Uploaded by: ${i.uploader || 'System'}</p>
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn-start" onclick="event.stopPropagation(); goToPractice(${i.id})">Start</button>
-                    <button class="btn" style="background:var(--warning); color:white; flex:1;" onclick="event.stopPropagation(); openShareModal(${i.id})">Share</button>
-                    ${canDeleteScore(i) ? `<button class="btn" style="background:var(--danger); color:white; flex:1;" onclick="event.stopPropagation(); removeScore(${i.id})">Delete</button>` : ''}
+                    <button type="button" class="btn btn-start" onclick="event.stopPropagation(); goToPractice(${i.id})">Start</button>
+                    <button type="button" class="btn" style="background:var(--warning); color:white; flex:1;" onclick="event.stopPropagation(); openShareModal(${i.id})">🔗 Share</button>
+                    ${canDeleteScore(i) ? `<button type="button" class="btn" style="background:var(--danger); color:white; flex:1;" onclick="event.stopPropagation(); removeScore(${i.id})">🗑️</button>` : ''}
                 </div>
             </div>`}).join('');
         }
