@@ -40,7 +40,7 @@ const db = mysql.createPool({
     database: process.env.DB_NAME
 });
 
-// ensure composer column
+// Ensure composer column
 async function ensureScoresComposerColumn() {
     try {
         const [columns] = await db.query("SHOW COLUMNS FROM scores LIKE 'composer'");
@@ -57,7 +57,7 @@ async function ensureScoresComposerColumn() {
     }
 }
 
-// ensure logs table
+// Ensure logs table
 async function ensureLogsTable() {
     try {
         await db.query(`
@@ -248,7 +248,7 @@ async function initializeDatabase() {
 
 initializeDatabase();
 
-// Fix specific month/day swap issue (runs once at startup)
+// Fix specific month/day swap issue
 async function fixMayJuneSwap() {
     try {
         const [cols] = await db.query("SHOW COLUMNS FROM logs");
@@ -407,7 +407,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// FORGOT PASSWORD (Direct Reset)
+// PUBLIC FORGOT PASSWORD (Direct Reset for auth.html)
 app.post('/api/forgot-password', async (req, res) => {
     try {
         const { email, newPassword } = req.body;
@@ -427,11 +427,37 @@ app.post('/api/forgot-password', async (req, res) => {
     }
 });
 
+// PROFILE FORGOT PASSWORD (Secure Reset for index.html)
+app.post('/api/profile-forgot-password', authGuard, async (req, res) => {
+    try {
+        const { email, newPassword } = req.body;
+        const userId = req.user.id;
+
+        const [users] = await db.query('SELECT email FROM users WHERE id=?', [userId]);
+        
+        if (!users.length) {
+            return res.status(404).json({ success: false, message: "User not found." });
+        }
+
+        if (users[0].email !== email.trim()) {
+            return res.status(403).json({ success: false, message: "The email does not match your account." });
+        }
+
+        const hash = await bcrypt.hash(newPassword, 10);
+        await db.query('UPDATE users SET password=? WHERE id=?', [hash, userId]);
+
+        res.json({ success: true, message: "Password reset successfully!" });
+    } catch (err) {
+        console.error("Profile reset password error: ", err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
 // ==========================================
 // USER PROFILE APIs
 // ==========================================
 
-// 1. CHECK IF USERNAME IS AVAILABLE (REAL-TIME)
+// 1. CHECK IF USERNAME IS AVAILABLE
 app.post('/api/users/check-username', authGuard, async (req, res) => {
     try {
         const { username } = req.body;
@@ -456,7 +482,7 @@ app.post('/api/users/check-username', authGuard, async (req, res) => {
     }
 });
 
-// 2. VERIFY OLD PASSWORD (REAL-TIME)
+// 2. VERIFY OLD PASSWORD
 app.post('/api/users/verify-password', authGuard, async (req, res) => {
     try {
         const { password } = req.body;
@@ -480,7 +506,7 @@ app.post('/api/users/verify-password', authGuard, async (req, res) => {
 
 // 3. UPDATE USER PROFILE (NAME & PASSWORD)
 app.put('/api/users/update', authGuard, async (req, res) => {
-    console.log("🔥 [USER API] Profile update requested by ID: ", req.user.id);
+    console.log("[USER API] Profile update requested by ID: ", req.user.id);
     
     try {
         const userId = req.user.id;
@@ -538,11 +564,11 @@ app.put('/api/users/update', authGuard, async (req, res) => {
             return res.status(500).json({ message: "Failed to update profile." });
         }
 
-        console.log("✅ [USER API] Profile updated successfully!");
+        console.log("[USER API] Profile updated successfully!");
         res.json({ success: true, message: "Profile updated successfully!" });
 
     } catch (err) {
-        console.error("❌ [USER API] Database error during update: ", err.message);
+        console.error("[USER API] Database error during update: ", err.message);
         res.status(500).json({ message: "Internal server error." });
     }
 });
@@ -573,8 +599,7 @@ app.get('/api/scores/:id', async (req, res) => {
 
 // UPLOAD
 app.post('/api/upload', authGuard, upload.single('scoreFile'), async (req, res) => {
-    console.log("🔥 [UPLOAD API] Upload request received. Uploader: ", req.user.name); 
-    console.log("📁 [UPLOAD API] Attached form data: ", req.body);
+    console.log("[UPLOAD API] Upload request received. Uploader: ", req.user.name); 
     
     try {
         if (!req.file) {
@@ -606,11 +631,11 @@ app.post('/api/upload', authGuard, upload.single('scoreFile'), async (req, res) 
             ]
         );
 
-        console.log("✅ [UPLOAD API] Score successfully saved to database!");
+        console.log("[UPLOAD API] Score successfully saved to database!");
         res.json({ success: true });
 
     } catch (err) {
-        console.error("❌ [UPLOAD API] Database or file processing error: ", err.message);
+        console.error("[UPLOAD API] Database or file processing error: ", err.message);
         res.status(500).json({ message: err.message });
     }
 });
@@ -726,7 +751,7 @@ app.get('/api/logs', authGuard, async (req, res) => {
 
 // POST NEW LOG 
 app.post('/api/logs', authGuard, async (req, res) => {
-    console.log("🔥 [LOG API] Received practice log from frontend: ", req.body); 
+    console.log("[LOG API] Received practice log from frontend"); 
 
     try {
         const { scoreTitle, durationSeconds, durationMinutes } = req.body;
@@ -749,9 +774,9 @@ app.post('/api/logs', authGuard, async (req, res) => {
                 [req.user.id, scoreTitle, storedSeconds, nowMysql]
             );
             dbWriteOk = true;
-            console.log("✅ [LOG API] Successfully saved to MySQL database!"); 
+            console.log("[LOG API] Successfully saved to MySQL database!"); 
         } catch (dbErr) {
-            console.error('❌ [LOG API] Failed to save to MySQL. Reason: ', dbErr.message); 
+            console.error('[LOG API] Failed to save to MySQL. Reason: ', dbErr.message); 
         }
 
         appendLogToFile({
@@ -767,13 +792,13 @@ app.post('/api/logs', authGuard, async (req, res) => {
 
         res.status(202).json({ success: true, warning: 'Saved to file only. DB unavailable.' });
     } catch (err) {
-        console.error('❌ [LOG API] Critical system error: ', err.message);
+        console.error('[LOG API] Critical system error: ', err.message);
         res.status(500).json({ message: err.message });
     }
 });
 
 // ==========================================
-// GROUPS APIs (Private Group & Score Sharing)
+// GROUPS APIs
 // ==========================================
 
 // 1. CREATE GROUP
