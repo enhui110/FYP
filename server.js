@@ -12,7 +12,7 @@ const bcrypt = require('bcrypt');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SECRET_KEY = process.env.JWT_SECRET;
+const SECRET_KEY = process.env.JWT_SECRET || "your_fallback_secret_key";
 
 // Middleware
 app.use(cors());
@@ -72,6 +72,26 @@ async function ensureLogsTable() {
         `);
     } catch (err) {
         console.error(err.message);
+    }
+}
+
+// Ensure group messages table
+async function ensureGroupMessagesTable() {
+    try {
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS group_messages (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                group_id INT NOT NULL,
+                user_id INT NOT NULL,
+                message TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (group_id) REFERENCES \`groups\`(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+        `);
+        console.log("✅ Group messages table checked/created.");
+    } catch (err) {
+        console.error("Group messages table error:", err.message);
     }
 }
 
@@ -241,6 +261,7 @@ async function initializeDatabase() {
     await ensureScoresComposerColumn();
     await ensureLogsTable();
     await ensureLogsUserIdColumn();
+    await ensureGroupMessagesTable(); // 加入建表
     await syncFileLogsToDb();
     await fixMayJuneSwap();
     await fixNullLogDates();
@@ -335,10 +356,6 @@ const upload = multer({
         cb(null, true);
     }
 });
-
-// ==========================================
-// AUTH APIs
-// ==========================================
 
 // SIGNUP
 app.post('/api/signup', async (req, res) => {
@@ -452,10 +469,6 @@ app.post('/api/profile-forgot-password', authGuard, async (req, res) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 });
-
-// ==========================================
-// USER PROFILE APIs
-// ==========================================
 
 // 1. CHECK IF USERNAME IS AVAILABLE
 app.post('/api/users/check-username', authGuard, async (req, res) => {
@@ -696,10 +709,6 @@ app.delete('/api/scores/:id', authGuard, async (req, res) => {
     }
 });
 
-// ==========================================
-// LOGS APIs
-// ==========================================
-
 // GET ALL LOGS FOR USER
 app.get('/api/logs', authGuard, async (req, res) => {
     try {
@@ -936,6 +945,43 @@ app.delete('/api/groups/:groupId/leave', authGuard, async (req, res) => {
         res.json({ success: true, message: "You have successfully left the group." });
     } catch (err) {
         console.error('Leave group error:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// GROUP CHAT APIs
+app.get('/api/groups/:groupId/messages', authGuard, async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, req.user.id]);
+        if (member.length === 0) return res.status(403).json({ success: false, message: "Access denied" });
+
+        const [messages] = await db.query(`
+            SELECT gm.id, gm.message, gm.created_at, u.name as sender_name, u.id as sender_id
+            FROM group_messages gm
+            JOIN users u ON gm.user_id = u.id
+            WHERE gm.group_id = ?
+            ORDER BY gm.created_at ASC
+        `, [groupId]);
+
+        res.json(messages);
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/api/groups/:groupId/messages', authGuard, async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const { message } = req.body;
+        if (!message || !message.trim()) return res.status(400).json({ success: false, message: "Message cannot be empty" });
+
+        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, req.user.id]);
+        if (member.length === 0) return res.status(403).json({ success: false, message: "Access denied" });
+
+        await db.query('INSERT INTO group_messages (group_id, user_id, message) VALUES (?, ?, ?)', [groupId, req.user.id, message.trim()]);
+        res.json({ success: true });
+    } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
