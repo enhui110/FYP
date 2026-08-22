@@ -803,11 +803,14 @@
 
             <div id="group-detail-view" style="display: none; background: var(--surface); padding: 32px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid rgba(0,0,0,0.03);">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 24px;">
-                    <div>
+                    <div style="flex:1;">
                         <h2 id="gd-title" style="margin: 0 0 10px 0; color: var(--primary); font-size: 24px;">Group Name</h2>
-                        <p style="margin: 0; font-size: 14px; color: var(--text-muted);">👥 <span style="font-weight:600;">Members:</span> <span id="gd-members" style="color: var(--primary);">Loading...</span></p>
+                        <div style="font-size: 14px; color: var(--text-muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            👥 <span style="font-weight:600;">Members:</span> 
+                            <span id="gd-members" style="display:flex; flex-wrap:wrap; gap:6px;">Loading...</span>
+                        </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 20px; margin-left: 20px;">
                         <p style="margin: 0; font-size: 14px; color: var(--text-muted);">Invite Code: <strong id="gd-code" style="color: var(--accent); background: #eff6ff; padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 16px;"></strong></p>
                         <button id="gd-leave-btn" class="btn" style="background: white; color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; font-size: 13px;">Leave Group</button>
                     </div>
@@ -1007,9 +1010,10 @@
         let isNameValid = true;
         let isOldPwValid = false;
 
-        // Group Chat Variables
+        // Group Chat & Member Variables
         let chatInterval = null;
         let activeGroupId = null;
+        let activeGroupCreatorId = null; 
 
         const svgEye = '<img src="pic/eye.png" width="20" height="20" alt="Show">';
         const svgEyeOff = '<img src="pic/hide.png" width="20" height="20" alt="Hide">';
@@ -1199,8 +1203,9 @@
                     return;
                 }
 
+                // 传入 creator_id 让系统知道谁是群主
                 list.innerHTML = myGroupsList.map(g => `
-                    <div class="card" onclick="openGroupDetail(${g.id}, '${g.group_name}', '${g.invite_code}')">
+                    <div class="card" onclick="openGroupDetail(${g.id}, '${g.group_name}', '${g.invite_code}', ${g.creator_id || 0})">
                         <h3 style="margin-top:0;">${g.group_name}</h3>
                         <p style="color:var(--text-muted); font-size:13px; margin-bottom:0;">Invite Code: <strong style="color:var(--primary);">${g.invite_code}</strong></p>
                     </div>
@@ -1283,7 +1288,8 @@
             });
         }
 
-        async function openGroupDetail(groupId, groupName, inviteCode) {
+        // --- 核心更新：群成员展示与踢人逻辑 ---
+        async function openGroupDetail(groupId, groupName, inviteCode, creatorId) {
             document.getElementById('group-detail-view').style.display = 'block';
             document.getElementById('gd-title').innerText = groupName;
             document.getElementById('gd-code').innerText = inviteCode;
@@ -1294,8 +1300,9 @@
             const scoresContainer = document.getElementById('gd-scores');
             scoresContainer.innerHTML = `<p style="color:var(--text-muted); font-size:14px;">Loading scores...</p>`;
 
-            // Chat Activation
+            // Chat Activation & Creator Info
             activeGroupId = groupId;
+            activeGroupCreatorId = creatorId; 
             loadGroupMessages(groupId);
             
             if(chatInterval) clearInterval(chatInterval);
@@ -1307,17 +1314,24 @@
 
             try {
                 const latestToken = localStorage.getItem('mutice_token') || token;
-
-                // 1. 获取群组成员
                 fetch(`${API}/groups/${groupId}/members`, { headers: { 'Authorization': `Bearer ${latestToken}` } })
                     .then(res => res.json())
                     .then(members => {
                         if (Array.isArray(members)) {
-                            const names = members.map(m => {
-                                let n = m.name.replace(/Quek\s*/i, '').trim();
-                                return n || 'User';
-                            }).join(', ');
-                            document.getElementById('gd-members').innerText = names || 'No members';
+                            const amIOwner = Number(currentUserId) === Number(creatorId);
+
+                            const membersHtml = members.map(m => {
+                                let n = m.name.replace(/Quek\s*/i, '').trim() || 'User';
+                                let isThisMemberOwner = Number(m.id) === Number(creatorId);
+                                let roleBadge = isThisMemberOwner ? '<span style="font-size:12px; margin-left:4px;" title="Group Owner">👑</span>' : '';
+                                let removeBtn = (amIOwner && !isThisMemberOwner) 
+                                    ? `<span style="color:var(--danger); cursor:pointer; font-size:10px; margin-left:8px; padding:2px 5px; background:white; border-radius:4px; border:1px solid #fee2e2; transition:0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='white'" onclick="event.stopPropagation(); removeMember(${groupId}, ${m.id}, '${n}')" title="Kick Member">✗</span>` 
+                                    : '';
+                                    
+                                return `<div style="display:inline-flex; align-items:center; background:#f1f5f9; padding:4px 12px; border-radius:20px; font-size:13px; color:var(--text-main); border:1px solid #e2e8f0;">${n} ${roleBadge} ${removeBtn}</div>`;
+                            }).join('');
+
+                            document.getElementById('gd-members').innerHTML = membersHtml || 'No members';
                         }
                     }).catch(() => document.getElementById('gd-members').innerText = 'Failed to load');
 
@@ -1357,6 +1371,27 @@
                     </div>`
                 }).join('');
             } catch (err) { scoresContainer.innerHTML = `<p style="color:red;">Error loading shared scores.</p>`; }
+        }
+
+        // remove member from group
+        function removeMember(groupId, memberId, memberName) {
+            showConfirmModal("Kick Member", `Are you sure you want to kick ${memberName} out of the group?`, async () => {
+                try {
+                    const latestToken = localStorage.getItem('mutice_token') || token;
+                    const res = await fetch(`${API}/groups/${groupId}/members/${memberId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${latestToken}` }
+                    });
+                    const data = await res.json();
+                    showAlert(data.message);
+
+                    if (data.success) {
+                        openGroupDetail(activeGroupId, document.getElementById('gd-title').innerText, document.getElementById('gd-code').innerText, activeGroupCreatorId);
+                    }
+                } catch (err) {
+                    showAlert("Server error");
+                }
+            });
         }
 
         async function loadGroupMessages(groupId) {
