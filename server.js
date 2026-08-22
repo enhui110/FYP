@@ -55,7 +55,6 @@ async function ensureScoresPublicColumn() {
         const [columns] = await db.query("SHOW COLUMNS FROM scores LIKE 'is_public'");
         if (!columns.length) {
             await db.query("ALTER TABLE scores ADD COLUMN is_public TINYINT(1) NOT NULL DEFAULT 1 AFTER url");
-            console.log("✓ Added is public column for Private Group Scores.");
         }
     } catch (err) { console.error("ensureScoresPublicColumn error:", err.message); }
 }
