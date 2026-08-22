@@ -14,9 +14,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const SECRET_KEY = process.env.JWT_SECRET || "your_fallback_secret_key";
 
-// Middleware
+
 app.use(cors());
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '1GB' }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
@@ -40,24 +40,26 @@ const db = mysql.createPool({
     database: process.env.DB_NAME
 });
 
-// Ensure composer column
+// Database Initialization Functions
 async function ensureScoresComposerColumn() {
     try {
         const [columns] = await db.query("SHOW COLUMNS FROM scores LIKE 'composer'");
         if (!columns.length) {
-            await db.query(`
-                ALTER TABLE scores 
-                ADD COLUMN composer VARCHAR(255) 
-                NOT NULL DEFAULT 'Unknown Composer'
-                AFTER title
-            `);
+            await db.query("ALTER TABLE scores ADD COLUMN composer VARCHAR(255) NOT NULL DEFAULT 'Unknown Composer' AFTER title");
         }
-    } catch (err) {
-        console.error(err.message);
-    }
+    } catch (err) { console.error(err.message); }
 }
 
-// Ensure logs table
+async function ensureScoresPublicColumn() {
+    try {
+        const [columns] = await db.query("SHOW COLUMNS FROM scores LIKE 'is_public'");
+        if (!columns.length) {
+            await db.query("ALTER TABLE scores ADD COLUMN is_public TINYINT(1) NOT NULL DEFAULT 1 AFTER url");
+            console.log("✓ Added is public column for Private Group Scores.");
+        }
+    } catch (err) { console.error("ensureScoresPublicColumn error:", err.message); }
+}
+
 async function ensureLogsTable() {
     try {
         await db.query(`
@@ -70,12 +72,9 @@ async function ensureLogsTable() {
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         `);
-    } catch (err) {
-        console.error(err.message);
-    }
+    } catch (err) { console.error(err.message); }
 }
 
-// Ensure group messages table
 async function ensureGroupMessagesTable() {
     try {
         await db.query(`
@@ -89,9 +88,7 @@ async function ensureGroupMessagesTable() {
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         `);
-    } catch (err) {
-        console.error("Group messages table error:", err.message);
-    }
+    } catch (err) { console.error("Group messages table error:", err.message); }
 }
 
 async function ensureLogsUserIdColumn() {
@@ -100,34 +97,21 @@ async function ensureLogsUserIdColumn() {
         const hasUserId = columns.some(column => column.Field === 'user_id');
         const hasLegacyUserId = columns.some(column => column.Field === 'userId');
 
-        if (hasUserId) {
-            return;
-        }
-
+        if (hasUserId) return;
         if (hasLegacyUserId) {
             await db.query('ALTER TABLE logs CHANGE COLUMN userId user_id INT NULL');
             return;
         }
-
         await db.query('ALTER TABLE logs ADD COLUMN user_id INT NULL AFTER id');
-    } catch (err) {
-        console.error('ensureLogsUserIdColumn error:', err.message);
-    }
+    } catch (err) { console.error('ensureLogsUserIdColumn error:', err.message); }
 }
 
 async function getLogsUserColumn() {
     try {
         const [columns] = await db.query('SHOW COLUMNS FROM logs');
-        if (columns.some(column => column.Field === 'user_id')) {
-            return 'user_id';
-        }
-        if (columns.some(column => column.Field === 'userId')) {
-            return 'userId';
-        }
-    } catch (err) {
-        console.error('getLogsUserColumn error:', err.message);
-    }
-
+        if (columns.some(column => column.Field === 'user_id')) return 'user_id';
+        if (columns.some(column => column.Field === 'userId')) return 'userId';
+    } catch (err) { console.error('getLogsUserColumn error:', err.message); }
     return null;
 }
 
@@ -139,10 +123,7 @@ function readLogsFile() {
         const raw = fs.readFileSync(logsFilePath, 'utf8');
         const parsed = raw ? JSON.parse(raw) : [];
         return Array.isArray(parsed) ? parsed : [];
-    } catch (err) {
-        console.error('readLogsFile error:', err.message);
-        return [];
-    }
+    } catch (err) { return []; }
 }
 
 function appendLogToFile(entry) {
@@ -154,110 +135,96 @@ function appendLogToFile(entry) {
 }
 
 function normalizeLogDate(input) {
-    if (input instanceof Date && !Number.isNaN(input.getTime())) {
-        return input.toISOString();
-    }
-
+    if (input instanceof Date && !Number.isNaN(input.getTime())) return input.toISOString();
     const text = String(input || '').trim();
     if (!text) return '';
-
     if (text.includes('T') || text.includes('-')) {
         const d = new Date(text);
         if (!Number.isNaN(d.getTime()) && d.getFullYear() > 1970) return d.toISOString();
     }
-
     const m = text.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:,\s*(\d{1,2}):(\d{2}):(\d{2}))?$/);
     if (m) {
-        const dd = m[1].padStart(2, '0');
-        const mm = m[2].padStart(2, '0');
-        const yyyy = m[3];
-        const hh = (m[4] || '00').padStart(2, '0');
-        const mi = (m[5] || '00').padStart(2, '0');
-        const ss = (m[6] || '00').padStart(2, '0');
+        const dd = m[1].padStart(2, '0'); const mm = m[2].padStart(2, '0'); const yyyy = m[3];
+        const hh = (m[4] || '00').padStart(2, '0'); const mi = (m[5] || '00').padStart(2, '0'); const ss = (m[6] || '00').padStart(2, '0');
         const iso = `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}Z`;
         const d = new Date(iso);
         if (!Number.isNaN(d.getTime()) && d.getFullYear() > 1970) return d.toISOString();
     }
-
     return String(input || '');
 }
 
 function toMysqlDateTime(input) {
     let d = null;
-
-    if (input instanceof Date && !isNaN(input.getTime())) {
-        d = input;
-    } else {
+    if (input instanceof Date && !isNaN(input.getTime())) d = input;
+    else {
         const text = String(input || '').trim();
         if (!text) return null;
-
         if (text.includes('T') || text.includes('-')) {
             const parsed = new Date(text);
             if (!isNaN(parsed.getTime())) d = parsed;
         }
-
         if (!d) {
             const m = text.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:,\s*(\d{1,2}):(\d{2}):(\d{2}))?$/);
             if (m) {
-                const dd = m[1].padStart(2, '0');
-                const mm = m[2].padStart(2, '0');
-                const yyyy = m[3];
-                const hh = (m[4] || '00').padStart(2, '0');
-                const mi = (m[5] || '00').padStart(2, '0');
-                const ss = (m[6] || '00').padStart(2, '0');
+                const dd = m[1].padStart(2, '0'); const mm = m[2].padStart(2, '0'); const yyyy = m[3];
+                const hh = (m[4] || '00').padStart(2, '0'); const mi = (m[5] || '00').padStart(2, '0'); const ss = (m[6] || '00').padStart(2, '0');
                 const iso = `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}Z`;
                 const parsed = new Date(iso);
                 if (!isNaN(parsed.getTime())) d = parsed;
             }
         }
     }
-
     if (!d || isNaN(d.getTime())) return null;
-
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mi = String(d.getMinutes()).padStart(2, '0');
-    const ss = String(d.getSeconds()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
 }
 
 async function syncFileLogsToDb() {
     try {
         const userColumn = await getLogsUserColumn();
-        if (!userColumn) {
-            return;
-        }
-
+        if (!userColumn) return;
         const logs = readLogsFile();
         for (const log of logs) {
             const userId = Number(log.user_id ?? log.userId);
             const duration = Number(log.durationSeconds);
             const title = String(log.scoreTitle || 'Untitled Session');
             const dateTime = toMysqlDateTime(log.date);
-
             if (!userId || !Number.isFinite(duration) || !dateTime) continue;
-
-            const [exists] = await db.query(
-                `SELECT id FROM logs WHERE \`${userColumn}\`=? AND scoreTitle=? AND durationSeconds=? AND date=? LIMIT 1`,
-                [userId, title, duration, dateTime]
-            );
-
+            const [exists] = await db.query(`SELECT id FROM logs WHERE \`${userColumn}\`=? AND scoreTitle=? AND durationSeconds=? AND date=? LIMIT 1`, [userId, title, duration, dateTime]);
             if (!exists.length) {
-                await db.query(
-                    `INSERT INTO logs (\`${userColumn}\`, scoreTitle, durationSeconds, date) VALUES (?,?,?,?)`,
-                    [userId, title, duration, dateTime]
-                );
+                await db.query(`INSERT INTO logs (\`${userColumn}\`, scoreTitle, durationSeconds, date) VALUES (?,?,?,?)`, [userId, title, duration, dateTime]);
             }
         }
-    } catch (err) {
-        console.error('syncFileLogsToDb error:', err.message);
-    }
+    } catch (err) {}
+}
+
+async function fixMayJuneSwap() {
+    try {
+        const [cols] = await db.query("SHOW COLUMNS FROM logs");
+        const hasUserId = cols.some(c => c.Field === 'user_id');
+        const hasLegacy = cols.some(c => c.Field === 'userId');
+        let userCond = '';
+        if (hasUserId) userCond = 'user_id=1';
+        else if (hasLegacy) userCond = 'userId=1';
+        else return;
+        const [rows] = await db.query(`SELECT id, date FROM logs WHERE ${userCond} AND id>=22 AND DATE(date)='2026-06-05'`);
+        if (!rows.length) return;
+        for (const r of rows) {
+            await db.query("UPDATE logs SET date = STR_TO_DATE(CONCAT(YEAR(date),'-',LPAD(DAY(date),2,'0'),'-',LPAD(MONTH(date),2,'0'),' ',DATE_FORMAT(date,'%H:%i:%s')), '%Y-%m-%d %H:%i:%s') WHERE id=?", [r.id]);
+        }
+    } catch (err) {}
+}
+
+async function fixNullLogDates() {
+    try {
+        const [rows] = await db.query("SELECT id FROM logs WHERE date IS NULL LIMIT 1000");
+        if (!rows.length) return;
+        for (const r of rows) await db.query('UPDATE logs SET date=NOW() WHERE id=?', [r.id]);
+    } catch (err) {}
 }
 
 async function initializeDatabase() {
     await ensureScoresComposerColumn();
+    await ensureScoresPublicColumn();
     await ensureLogsTable();
     await ensureLogsUserIdColumn();
     await ensureGroupMessagesTable(); 
@@ -268,59 +235,10 @@ async function initializeDatabase() {
 
 initializeDatabase();
 
-// Fix specific month/day swap issue
-async function fixMayJuneSwap() {
-    try {
-        const [cols] = await db.query("SHOW COLUMNS FROM logs");
-        const hasUserId = cols.some(c => c.Field === 'user_id');
-        const hasLegacy = cols.some(c => c.Field === 'userId');
-        let userCond = '';
-        if (hasUserId) userCond = 'user_id=1';
-        else if (hasLegacy) userCond = 'userId=1';
-        else return;
-
-        const q = `SELECT id, date FROM logs WHERE ${userCond} AND id>=22 AND DATE(date)='2026-06-05'`;
-        const [rows] = await db.query(q);
-        if (!rows.length) return;
-
-        const backupPath = path.join(__dirname, 'data', `fix_may_june_backup_${Date.now()}.json`);
-        fs.writeFileSync(backupPath, JSON.stringify(rows, null, 4), 'utf8');
-
-        for (const r of rows) {
-            await db.query(
-                "UPDATE logs SET date = STR_TO_DATE(CONCAT(YEAR(date),'-',LPAD(DAY(date),2,'0'),'-',LPAD(MONTH(date),2,'0'),' ',DATE_FORMAT(date,'%H:%i:%s')), '%Y-%m-%d %H:%i:%s') WHERE id=?",
-                [r.id]
-            );
-        }
-    } catch (err) {
-        console.error('fixMayJuneSwap error:', err.message);
-    }
-}
-
-// Fix rows where date IS NULL
-async function fixNullLogDates() {
-    try {
-        const [rows] = await db.query("SELECT id, user_id, scoreTitle, durationSeconds FROM logs WHERE date IS NULL LIMIT 1000");
-        if (!rows.length) return;
-        const backupPath = path.join(__dirname, 'data', `null_date_backup_${Date.now()}.json`);
-        fs.writeFileSync(backupPath, JSON.stringify(rows, null, 4), 'utf8');
-
-        for (const r of rows) {
-            await db.query('UPDATE logs SET date=NOW() WHERE id=?', [r.id]);
-        }
-    } catch (err) {
-        console.error('fixNullLogDates error:', err.message);
-    }
-}
-
 // AUTH GUARD MIDDLEWARE
 const authGuard = (req, res, next) => {
     const token = req.headers['authorization']?.split(' ')[1];
-
-    if (!token) {
-        return res.status(401).json({ success: false, message: 'No token provided' });
-    }
-
+    if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
     try {
         req.user = jwt.verify(token, SECRET_KEY);
         next();
@@ -334,9 +252,7 @@ const storage = multer.diskStorage({
     destination: uploadDir,
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname);
-        const base = path.basename(file.originalname, ext)
-            .replace(/[^a-zA-Z0-9]/g, '_');
-
+        const base = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9]/g, '_');
         cb(null, `${Date.now()}-${base}${ext}`);
     }
 });
@@ -352,225 +268,114 @@ const upload = multer({
     }
 });
 
-// SIGNUP
+// ==========================================
+// AUTH APIs
+// ==========================================
 app.post('/api/signup', async (req, res) => {
     const { name, email, password } = req.body;
-
     try {
-        const [existing] = await db.query(
-            'SELECT id FROM users WHERE email=?',
-            [email]
-        );
-
-        if (existing.length) {
-            return res.status(400).json({ message: "Email already exists" });
-        }
-
+        const [existing] = await db.query('SELECT id FROM users WHERE email=?', [email]);
+        if (existing.length) return res.status(400).json({ message: "Email already exists" });
         const hash = await bcrypt.hash(password, 10);
-
-        await db.query(
-            'INSERT INTO users (name,email,password) VALUES (?,?,?)',
-            [name, email, hash]
-        );
-
+        await db.query('INSERT INTO users (name,email,password) VALUES (?,?,?)', [name, email, hash]);
         res.json({ success: true });
-
-    } catch {
-        res.status(500).json({ message: "Database error" });
-    }
+    } catch { res.status(500).json({ message: "Database error" }); }
 });
 
-// LOGIN
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
-
     try {
-        const [users] = await db.query(
-            'SELECT * FROM users WHERE email=?',
-            [email]
-        );
-
-        if (!users.length) {
-            return res.status(401).json({ message: "User not found" });
-        }
-
+        const [users] = await db.query('SELECT * FROM users WHERE email=?', [email]);
+        if (!users.length) return res.status(401).json({ message: "User not found" });
         const user = users[0];
         const match = await bcrypt.compare(password, user.password);
-
-        if (!match) {
-            return res.status(401).json({ message: "Wrong password" });
-        }
-
-        const token = jwt.sign(
-            { id: user.id, name: user.name },
-            SECRET_KEY,
-            { expiresIn: '12h' }
-        );
-
-        res.json({
-            success: true,
-            token,
-            userName: user.name,
-            userId: user.id
-        });
-
-    } catch {
-        res.status(500).json({ message: "Database error" });
-    }
+        if (!match) return res.status(401).json({ message: "Wrong password" });
+        const token = jwt.sign({ id: user.id, name: user.name }, SECRET_KEY, { expiresIn: '12h' });
+        res.json({ success: true, token, userName: user.name, userId: user.id });
+    } catch { res.status(500).json({ message: "Database error" }); }
 });
 
-// PUBLIC FORGOT PASSWORD
 app.post('/api/forgot-password', async (req, res) => {
     try {
         const { email, newPassword } = req.body;
-
         const [users] = await db.query('SELECT id FROM users WHERE email=?', [email]);
-        if (!users.length) {
-            return res.status(404).json({ success: false, message: "Email not found in our system." });
-        }
-
+        if (!users.length) return res.status(404).json({ success: false, message: "Email not found in our system." });
         const hash = await bcrypt.hash(newPassword, 10);
         await db.query('UPDATE users SET password=? WHERE email=?', [hash, email]);
-
         res.json({ success: true, message: "Password reset successfully! You can now login." });
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Server error" });
-    }
+    } catch (err) { res.status(500).json({ success: false, message: "Server error" }); }
 });
 
-// PROFILE FORGOT PASSWORD 
 app.post('/api/profile-forgot-password', authGuard, async (req, res) => {
     try {
         const { email, newPassword } = req.body;
         const userId = req.user.id;
-
         const [users] = await db.query('SELECT email FROM users WHERE id=?', [userId]);
-        
-        if (!users.length) {
-            return res.status(404).json({ success: false, message: "User not found." });
-        }
-
-        if (users[0].email !== email.trim()) {
-            return res.status(403).json({ success: false, message: "The email does not match your account." });
-        }
-
+        if (!users.length) return res.status(404).json({ success: false, message: "User not found." });
+        if (users[0].email !== email.trim()) return res.status(403).json({ success: false, message: "The email does not match your account." });
         const hash = await bcrypt.hash(newPassword, 10);
         await db.query('UPDATE users SET password=? WHERE id=?', [hash, userId]);
-
         res.json({ success: true, message: "Password reset successfully!" });
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Server error" });
-    }
+    } catch (err) { res.status(500).json({ success: false, message: "Server error" }); }
 });
 
-// 1. CHECK IF USERNAME IS AVAILABLE
+// ==========================================
+// USER PROFILE APIs
+// ==========================================
 app.post('/api/users/check-username', authGuard, async (req, res) => {
     try {
         const { username } = req.body;
-        if (!username) {
-            return res.json({ isAvailable: false });
-        }
-
-        const userId = req.user.id;
-        const [existing] = await db.query(
-            'SELECT id FROM users WHERE name = ? AND id != ?',
-            [username, userId]
-        );
-
-        if (existing.length > 0) {
-            res.json({ isAvailable: false });
-        } else {
-            res.json({ isAvailable: true });
-        }
-    } catch (err) {
-        res.status(500).json({ isAvailable: false });
-    }
+        if (!username) return res.json({ isAvailable: false });
+        const [existing] = await db.query('SELECT id FROM users WHERE name = ? AND id != ?', [username, req.user.id]);
+        res.json({ isAvailable: existing.length === 0 });
+    } catch (err) { res.status(500).json({ isAvailable: false }); }
 });
 
-// 2. VERIFY OLD PASSWORD
 app.post('/api/users/verify-password', authGuard, async (req, res) => {
     try {
         const { password } = req.body;
-        if (!password) {
-            return res.json({ isValid: false });
-        }
-
+        if (!password) return res.json({ isValid: false });
         const [users] = await db.query('SELECT password FROM users WHERE id=?', [req.user.id]);
-        if (!users.length) {
-            return res.json({ isValid: false });
-        }
-
+        if (!users.length) return res.json({ isValid: false });
         const match = await bcrypt.compare(password, users[0].password);
         res.json({ isValid: match });
-
-    } catch (err) {
-        res.status(500).json({ isValid: false });
-    }
+    } catch (err) { res.status(500).json({ isValid: false }); }
 });
 
-// 3. UPDATE USER PROFILE
 app.put('/api/users/update', authGuard, async (req, res) => {    
     try {
         const userId = req.user.id;
         const { username, password, oldPassword } = req.body; 
-
-        if (!username && !password) {
-            return res.status(400).json({ message: "No data provided for update." });
-        }
+        if (!username && !password) return res.status(400).json({ message: "No data provided for update." });
 
         if (username) {
-            const [existing] = await db.query(
-                'SELECT id FROM users WHERE name = ? AND id != ?',
-                [username, userId]
-            );
-
-            if (existing.length > 0) {
-                return res.status(409).json({ 
-                    message: "This username is already taken. Please choose another one." 
-                });
-            }
+            const [existing] = await db.query('SELECT id FROM users WHERE name = ? AND id != ?', [username, userId]);
+            if (existing.length > 0) return res.status(409).json({ message: "This username is already taken. Please choose another one." });
         }
 
         if (password) {
-            if (!oldPassword) {
-                return res.status(400).json({ message: "Old password is required to change password." });
-            }
+            if (!oldPassword) return res.status(400).json({ message: "Old password is required to change password." });
             const [users] = await db.query('SELECT password FROM users WHERE id=?', [userId]);
             const match = await bcrypt.compare(oldPassword, users[0].password);
-            if (!match) {
-                return res.status(401).json({ message: "Incorrect old password." });
-            }
+            if (!match) return res.status(401).json({ message: "Incorrect old password." });
         }
 
         let updateQuery = "UPDATE users SET ";
         let queryParams = [];
         let setClauses = [];
 
-        if (username) {
-            setClauses.push("name = ?");
-            queryParams.push(username);
-        }
-
-        if (password) {
+        if (username) { setClauses.push("name = ?"); queryParams.push(username); }
+        if (password) { 
             const hashedPassword = await bcrypt.hash(password, 10);
-            setClauses.push("password = ?");
-            queryParams.push(hashedPassword);
+            setClauses.push("password = ?"); queryParams.push(hashedPassword); 
         }
 
         updateQuery += setClauses.join(", ") + " WHERE id = ?";
         queryParams.push(userId);
-
         const [result] = await db.query(updateQuery, queryParams);
-
-        if (result.affectedRows === 0) {
-            return res.status(500).json({ message: "Failed to update profile." });
-        }
-
+        if (result.affectedRows === 0) return res.status(500).json({ message: "Failed to update profile." });
         res.json({ success: true, message: "Profile updated successfully!" });
-
-    } catch (err) {
-        res.status(500).json({ message: "Internal server error." });
-    }
+    } catch (err) { res.status(500).json({ message: "Internal server error." }); }
 });
 
 // ==========================================
@@ -578,30 +383,25 @@ app.put('/api/users/update', authGuard, async (req, res) => {
 // ==========================================
 
 app.get('/api/scores', async (req, res) => {
-    const [rows] = await db.query('SELECT * FROM scores ORDER BY id DESC');
+    const [rows] = await db.query('SELECT * FROM scores WHERE is_public = 1 ORDER BY id DESC');
     res.json(rows);
 });
 
 app.get('/api/scores/:id', async (req, res) => {
-    const [rows] = await db.query(
-        'SELECT * FROM scores WHERE id=?',
-        [req.params.id]
-    );
-
-    if (!rows.length) {
-        return res.status(404).json({ message: "Not found" });
-    }
-
+    const [rows] = await db.query('SELECT * FROM scores WHERE id=?', [req.params.id]);
+    if (!rows.length) return res.status(404).json({ message: "Not found" });
     res.json(rows[0]);
 });
 
+// UPLOAD SCORE
 app.post('/api/upload', authGuard, upload.single('scoreFile'), async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({ message: "No file provided" });
-        }
+        if (!req.file) return res.status(400).json({ message: "No file provided" });
 
         const composer = req.body.composer || 'Unknown Composer';
+        const groupId = req.body.groupId;
+        const isPublic = groupId ? 0 : 1; //0=private, 1=public
+
         let fileName = req.file.filename;
         const ext = path.extname(fileName);
 
@@ -611,23 +411,19 @@ app.post('/api/upload', authGuard, upload.single('scoreFile'), async (req, res) 
             fileName = pdfName;
         }
 
-        await db.query(
-            `INSERT INTO scores 
-            (title, composer, instrument, difficulty, uploader, uploader_id, url)
-            VALUES (?,?,?,?,?,?,?)`,
-            [
-                req.body.title,
-                composer,
-                req.body.instrument,
-                req.body.difficulty,
-                req.user.name,
-                req.user.id,
-                `uploads/${fileName}`
-            ]
+        const [result] = await db.query(
+            `INSERT INTO scores (title, composer, instrument, difficulty, uploader, uploader_id, url, is_public)
+            VALUES (?,?,?,?,?,?,?,?)`,
+            [req.body.title, composer, req.body.instrument, req.body.difficulty, req.user.name, req.user.id, `uploads/${fileName}`, isPublic]
         );
 
-        res.json({ success: true });
+        const scoreId = result.insertId;
 
+        if (groupId) {
+            await db.query('INSERT INTO group_scores (group_id, score_id, shared_by) VALUES (?, ?, ?)', [groupId, scoreId, req.user.id]);
+        }
+
+        res.json({ success: true });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -635,57 +431,25 @@ app.post('/api/upload', authGuard, upload.single('scoreFile'), async (req, res) 
 
 app.delete('/api/scores/:id', authGuard, async (req, res) => {
     try {
-        const [rows] = await db.query(
-            'SELECT id, uploader, uploader_id FROM scores WHERE id=?',
-            [req.params.id]
-        );
-
-        if (!rows.length) {
-            return res.status(404).json({
-                success: false,
-                message: 'File not found.'
-            });
-        }
+        const [rows] = await db.query('SELECT id, uploader, uploader_id FROM scores WHERE id=?', [req.params.id]);
+        if (!rows.length) return res.status(404).json({ success: false, message: 'File not found.' });
 
         const score = rows[0];
-        const ownerId = score.uploader_id;
         let isOwner = false;
-
-        if (ownerId != null) {
-            isOwner = Number(ownerId) === Number(req.user.id);
+        if (score.uploader_id != null) {
+            isOwner = Number(score.uploader_id) === Number(req.user.id);
         } else {
-            const [matchedUsers] = await db.query(
-                'SELECT id FROM users WHERE name=? LIMIT 2',
-                [score.uploader]
-            );
-
+            const [matchedUsers] = await db.query('SELECT id FROM users WHERE name=? LIMIT 2', [score.uploader]);
             isOwner = matchedUsers.length === 1 && Number(matchedUsers[0].id) === Number(req.user.id);
         }
 
-        if (!isOwner) {
-            return res.status(403).json({
-                success: false,
-                message: 'This is not your file. You cannot delete it.'
-            });
-        }
+        if (!isOwner) return res.status(403).json({ success: false, message: 'This is not your file. You cannot delete it.' });
 
-        const [result] = await db.query(
-            'DELETE FROM scores WHERE id=?',
-            [req.params.id]
-        );
-
-        if (result.affectedRows === 0) {
-            return res.status(500).json({
-                success: false,
-                message: 'Delete failed. Please try again.'
-            });
-        }
+        await db.query('DELETE FROM group_scores WHERE score_id=?', [req.params.id]);
+        await db.query('DELETE FROM scores WHERE id=?', [req.params.id]);
 
         res.json({ success: true, message: 'Deleted successfully' });
-
-    } catch (err) {
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
+    } catch (err) { res.status(500).json({ success: false, message: 'Server error' }); }
 });
 
 // ==========================================
@@ -694,46 +458,15 @@ app.delete('/api/scores/:id', authGuard, async (req, res) => {
 app.get('/api/logs', authGuard, async (req, res) => {
     try {
         const userColumn = await getLogsUserColumn();
-        if (!userColumn) {
-            return res.json([]);
-        }
-
-        const [rows] = await db.query(
-            `SELECT id, \`${userColumn}\` AS user_id, scoreTitle, durationSeconds, date FROM logs WHERE \`${userColumn}\`=? ORDER BY date DESC`,
-            [req.user.id]
-        );
-
+        if (!userColumn) return res.json([]);
+        const [rows] = await db.query(`SELECT id, \`${userColumn}\` AS user_id, scoreTitle, durationSeconds, date FROM logs WHERE \`${userColumn}\`=? ORDER BY date DESC`, [req.user.id]);
         if (rows.length) {
-            const dbLogs = rows.map(log => ({
-                id: log.id,
-                user_id: Number(log.user_id),
-                scoreTitle: log.scoreTitle,
-                durationSeconds: Number(log.durationSeconds) || 0,
-                date: normalizeLogDate(log.date)
-            }));
-            return res.json(dbLogs);
+            return res.json(rows.map(log => ({ id: log.id, user_id: Number(log.user_id), scoreTitle: log.scoreTitle, durationSeconds: Number(log.durationSeconds) || 0, date: normalizeLogDate(log.date) })));
         }
-
-        const allLogs = readLogsFile();
-        const userId = Number(req.user.id);
-        const fileLogs = allLogs
-            .filter(log => Number(log.user_id ?? log.userId) === userId)
-            .map(log => ({
-                ...log,
-                user_id: Number(log.user_id ?? log.userId),
-                date: normalizeLogDate(log.date)
-            }));
+        const fileLogs = readLogsFile().filter(log => Number(log.user_id ?? log.userId) === Number(req.user.id)).map(log => ({ ...log, user_id: Number(log.user_id ?? log.userId), date: normalizeLogDate(log.date) }));
         res.json(fileLogs);
     } catch (err) {
-        const allLogs = readLogsFile();
-        const userId = Number(req.user.id);
-        const fileLogs = allLogs
-            .filter(log => Number(log.user_id ?? log.userId) === userId)
-            .map(log => ({
-                ...log,
-                user_id: Number(log.user_id ?? log.userId),
-                date: normalizeLogDate(log.date)
-            }));
+        const fileLogs = readLogsFile().filter(log => Number(log.user_id ?? log.userId) === Number(req.user.id)).map(log => ({ ...log, user_id: Number(log.user_id ?? log.userId), date: normalizeLogDate(log.date) }));
         res.json(fileLogs);
     }
 });
@@ -741,274 +474,130 @@ app.get('/api/logs', authGuard, async (req, res) => {
 app.post('/api/logs', authGuard, async (req, res) => {
     try {
         const { scoreTitle, durationSeconds, durationMinutes } = req.body;
-        
-        if (!scoreTitle || (durationSeconds === undefined && durationMinutes === undefined)) {
-            return res.status(400).json({ message: "Missing required fields" });
-        }
-
-        const minutesValue = Number(durationMinutes);
-        const secondsValue = Number(durationSeconds);
-        const storedSeconds = Number.isFinite(minutesValue) && minutesValue > 0
-            ? Math.max(60, Math.round(minutesValue) * 60)
-            : (Number.isFinite(secondsValue) ? Math.max(0, Math.round(secondsValue)) : 0);
-
+        if (!scoreTitle || (durationSeconds === undefined && durationMinutes === undefined)) return res.status(400).json({ message: "Missing required fields" });
+        const minutesValue = Number(durationMinutes); const secondsValue = Number(durationSeconds);
+        const storedSeconds = Number.isFinite(minutesValue) && minutesValue > 0 ? Math.max(60, Math.round(minutesValue) * 60) : (Number.isFinite(secondsValue) ? Math.max(0, Math.round(secondsValue)) : 0);
         let dbWriteOk = false;
         try {
             const nowMysql = toMysqlDateTime(new Date().toISOString());
-            await db.query(
-                'INSERT INTO logs (user_id, scoreTitle, durationSeconds, date) VALUES (?, ?, ?, ?)',
-                [req.user.id, scoreTitle, storedSeconds, nowMysql]
-            );
+            await db.query('INSERT INTO logs (user_id, scoreTitle, durationSeconds, date) VALUES (?, ?, ?, ?)', [req.user.id, scoreTitle, storedSeconds, nowMysql]);
             dbWriteOk = true;
         } catch (dbErr) { }
-
-        appendLogToFile({
-            user_id: Number(req.user.id),
-            scoreTitle,
-            durationSeconds: storedSeconds,
-            date: new Date().toISOString()
-        });
-
-        if (dbWriteOk) {
-            return res.json({ success: true });
-        }
-
+        appendLogToFile({ user_id: Number(req.user.id), scoreTitle, durationSeconds: storedSeconds, date: new Date().toISOString() });
+        if (dbWriteOk) return res.json({ success: true });
         res.status(202).json({ success: true, warning: 'Saved to file only. DB unavailable.' });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+    } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
 // ==========================================
 // GROUPS APIs
 // ==========================================
-
-// 1. CREATE GROUP
 app.post('/api/groups', authGuard, async (req, res) => {
     try {
         const { groupName } = req.body;
-        const userId = req.user.id;
-        
         if (!groupName) return res.status(400).json({ success: false, message: "Group name is required" });
-
         const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-
-        const [result] = await db.query(
-            'INSERT INTO \`groups\` (group_name, invite_code, creator_id) VALUES (?, ?, ?)',
-            [groupName, inviteCode, userId]
-        );
-        const groupId = result.insertId;
-
-        await db.query(
-            'INSERT INTO group_members (group_id, user_id) VALUES (?, ?)',
-            [groupId, userId]
-        );
-
-        res.json({ success: true, groupId, inviteCode, message: "Group created successfully!" });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
+        const [result] = await db.query('INSERT INTO \`groups\` (group_name, invite_code, creator_id) VALUES (?, ?, ?)', [groupName, inviteCode, req.user.id]);
+        await db.query('INSERT INTO group_members (group_id, user_id) VALUES (?, ?)', [result.insertId, req.user.id]);
+        res.json({ success: true, groupId: result.insertId, inviteCode, message: "Group created successfully!" });
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// 2. JOIN GROUP
 app.post('/api/groups/join', authGuard, async (req, res) => {
     try {
         const { inviteCode } = req.body;
-        const userId = req.user.id;
-
         const [groups] = await db.query('SELECT * FROM \`groups\` WHERE invite_code = ?', [inviteCode.trim()]);
-        
         if (groups.length === 0) return res.status(404).json({ success: false, message: "Invalid invite code" });
-
-        const group = groups[0];
-
-        const [existing] = await db.query(
-            'SELECT * FROM group_members WHERE group_id = ? AND user_id = ?',
-            [group.id, userId]
-        );
-        
+        const [existing] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groups[0].id, req.user.id]);
         if (existing.length > 0) return res.status(400).json({ success: false, message: "You are already in this group" });
-
-        await db.query('INSERT INTO group_members (group_id, user_id) VALUES (?, ?)', [group.id, userId]);
-
-        res.json({ success: true, message: "Joined group successfully!", groupName: group.group_name });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
+        await db.query('INSERT INTO group_members (group_id, user_id) VALUES (?, ?)', [groups[0].id, req.user.id]);
+        res.json({ success: true, message: "Joined group successfully!", groupName: groups[0].group_name });
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// 3. GET MY GROUPS
 app.get('/api/my-groups', authGuard, async (req, res) => {
     try {
-        const userId = req.user.id;
-        const [rows] = await db.query(`
-            SELECT g.* FROM \`groups\` g
-            JOIN group_members gm ON g.id = gm.group_id
-            WHERE gm.user_id = ?
-        `, [userId]);
+        const [rows] = await db.query('SELECT g.* FROM \`groups\` g JOIN group_members gm ON g.id = gm.group_id WHERE gm.user_id = ?', [req.user.id]);
         res.json(rows);
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// 4. SHARE SCORE TO GROUP
 app.post('/api/groups/:groupId/scores', authGuard, async (req, res) => {
     try {
-        const { groupId } = req.params;
-        const { scoreId } = req.body;
-        const userId = req.user.id;
-
-        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, userId]);
+        const { groupId } = req.params; const { scoreId } = req.body;
+        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, req.user.id]);
         if (member.length === 0) return res.status(403).json({ success: false, message: "You are not a member of this group" });
-
         const [existing] = await db.query('SELECT * FROM group_scores WHERE group_id = ? AND score_id = ?', [groupId, scoreId]);
         if (existing.length > 0) return res.status(400).json({ success: false, message: "Score already shared in this group" });
-
-        await db.query('INSERT INTO group_scores (group_id, score_id, shared_by) VALUES (?, ?, ?)', [groupId, scoreId, userId]);
-
+        await db.query('INSERT INTO group_scores (group_id, score_id, shared_by) VALUES (?, ?, ?)', [groupId, scoreId, req.user.id]);
         res.json({ success: true, message: "Score shared successfully!" });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// 5. GET SCORES IN A GROUP
 app.get('/api/groups/:groupId/scores', authGuard, async (req, res) => {
     try {
-        const { groupId } = req.params;
-        const userId = req.user.id;
-
-        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, userId]);
+        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [req.params.groupId, req.user.id]);
         if (member.length === 0) return res.status(403).json({ success: false, message: "Access denied" });
-
         const [scores] = await db.query(`
             SELECT s.*, u.name as uploader_name, gs.shared_at 
             FROM group_scores gs
             JOIN scores s ON gs.score_id = s.id
             JOIN users u ON gs.shared_by = u.id
-            WHERE gs.group_id = ?
-            ORDER BY gs.shared_at DESC
-        `, [groupId]);
-
+            WHERE gs.group_id = ? ORDER BY gs.shared_at DESC
+        `, [req.params.groupId]);
         res.json(scores);
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// 6. LEAVE GROUP
 app.delete('/api/groups/:groupId/leave', authGuard, async (req, res) => {
     try {
-        const { groupId } = req.params;
-        const userId = req.user.id;
-
-        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, userId]);
-        if (member.length === 0) {
-            return res.status(400).json({ success: false, message: "You are not a member of this group." });
-        }
-
-        await db.query('DELETE FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, userId]);
-
+        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [req.params.groupId, req.user.id]);
+        if (member.length === 0) return res.status(400).json({ success: false, message: "You are not a member of this group." });
+        await db.query('DELETE FROM group_members WHERE group_id = ? AND user_id = ?', [req.params.groupId, req.user.id]);
         res.json({ success: true, message: "You have successfully left the group." });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// 7. GET GROUP MEMBERS (拿取群成员名单)
 app.get('/api/groups/:groupId/members', authGuard, async (req, res) => {
     try {
-        const { groupId } = req.params;
-        const userId = req.user.id;
-
-        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, userId]);
-        if (member.length === 0) {
-            return res.status(403).json({ success: false, message: "Access denied" });
-        }
-
-        const [members] = await db.query(`
-            SELECT u.id, u.name 
-            FROM group_members gm
-            JOIN users u ON gm.user_id = u.id
-            WHERE gm.group_id = ?
-            ORDER BY u.name ASC
-        `, [groupId]);
-
+        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [req.params.groupId, req.user.id]);
+        if (member.length === 0) return res.status(403).json({ success: false, message: "Access denied" });
+        const [members] = await db.query('SELECT u.id, u.name FROM group_members gm JOIN users u ON gm.user_id = u.id WHERE gm.group_id = ? ORDER BY u.name ASC', [req.params.groupId]);
         res.json(members);
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// 8. REMOVE MEMBER FROM GROUP
 app.delete('/api/groups/:groupId/members/:memberId', authGuard, async (req, res) => {
     try {
         const { groupId, memberId } = req.params;
-        const userId = req.user.id; 
-
-        const [groups] = await db.query('SELECT creator_id FROM `groups` WHERE id = ?', [groupId]);
+        const [groups] = await db.query('SELECT creator_id FROM \`groups\` WHERE id = ?', [groupId]);
         if (groups.length === 0) return res.status(404).json({ success: false, message: "Group not found" });
-
-        const creatorId = groups[0].creator_id;
-
-        if (Number(userId) !== Number(creatorId)) {
-            return res.status(403).json({ success: false, message: "Only the group owner (👑) can remove members." });
-        }
-
-        if (Number(memberId) === Number(creatorId)) {
-            return res.status(400).json({ success: false, message: "Owner cannot be removed." });
-        }
+        if (Number(req.user.id) !== Number(groups[0].creator_id)) return res.status(403).json({ success: false, message: "Only the group owner can remove members." });
+        if (Number(memberId) === Number(groups[0].creator_id)) return res.status(400).json({ success: false, message: "Owner cannot be removed." });
         await db.query('DELETE FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, memberId]);
-
-
-        res.json({ success: true, message: "Member has been removed from the group." });
-    } catch (err) {
-        console.error('Remove member error:', err.message);
-        res.status(500).json({ success: false, message: err.message });
-    }
+        res.json({ success: true, message: "Member has been removed." });
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// ==========================================
-// GROUP CHAT APIs (群聊接口)
-// ==========================================
 app.get('/api/groups/:groupId/messages', authGuard, async (req, res) => {
     try {
-        const { groupId } = req.params;
-        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, req.user.id]);
+        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [req.params.groupId, req.user.id]);
         if (member.length === 0) return res.status(403).json({ success: false, message: "Access denied" });
-
-        const [messages] = await db.query(`
-            SELECT gm.id, gm.message, gm.created_at, u.name as sender_name, u.id as sender_id
-            FROM group_messages gm
-            JOIN users u ON gm.user_id = u.id
-            WHERE gm.group_id = ?
-            ORDER BY gm.created_at ASC
-        `, [groupId]);
-
+        const [messages] = await db.query('SELECT gm.id, gm.message, gm.created_at, u.name as sender_name, u.id as sender_id FROM group_messages gm JOIN users u ON gm.user_id = u.id WHERE gm.group_id = ? ORDER BY gm.created_at ASC', [req.params.groupId]);
         res.json(messages);
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
 app.post('/api/groups/:groupId/messages', authGuard, async (req, res) => {
     try {
-        const { groupId } = req.params;
-        const { message } = req.body;
-        if (!message || !message.trim()) return res.status(400).json({ success: false, message: "Message cannot be empty" });
-
-        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, req.user.id]);
+        if (!req.body.message || !req.body.message.trim()) return res.status(400).json({ success: false, message: "Message cannot be empty" });
+        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [req.params.groupId, req.user.id]);
         if (member.length === 0) return res.status(403).json({ success: false, message: "Access denied" });
-
-        await db.query('INSERT INTO group_messages (group_id, user_id, message) VALUES (?, ?, ?)', [groupId, req.user.id, message.trim()]);
+        await db.query('INSERT INTO group_messages (group_id, user_id, message) VALUES (?, ?, ?)', [req.params.groupId, req.user.id, req.body.message.trim()]);
         res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// ================= START =================
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
