@@ -941,6 +941,33 @@ app.get('/api/groups/:groupId/members', authGuard, async (req, res) => {
     }
 });
 
+// 8. REMOVE MEMBER FROM GROUP
+app.delete('/api/groups/:groupId/members/:memberId', authGuard, async (req, res) => {
+    try {
+        const { groupId, memberId } = req.params;
+        const userId = req.user.id; 
+
+        const [groups] = await db.query('SELECT creator_id FROM `groups` WHERE id = ?', [groupId]);
+        if (groups.length === 0) return res.status(404).json({ success: false, message: "Group not found" });
+
+        const creatorId = groups[0].creator_id;
+
+        if (Number(userId) !== Number(creatorId)) {
+            return res.status(403).json({ success: false, message: "Only the group owner (👑) can remove members." });
+        }
+
+        if (Number(memberId) === Number(creatorId)) {
+            return res.status(400).json({ success: false, message: "Owner cannot be removed." });
+        }
+        await db.query('DELETE FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, memberId]);
+
+
+        res.json({ success: true, message: "Member has been removed from the group." });
+    } catch (err) {
+        console.error('Remove member error:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
 
 // ==========================================
 // GROUP CHAT APIs (群聊接口)
