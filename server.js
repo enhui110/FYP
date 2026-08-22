@@ -89,7 +89,6 @@ async function ensureGroupMessagesTable() {
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         `);
-        console.log("✅ Group messages table checked/created.");
     } catch (err) {
         console.error("Group messages table error:", err.message);
     }
@@ -128,7 +127,6 @@ async function getLogsUserColumn() {
     } catch (err) {
         console.error('getLogsUserColumn error:', err.message);
     }
-
     return null;
 }
 
@@ -261,7 +259,7 @@ async function initializeDatabase() {
     await ensureScoresComposerColumn();
     await ensureLogsTable();
     await ensureLogsUserIdColumn();
-    await ensureGroupMessagesTable(); // 加入建表
+    await ensureGroupMessagesTable(); 
     await syncFileLogsToDb();
     await fixMayJuneSwap();
     await fixNullLogDates();
@@ -286,32 +284,27 @@ async function fixMayJuneSwap() {
 
         const backupPath = path.join(__dirname, 'data', `fix_may_june_backup_${Date.now()}.json`);
         fs.writeFileSync(backupPath, JSON.stringify(rows, null, 4), 'utf8');
-        console.log(`fixMayJuneSwap: backed up ${rows.length} rows to ${backupPath}`);
 
         for (const r of rows) {
             await db.query(
                 "UPDATE logs SET date = STR_TO_DATE(CONCAT(YEAR(date),'-',LPAD(DAY(date),2,'0'),'-',LPAD(MONTH(date),2,'0'),' ',DATE_FORMAT(date,'%H:%i:%s')), '%Y-%m-%d %H:%i:%s') WHERE id=?",
                 [r.id]
             );
-            console.log(`fixMayJuneSwap: updated id=${r.id}`);
         }
     } catch (err) {
         console.error('fixMayJuneSwap error:', err.message);
     }
 }
 
-// Fix rows where date IS NULL
 async function fixNullLogDates() {
     try {
         const [rows] = await db.query("SELECT id, user_id, scoreTitle, durationSeconds FROM logs WHERE date IS NULL LIMIT 1000");
         if (!rows.length) return;
         const backupPath = path.join(__dirname, 'data', `null_date_backup_${Date.now()}.json`);
         fs.writeFileSync(backupPath, JSON.stringify(rows, null, 4), 'utf8');
-        console.log(`fixNullLogDates: backed up ${rows.length} rows to ${backupPath}`);
 
         for (const r of rows) {
             await db.query('UPDATE logs SET date=NOW() WHERE id=?', [r.id]);
-            console.log(`fixNullLogDates: updated id=${r.id}`);
         }
     } catch (err) {
         console.error('fixNullLogDates error:', err.message);
@@ -424,7 +417,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// PUBLIC FORGOT PASSWORD (Direct Reset for auth.html)
+// PUBLIC FORGOT PASSWORD
 app.post('/api/forgot-password', async (req, res) => {
     try {
         const { email, newPassword } = req.body;
@@ -444,7 +437,7 @@ app.post('/api/forgot-password', async (req, res) => {
     }
 });
 
-// PROFILE FORGOT PASSWORD (Secure Reset for index.html)
+// PROFILE FORGOT PASSWORD 
 app.post('/api/profile-forgot-password', authGuard, async (req, res) => {
     try {
         const { email, newPassword } = req.body;
@@ -518,9 +511,7 @@ app.post('/api/users/verify-password', authGuard, async (req, res) => {
 });
 
 // 3. UPDATE USER PROFILE (NAME & PASSWORD)
-app.put('/api/users/update', authGuard, async (req, res) => {
-    console.log("[USER API] Profile update requested by ID: ", req.user.id);
-    
+app.put('/api/users/update', authGuard, async (req, res) => {    
     try {
         const userId = req.user.id;
         const { username, password, oldPassword } = req.body; 
@@ -577,7 +568,6 @@ app.put('/api/users/update', authGuard, async (req, res) => {
             return res.status(500).json({ message: "Failed to update profile." });
         }
 
-        console.log("[USER API] Profile updated successfully!");
         res.json({ success: true, message: "Profile updated successfully!" });
 
     } catch (err) {
@@ -612,8 +602,6 @@ app.get('/api/scores/:id', async (req, res) => {
 
 // UPLOAD
 app.post('/api/upload', authGuard, upload.single('scoreFile'), async (req, res) => {
-    console.log("[UPLOAD API] Upload request received. Uploader: ", req.user.name); 
-    
     try {
         if (!req.file) {
             return res.status(400).json({ message: "No file provided" });
@@ -644,7 +632,6 @@ app.post('/api/upload', authGuard, upload.single('scoreFile'), async (req, res) 
             ]
         );
 
-        console.log("[UPLOAD API] Score successfully saved to database!");
         res.json({ success: true });
 
     } catch (err) {
@@ -760,8 +747,6 @@ app.get('/api/logs', authGuard, async (req, res) => {
 
 // POST NEW LOG 
 app.post('/api/logs', authGuard, async (req, res) => {
-    console.log("[LOG API] Received practice log from frontend"); 
-
     try {
         const { scoreTitle, durationSeconds, durationMinutes } = req.body;
         
@@ -783,7 +768,6 @@ app.post('/api/logs', authGuard, async (req, res) => {
                 [req.user.id, scoreTitle, storedSeconds, nowMysql]
             );
             dbWriteOk = true;
-            console.log("[LOG API] Successfully saved to MySQL database!"); 
         } catch (dbErr) {
             console.error('[LOG API] Failed to save to MySQL. Reason: ', dbErr.message); 
         }
