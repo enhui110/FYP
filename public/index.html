@@ -8,10 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #0f172a;       /* Slate 900 - Deep modern dark */
-            --accent: #6366f1;        /* Indigo 500 - Modern vibrant blue/purple */
+            --primary: #0f172a; 
+            --accent: #6366f1;
             --accent-hover: #4f46e5;
-            --bg: #f8fafc;            /* Light sleek background */
+            --bg: #f8fafc;
             --surface: #ffffff;
             --text-main: #334155;
             --text-muted: #64748b;
@@ -34,7 +34,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- Navbar Glassmorphism --- */
         .navbar {
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
@@ -99,7 +98,6 @@
             margin: 0 10px;
         }
 
-        /* --- Modern Buttons --- */
         .btn {
             padding: 10px 24px;
             border: none;
@@ -140,7 +138,6 @@
             background: #f1f5f9 !important;
         }
 
-        /* --- Layout & Typography --- */
         .container {
             max-width: 1200px;
             margin: 40px auto;
@@ -170,7 +167,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- Modern Cards --- */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -228,7 +224,6 @@
             gap: 10px;
         }
 
-        /* --- Inputs & Filters --- */
         .input-box {
             width: 100%;
             padding: 14px 20px;
@@ -303,7 +298,6 @@
             box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
         }
 
-        /* --- Dashboard Stats --- */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -346,7 +340,6 @@
             margin-top: 10px;
         }
 
-        /* --- Profile Section --- */
         .profile-card {
             background: var(--surface);
             padding: 40px;
@@ -413,7 +406,6 @@
             margin-bottom: 0;
         }
 
-        /* --- Modals (Glassmorphism) --- */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -482,7 +474,6 @@
             font-size: 16px;
         }
 
-        /* --- Progress Bar --- */
         .progress-wrapper {
             width: 100%;
             background: #e2e8f0;
@@ -541,7 +532,7 @@
         <div id="library" class="section">
             <h1>Score Library</h1>
             <div class="filter-container">
-                <input type="text" id="s-input" class="input-box" style="margin: 0; height: 46px; flex: 2; min-width: 200px;" placeholder="Search by title or composer..." oninput="filter()">
+                <input type="text" id="s-input" class="input-box" style="margin: 0; height: 46px; flex: 2; min-width: 200px;" placeholder="Search by title..." oninput="filter()">
                 
                 <select id="s-inst" class="input-box" style="margin: 0; height: 46px; flex: 1; min-width: 160px;" onchange="filter()">
                     <option value="All Instrument">All Instruments</option>
@@ -669,8 +660,6 @@
             <div id="profile-content"></div>
         </div>
     </div>
-
-    <!-- ================== MODALS ================== -->
 
     <!-- General Alert Modal -->
     <div id="alert-modal" class="modal-overlay">
@@ -860,7 +849,6 @@
             });
         }
 
-        // --- Toggle Password Visibility Logic ---
         function togglePasswordVisibility(inputId, iconEl) {
             const input = document.getElementById(inputId);
             if (input.type === "password") {
@@ -877,8 +865,6 @@
             document.getElementById('pf-email').value = '';
             document.getElementById('pf-new-pw').value = '';
             document.getElementById('pf-confirm-pw').value = '';
-            
-            // Reset to default (password hidden, eye-slash shown)
             document.getElementById('pf-new-pw').type = "password";
             document.getElementById('pf-confirm-pw').type = "password";
             const icons = document.querySelectorAll('#profile-forgot-modal .password-toggle-icon');
