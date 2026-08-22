@@ -8,10 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #0f172a; 
-            --accent: #6366f1;
+            --primary: #0f172a;       
+            --accent: #6366f1;        
             --accent-hover: #4f46e5;
-            --bg: #f8fafc;
+            --bg: #f8fafc;            
             --surface: #ffffff;
             --text-main: #334155;
             --text-muted: #64748b;
@@ -138,6 +138,63 @@
             background: #f1f5f9 !important;
         }
 
+        /* --- New Card Button Styles --- */
+        .card-actions {
+            margin-top: 24px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-sm {
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-icon-danger {
+            background: transparent;
+            color: #cbd5e1;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            margin-left: auto; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon-danger:hover {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
         .container {
             max-width: 1200px;
             margin: 40px auto;
@@ -207,21 +264,19 @@
             opacity: 1;
         }
 
-        .card h3 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
-        }
-
-        .card p {
-            color: var(--text-muted);
-            font-size: 13px;
-            margin: 6px 0;
-        }
-
-        .btn-group {
-            margin-top: 24px;
+        .fav-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
-            gap: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fav-icon:hover {
+            transform: scale(1.15);
         }
 
         .input-box {
@@ -375,6 +430,30 @@
             justify-content: center;
         }
 
+        .profile-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 12px;
+            padding: 5px 0;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .avatar-wrapper:hover .avatar-overlay {
+            opacity: 1;
+        }
+
         .profile-details {
             background: #f8fafc;
             padding: 24px;
@@ -404,6 +483,16 @@
             border-bottom: none;
             padding-bottom: 0;
             margin-bottom: 0;
+        }
+
+        .edit-form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            text-align: left;
+            border: 1px solid #eee;
         }
 
         .modal-overlay {
@@ -458,7 +547,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0.5;
+            opacity: 0.6;
             transition: var(--transition);
         }
         
@@ -489,6 +578,123 @@
             background: linear-gradient(90deg, var(--accent), var(--info));
             width: 0%;
             transition: width 0.3s ease;
+        }
+
+        .group-split-view {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .group-split-left {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .group-split-right {
+            flex: 1;
+            min-width: 300px;
+            max-width: 450px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 500px; 
+        }
+
+        .chat-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #fdfdfd;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            position: relative;
+        }
+
+        .chat-me {
+            align-self: flex-end;
+            background: var(--accent);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-other {
+            align-self: flex-start;
+            background: #e9ecef;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-sender {
+            font-size: 11px;
+            margin-bottom: 4px;
+            font-weight: bold;
+            opacity: 0.8;
+        }
+
+        .chat-time {
+            font-size: 10px;
+            margin-top: 5px;
+            text-align: right;
+            opacity: 0.7;
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 12px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 10px 15px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .chat-send-btn {
+            background: var(--info);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .chat-send-btn:hover {
+            background: #2980b9;
         }
     </style>
 </head>
@@ -591,8 +797,26 @@
                         <button id="gd-leave-btn" class="btn" style="background: white; color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; font-size: 13px;">Leave Group</button>
                     </div>
                 </div>
-                <h3>Shared Scores in this Group</h3>
-                <div id="gd-scores" class="grid"></div>
+                
+                <div class="group-split-view">
+                    <!-- Left: Shared Scores -->
+                    <div class="group-split-left">
+                        <h3 style="margin-top: 0;">Shared Scores</h3>
+                        <div id="gd-scores" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));"></div>
+                    </div>
+                    
+                    <!-- Right: Group Chat -->
+                    <div class="group-split-right">
+                        <div class="chat-header">Group Chat</div>
+                        <div class="chat-messages" id="chat-messages">
+                        </div>
+                        <form class="chat-input-area" onsubmit="submitGroupMessage(event)">
+                            <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." autocomplete="off">
+                            <button type="submit" class="chat-send-btn">➤</button>
+                        </form>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -775,6 +999,10 @@
         let isNameValid = true;
         let isOldPwValid = false;
 
+        // Group Chat Variables
+        let chatInterval = null;
+        let activeGroupId = null;
+
         const svgEye = '<img src="pic/eye.png" width="20" height="20" alt="Show">';
         const svgEyeOff = '<img src="pic/hide.png" width="20" height="20" alt="Hide">';
 
@@ -865,6 +1093,7 @@
             document.getElementById('pf-email').value = '';
             document.getElementById('pf-new-pw').value = '';
             document.getElementById('pf-confirm-pw').value = '';
+            
             document.getElementById('pf-new-pw').type = "password";
             document.getElementById('pf-confirm-pw').type = "password";
             const icons = document.querySelectorAll('#profile-forgot-modal .password-toggle-icon');
@@ -920,6 +1149,12 @@
             if (!isLoggedIn && (id === 'upload' || id === 'profile' || id === 'groups')) {
                 window.location.href = 'auth.html';
                 return;
+            }
+
+            if (id !== 'groups' && chatInterval) {
+                clearInterval(chatInterval);
+                chatInterval = null;
+                activeGroupId = null;
             }
 
             localStorage.setItem('mutice_page', id);
@@ -1029,6 +1264,8 @@
 
                     if (data.success) {
                         document.getElementById('group-detail-view').style.display = 'none';
+                        if (chatInterval) clearInterval(chatInterval);
+                        activeGroupId = null;
                         loadGroups();
                     }
                 } catch (err) { showAlert("Server error"); }
@@ -1045,6 +1282,17 @@
             const scoresContainer = document.getElementById('gd-scores');
             scoresContainer.innerHTML = `<p style="color:var(--text-muted); font-size:14px;">Loading scores...</p>`;
 
+            // Chat Activation
+            activeGroupId = groupId;
+            loadGroupMessages(groupId);
+            
+            if(chatInterval) clearInterval(chatInterval);
+            chatInterval = setInterval(() => {
+                if (document.getElementById('group-detail-view').style.display !== 'none' && activeGroupId === groupId) {
+                    loadGroupMessages(groupId);
+                }
+            }, 2000);
+
             try {
                 const latestToken = localStorage.getItem('mutice_token') || token;
                 const res = await fetch(`${API}/groups/${groupId}/scores`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
@@ -1055,18 +1303,84 @@
                     return;
                 }
 
-                scoresContainer.innerHTML = scores.map(i => `
+                const heartOutline = `<svg width="24" height="24" fill="none" stroke="#cbd5e1" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>`;
+                const heartFilled = `<svg width="24" height="24" fill="#ef4444" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>`;
+                const favs = getFavs();
+
+                scoresContainer.innerHTML = scores.map(i => {
+                    const isFav = favs.includes(i.id);
+                    return `
                     <div class="card" onclick="goToPractice(${i.id})">
-                        <h3 style="margin-top:0;">${i.title}</h3>
-                        <p style="font-size: 12px; color: var(--text-muted); margin:5px 0;"><strong>Shared by:</strong> ${i.uploader_name || 'Unknown'}</p>
-                        <p style="font-size: 12px; color: var(--text-muted); margin:5px 0;">${i.instrument} &middot; ${i.difficulty}</p>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-start">Start Practice</button>
+                        <div style="position: relative; padding-right: 30px;">
+                            <div class="fav-icon" onclick="toggleFav(event, ${i.id})" title="${isFav ? 'Remove from Favorites' : 'Add to Favorites'}">
+                                ${isFav ? heartFilled : heartOutline}
+                            </div>
+                            
+                            <h3 style="color:var(--primary); font-size:18px; line-height:1.3; margin-bottom:8px;">${i.title}</h3>
+                            <p style="color:var(--text-main); font-weight:500; font-size:14px; margin-bottom:12px;">${i.composer || 'Unknown Composer'}</p>
+                            <p style="color:var(--text-muted); font-size:13px; display:flex; align-items:center; gap:6px;">
+                                <span style="background:#e2e8f0; padding:2px 8px; border-radius:4px;">${i.instrument}</span>
+                                <span style="background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:4px;">${i.difficulty}</span>
+                            </p>
+                            <p style="font-size: 12px; color:#94a3b8; margin-top: 12px;">Shared by: ${i.uploader_name || 'Unknown'}</p>
                         </div>
-                    </div>
-                `).join('');
+                        <div class="card-actions">
+                            <button type="button" class="btn-sm btn-primary" onclick="event.stopPropagation(); goToPractice(${i.id})">Start</button>
+                        </div>
+                    </div>`
+                }).join('');
             } catch (err) { scoresContainer.innerHTML = `<p style="color:red;">Error loading shared scores.</p>`; }
         }
+
+        // --- Chat Functions ---
+        async function loadGroupMessages(groupId) {
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/groups/${groupId}/messages`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
+                const messages = await res.json();
+                
+                const container = document.getElementById('chat-messages');
+                let html = '';
+                
+                messages.forEach(m => {
+                    const isMe = Number(m.sender_id) === currentUserId;
+                    const time = new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    html += `
+                        <div class="chat-bubble ${isMe ? 'chat-me' : 'chat-other'}">
+                            ${!isMe ? `<div class="chat-sender">${m.sender_name}</div>` : ''}
+                            <div>${m.message}</div>
+                            <div class="chat-time">${time}</div>
+                        </div>
+                    `;
+                });
+                
+                if (container.dataset.count !== String(messages.length)) {
+                    container.innerHTML = html || '<p style="text-align:center; color:#999; font-size:12px; margin-top:50px;">No messages yet. Say hi!</p>';
+                    container.scrollTop = container.scrollHeight;
+                    container.dataset.count = messages.length;
+                }
+            } catch (e) { }
+        }
+
+        async function submitGroupMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg || !activeGroupId) return;
+            
+            input.value = ''; 
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                await fetch(`${API}/groups/${activeGroupId}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${latestToken}` },
+                    body: JSON.stringify({ message: msg })
+                });
+                loadGroupMessages(activeGroupId);
+            } catch (e) {}
+        }
+
 
         function openShareModal(scoreId) {
             if (!isLoggedIn) { showAlert("Please log in first!"); return; }
@@ -1106,7 +1420,7 @@
             if (!content) return;
 
             const savedAvatar = localStorage.getItem(`mutice_avatar_${currentUserId}`);
-            const formattedName = currentUserName === "Quek En Hui" ? "En Hui" : currentUserName; // Professional Formatting per Instructions
+            const formattedName = currentUserName === "Quek En Hui" ? "En Hui" : currentUserName;
             const initialChar = formattedName ? formattedName.charAt(0).toUpperCase() : '👤';
 
             content.innerHTML = `
@@ -1865,25 +2179,36 @@
             if (!list) return;
             const favs = getFavs();
 
+            const heartOutline = `<svg width="24" height="24" fill="none" stroke="#cbd5e1" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>`;
+            const heartFilled = `<svg width="24" height="24" fill="#ef4444" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>`;
+            const trashIcon = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
+
             list.innerHTML = data.map(i => {
                 const isFav = favs.includes(i.id);
                 return `
             <div class="card" onclick="goToPractice(${i.id})">
-                <div style="position: relative;">
-                    <div style="position: absolute; top: -5px; right: -5px; cursor: pointer; font-size: 22px; user-select: none; transition: transform 0.2s;" 
-                         onclick="toggleFav(event, ${i.id})" title="Add to Favorites" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
-                        ${isFav ? '❤️' : '🤍'}
+                <div style="position: relative; padding-right: 30px;">
+                    <div class="fav-icon" onclick="toggleFav(event, ${i.id})" title="${isFav ? 'Remove from Favorites' : 'Add to Favorites'}">
+                        ${isFav ? heartFilled : heartOutline}
                     </div>
                     
-                    <h3 style="margin-right: 25px;">${i.title}</h3>
-                    <p style="color:var(--text-main); font-weight:500;">${i.composer || 'Unknown Composer'}</p>
-                    <p>${i.instrument} &middot; ${i.difficulty}</p>
-                    <p style="font-size: 11px; margin-top: 8px;">Uploaded by: ${i.uploader || 'System'}</p>
+                    <h3 style="color:var(--primary); font-size:18px; line-height:1.3; margin-bottom:8px;">${i.title}</h3>
+                    <p style="color:var(--text-main); font-weight:500; font-size:14px; margin-bottom:12px;">${i.composer || 'Unknown Composer'}</p>
+                    <p style="color:var(--text-muted); font-size:13px; display:flex; align-items:center; gap:6px;">
+                        <span style="background:#e2e8f0; padding:2px 8px; border-radius:4px;">${i.instrument}</span>
+                        <span style="background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:4px;">${i.difficulty}</span>
+                    </p>
+                    <p style="font-size: 12px; color:#94a3b8; margin-top: 12px;">Uploaded by: ${i.uploader || 'System'}</p>
                 </div>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-start" onclick="event.stopPropagation(); goToPractice(${i.id})">Start</button>
-                    <button type="button" class="btn" style="background:#e2e8f0; color:var(--text-main); flex:1;" onclick="event.stopPropagation(); openShareModal(${i.id})">Share</button>
-                    ${canDeleteScore(i) ? `<button type="button" class="btn" style="background:var(--danger); color:white; flex:1;" onclick="event.stopPropagation(); removeScore(${i.id})">Delete</button>` : ''}
+                
+                <div class="card-actions">
+                    <button type="button" class="btn-sm btn-primary" onclick="event.stopPropagation(); goToPractice(${i.id})">Start</button>
+                    <button type="button" class="btn-sm btn-secondary" onclick="event.stopPropagation(); openShareModal(${i.id})">Share</button>
+                    
+                    ${canDeleteScore(i) ? `
+                    <button type="button" class="btn-icon-danger" title="Delete Score" onclick="event.stopPropagation(); removeScore(${i.id})">
+                        ${trashIcon}
+                    </button>` : ''}
                 </div>
             </div>`}).join('');
         }
