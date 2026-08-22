@@ -802,8 +802,6 @@
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 40px 0;">
 
             <div id="group-detail-view" style="display: none; background: var(--surface); padding: 32px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid rgba(0,0,0,0.03);">
-                
-                <!-- 精致的头部信息区 -->
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 24px;">
                     <div style="flex:1;">
                         <h2 id="gd-title" style="margin: 0 0 10px 0; color: var(--primary); font-size: 24px;">Group Name</h2>
@@ -813,7 +811,7 @@
                         </div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 15px; margin-left: 20px;">
-                        <button class="btn btn-start" style="padding: 8px 16px; font-size: 13px;" onclick="openGroupUploadModal()">" Upload Private Score</button>
+                        <button class="btn btn-start" style="padding: 8px 16px; font-size: 13px;" onclick="openGroupUploadModal()">➕ Upload Private Score</button>
                         <p style="margin: 0; font-size: 14px; color: var(--text-muted);">Invite Code: <strong id="gd-code" style="color: var(--accent); background: #eff6ff; padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 16px;"></strong></p>
                         <button id="gd-leave-btn" class="btn" style="background: white; color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; font-size: 13px;">Leave Group</button>
                     </div>
@@ -2392,6 +2390,11 @@
                     </button>` : ''}
                 </div>
             </div>`}).join('');
+        }
+
+        function goToPractice(id) {
+            if (!isLoggedIn) { window.location.href = 'auth.html'; }
+            else window.location.href = `practice.html?id=${encodeURIComponent(id)}`;
         }
 
         window.onload = initApp;
