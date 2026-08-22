@@ -34,6 +34,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        /* --- Navbar --- */
         .navbar {
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
@@ -98,6 +99,7 @@
             margin: 0 10px;
         }
 
+        /* --- Modern Buttons --- */
         .btn {
             padding: 10px 24px;
             border: none;
@@ -138,6 +140,7 @@
             background: #f1f5f9 !important;
         }
 
+        /* --- Card Button Styles --- */
         .card-actions {
             margin-top: 24px;
             display: flex;
@@ -194,6 +197,7 @@
             color: var(--danger);
         }
 
+        /* --- Layout & Typography --- */
         .container {
             max-width: 1200px;
             margin: 40px auto;
@@ -223,6 +227,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* --- Modern Cards --- */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -278,6 +283,7 @@
             transform: scale(1.15);
         }
 
+        /* --- Inputs & Filters --- */
         .input-box {
             width: 100%;
             padding: 14px 20px;
@@ -309,6 +315,8 @@
             cursor: pointer;
             appearance: none;
             -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
             background-position: right 16px center;
             background-size: 16px;
             padding-right: 40px;
@@ -352,6 +360,7 @@
             box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
         }
 
+        /* --- Dashboard Stats --- */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -394,6 +403,7 @@
             margin-top: 10px;
         }
 
+        /* --- Profile Section --- */
         .profile-card {
             background: var(--surface);
             padding: 40px;
@@ -494,6 +504,7 @@
             border: 1px solid #eee;
         }
 
+        /* --- Modals --- */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -562,6 +573,7 @@
             font-size: 16px;
         }
 
+        /* --- Progress Bar --- */
         .progress-wrapper {
             width: 100%;
             background: #e2e8f0;
@@ -790,8 +802,11 @@
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 40px 0;">
 
             <div id="group-detail-view" style="display: none; background: var(--surface); padding: 32px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid rgba(0,0,0,0.03);">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 24px;">
-                    <h2 id="gd-title" style="margin: 0; color: var(--primary); font-size: 24px;">Group Name</h2>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 24px;">
+                    <div>
+                        <h2 id="gd-title" style="margin: 0 0 10px 0; color: var(--primary); font-size: 24px;">Group Name</h2>
+                        <p style="margin: 0; font-size: 14px; color: var(--text-muted);">👥 <span style="font-weight:600;">Members:</span> <span id="gd-members" style="color: var(--primary);">Loading...</span></p>
+                    </div>
                     <div style="display: flex; align-items: center; gap: 20px;">
                         <p style="margin: 0; font-size: 14px; color: var(--text-muted);">Invite Code: <strong id="gd-code" style="color: var(--accent); background: #eff6ff; padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 16px;"></strong></p>
                         <button id="gd-leave-btn" class="btn" style="background: white; color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; font-size: 13px;">Leave Group</button>
@@ -884,6 +899,8 @@
             <div id="profile-content"></div>
         </div>
     </div>
+
+    <!-- ================== MODALS ================== -->
 
     <div id="alert-modal" class="modal-overlay">
         <div class="modal-content">
@@ -1270,6 +1287,7 @@
             document.getElementById('group-detail-view').style.display = 'block';
             document.getElementById('gd-title').innerText = groupName;
             document.getElementById('gd-code').innerText = inviteCode;
+            document.getElementById('gd-members').innerText = 'Loading...';
 
             document.getElementById('gd-leave-btn').onclick = () => leaveGroup(groupId);
 
@@ -1289,6 +1307,21 @@
 
             try {
                 const latestToken = localStorage.getItem('mutice_token') || token;
+
+                // 1. 获取群组成员
+                fetch(`${API}/groups/${groupId}/members`, { headers: { 'Authorization': `Bearer ${latestToken}` } })
+                    .then(res => res.json())
+                    .then(members => {
+                        if (Array.isArray(members)) {
+                            const names = members.map(m => {
+                                let n = m.name.replace(/Quek\s*/i, '').trim();
+                                return n || 'User';
+                            }).join(', ');
+                            document.getElementById('gd-members').innerText = names || 'No members';
+                        }
+                    }).catch(() => document.getElementById('gd-members').innerText = 'Failed to load');
+
+                // 2. 获取 Shared Scores
                 const res = await fetch(`${API}/groups/${groupId}/scores`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
                 const scores = await res.json();
 
@@ -1339,9 +1372,11 @@
                     const isMe = Number(m.sender_id) === currentUserId;
                     const time = new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     
+                    let senderName = m.sender_name.replace(/Quek\s*/i, '').trim() || 'User';
+
                     html += `
                         <div class="chat-bubble ${isMe ? 'chat-me' : 'chat-other'}">
-                            ${!isMe ? `<div class="chat-sender">${m.sender_name}</div>` : ''}
+                            ${!isMe ? `<div class="chat-sender">${senderName}</div>` : ''}
                             <div>${m.message}</div>
                             <div class="chat-time">${time}</div>
                         </div>

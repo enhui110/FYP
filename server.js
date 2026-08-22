@@ -127,6 +127,7 @@ async function getLogsUserColumn() {
     } catch (err) {
         console.error('getLogsUserColumn error:', err.message);
     }
+
     return null;
 }
 
@@ -296,6 +297,7 @@ async function fixMayJuneSwap() {
     }
 }
 
+// Fix rows where date IS NULL
 async function fixNullLogDates() {
     try {
         const [rows] = await db.query("SELECT id, user_id, scoreTitle, durationSeconds FROM logs WHERE date IS NULL LIMIT 1000");
@@ -432,7 +434,6 @@ app.post('/api/forgot-password', async (req, res) => {
 
         res.json({ success: true, message: "Password reset successfully! You can now login." });
     } catch (err) {
-        console.error("Reset password error: ", err);
         res.status(500).json({ success: false, message: "Server error" });
     }
 });
@@ -458,7 +459,6 @@ app.post('/api/profile-forgot-password', authGuard, async (req, res) => {
 
         res.json({ success: true, message: "Password reset successfully!" });
     } catch (err) {
-        console.error("Profile reset password error: ", err);
         res.status(500).json({ success: false, message: "Server error" });
     }
 });
@@ -483,7 +483,6 @@ app.post('/api/users/check-username', authGuard, async (req, res) => {
             res.json({ isAvailable: true });
         }
     } catch (err) {
-        console.error('Check username error:', err.message);
         res.status(500).json({ isAvailable: false });
     }
 });
@@ -505,12 +504,11 @@ app.post('/api/users/verify-password', authGuard, async (req, res) => {
         res.json({ isValid: match });
 
     } catch (err) {
-        console.error('Verify password error:', err.message);
         res.status(500).json({ isValid: false });
     }
 });
 
-// 3. UPDATE USER PROFILE (NAME & PASSWORD)
+// 3. UPDATE USER PROFILE
 app.put('/api/users/update', authGuard, async (req, res) => {    
     try {
         const userId = req.user.id;
@@ -571,7 +569,6 @@ app.put('/api/users/update', authGuard, async (req, res) => {
         res.json({ success: true, message: "Profile updated successfully!" });
 
     } catch (err) {
-        console.error("[USER API] Database error during update: ", err.message);
         res.status(500).json({ message: "Internal server error." });
     }
 });
@@ -580,13 +577,11 @@ app.put('/api/users/update', authGuard, async (req, res) => {
 // SCORES APIs
 // ==========================================
 
-// GET ALL
 app.get('/api/scores', async (req, res) => {
     const [rows] = await db.query('SELECT * FROM scores ORDER BY id DESC');
     res.json(rows);
 });
 
-// GET ONE
 app.get('/api/scores/:id', async (req, res) => {
     const [rows] = await db.query(
         'SELECT * FROM scores WHERE id=?',
@@ -600,7 +595,6 @@ app.get('/api/scores/:id', async (req, res) => {
     res.json(rows[0]);
 });
 
-// UPLOAD
 app.post('/api/upload', authGuard, upload.single('scoreFile'), async (req, res) => {
     try {
         if (!req.file) {
@@ -635,12 +629,10 @@ app.post('/api/upload', authGuard, upload.single('scoreFile'), async (req, res) 
         res.json({ success: true });
 
     } catch (err) {
-        console.error("[UPLOAD API] Database or file processing error: ", err.message);
         res.status(500).json({ message: err.message });
     }
 });
 
-// DELETE (SECURE)
 app.delete('/api/scores/:id', authGuard, async (req, res) => {
     try {
         const [rows] = await db.query(
@@ -696,7 +688,9 @@ app.delete('/api/scores/:id', authGuard, async (req, res) => {
     }
 });
 
-// GET ALL LOGS FOR USER
+// ==========================================
+// LOGS APIs
+// ==========================================
 app.get('/api/logs', authGuard, async (req, res) => {
     try {
         const userColumn = await getLogsUserColumn();
@@ -731,7 +725,6 @@ app.get('/api/logs', authGuard, async (req, res) => {
             }));
         res.json(fileLogs);
     } catch (err) {
-        console.error('GET /api/logs db error:', err.message);
         const allLogs = readLogsFile();
         const userId = Number(req.user.id);
         const fileLogs = allLogs
@@ -745,7 +738,6 @@ app.get('/api/logs', authGuard, async (req, res) => {
     }
 });
 
-// POST NEW LOG 
 app.post('/api/logs', authGuard, async (req, res) => {
     try {
         const { scoreTitle, durationSeconds, durationMinutes } = req.body;
@@ -768,9 +760,7 @@ app.post('/api/logs', authGuard, async (req, res) => {
                 [req.user.id, scoreTitle, storedSeconds, nowMysql]
             );
             dbWriteOk = true;
-        } catch (dbErr) {
-            console.error('[LOG API] Failed to save to MySQL. Reason: ', dbErr.message); 
-        }
+        } catch (dbErr) { }
 
         appendLogToFile({
             user_id: Number(req.user.id),
@@ -785,7 +775,6 @@ app.post('/api/logs', authGuard, async (req, res) => {
 
         res.status(202).json({ success: true, warning: 'Saved to file only. DB unavailable.' });
     } catch (err) {
-        console.error('[LOG API] Critical system error: ', err.message);
         res.status(500).json({ message: err.message });
     }
 });
@@ -817,7 +806,6 @@ app.post('/api/groups', authGuard, async (req, res) => {
 
         res.json({ success: true, groupId, inviteCode, message: "Group created successfully!" });
     } catch (err) {
-        console.error('Create group error:', err.message);
         res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -845,7 +833,6 @@ app.post('/api/groups/join', authGuard, async (req, res) => {
 
         res.json({ success: true, message: "Joined group successfully!", groupName: group.group_name });
     } catch (err) {
-        console.error('Join group error:', err.message);
         res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -861,7 +848,6 @@ app.get('/api/my-groups', authGuard, async (req, res) => {
         `, [userId]);
         res.json(rows);
     } catch (err) {
-        console.error('Get my groups error:', err.message);
         res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -883,7 +869,6 @@ app.post('/api/groups/:groupId/scores', authGuard, async (req, res) => {
 
         res.json({ success: true, message: "Score shared successfully!" });
     } catch (err) {
-        console.error('Share score error:', err.message);
         res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -908,7 +893,6 @@ app.get('/api/groups/:groupId/scores', authGuard, async (req, res) => {
 
         res.json(scores);
     } catch (err) {
-        console.error('Get group scores error:', err.message);
         res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -928,12 +912,39 @@ app.delete('/api/groups/:groupId/leave', authGuard, async (req, res) => {
 
         res.json({ success: true, message: "You have successfully left the group." });
     } catch (err) {
-        console.error('Leave group error:', err.message);
         res.status(500).json({ success: false, message: err.message });
     }
 });
 
-// GROUP CHAT APIs
+// 7. GET GROUP MEMBERS (拿取群成员名单)
+app.get('/api/groups/:groupId/members', authGuard, async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const userId = req.user.id;
+
+        const [member] = await db.query('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', [groupId, userId]);
+        if (member.length === 0) {
+            return res.status(403).json({ success: false, message: "Access denied" });
+        }
+
+        const [members] = await db.query(`
+            SELECT u.id, u.name 
+            FROM group_members gm
+            JOIN users u ON gm.user_id = u.id
+            WHERE gm.group_id = ?
+            ORDER BY u.name ASC
+        `, [groupId]);
+
+        res.json(members);
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+
+// ==========================================
+// GROUP CHAT APIs (群聊接口)
+// ==========================================
 app.get('/api/groups/:groupId/messages', authGuard, async (req, res) => {
     try {
         const { groupId } = req.params;
