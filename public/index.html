@@ -132,7 +132,7 @@
             margin: 0 10px;
         }
 
-        /* 3D Theme Toggle Switch (iOS Style) */
+        /* 3D Theme Toggle Switch */
         .theme-switch-wrapper {
             display: flex;
             align-items: center;
@@ -1085,7 +1085,8 @@
 
                 <div style="background: var(--bg); padding: 24px; border-radius: 12px; margin: 24px 0; border: 2px dashed var(--text-muted); text-align: center; transition: var(--transition);">
                     <p style="margin:0 0 12px 0; font-size: 14px; color: var(--text-muted); font-weight: 500;">Upload Local File (PDF or Image, max 1GB)</p>
-                    <input type="file" id="u-file" accept="image/*,.pdf" style="display:block; margin: 0 auto; max-width: 250px;" class="input-box">
+                    <!-- 🌟 自动提取功能的触发器 (Public Upload) -->
+                    <input type="file" id="u-file" accept="image/*,.pdf" style="display:block; margin: 0 auto; max-width: 250px;" class="input-box" required onchange="autoFillFromFilename(this, 'u-title', 'u-composer')">
                 </div>
 
                 <button type="submit" class="btn btn-start" id="upBtn" style="padding: 14px; font-size: 16px; width: 100%;">Upload to Public Library</button>
@@ -1234,7 +1235,8 @@
                     </div>
                 </div>
 
-                <input type="file" id="gu-file" accept="image/*,.pdf" class="input-box" style="padding:10px; margin-bottom:20px;" required>
+                <!-- 🌟 自动提取功能的触发器 (Group Private Upload) -->
+                <input type="file" id="gu-file" accept="image/*,.pdf" class="input-box" style="padding:10px; margin-bottom:20px;" required onchange="autoFillFromFilename(this, 'gu-title', 'gu-composer')">
 
                 <div style="display: flex; gap: 12px;">
                     <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('group-upload-modal')">Cancel</button>
@@ -1273,6 +1275,44 @@
 
         const svgEye = '<img src="pic/eye.png" width="20" height="20" alt="Show">';
         const svgEyeOff = '<img src="pic/hide.png" width="20" height="20" alt="Hide">';
+
+        // Smart Auto-fill
+        function autoFillFromFilename(fileInput, titleId, composerId) {
+            if (!fileInput.files || fileInput.files.length === 0) return;
+
+            let filename = fileInput.files[0].name;
+            filename = filename.substring(0, filename.lastIndexOf('.')) || filename;
+            let cleanName = filename.replace(/_/g, ' ');
+
+            let title = cleanName;
+            let composer = "";
+            if (cleanName.toLowerCase().includes(' by ')) {
+                const parts = cleanName.split(/ by /i);
+                title = parts[0].trim();
+                composer = parts[1].trim();
+            } else if (cleanName.includes(' - ')) {
+                const parts = cleanName.split(' - ');
+                // 常见格式是 "Composer - Title"
+                composer = parts[0].trim();
+                title = parts[1].trim();
+            } else if (cleanName.includes('-')) {
+                const parts = cleanName.split('-');
+                composer = parts[0].trim();
+                title = parts[1].trim();
+            }
+
+            const titleEl = document.getElementById(titleId);
+            const composerEl = document.getElementById(composerId);
+
+            // 只有当输入框是空的时候，才自动填入，避免覆盖用户自己打的字
+            if (titleEl && !titleEl.value) {
+                // 首字母大写美化
+                titleEl.value = title.replace(/\b\w/g, l => l.toUpperCase());
+            }
+            if (composerEl && !composerEl.value && composer) {
+                composerEl.value = composer.replace(/\b\w/g, l => l.toUpperCase());
+            }
+        }
 
         function initApp() {
             try {
