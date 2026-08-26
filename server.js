@@ -597,6 +597,26 @@ app.post('/api/groups/:groupId/messages', authGuard, async (req, res) => {
     } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
+// DELETE A MESSAGE
+app.delete('/api/groups/:groupId/messages/:messageId', authGuard, async (req, res) => {
+    try {
+        const { groupId, messageId } = req.params;
+        const userId = req.user.id;
+        const [messages] = await db.query('SELECT * FROM group_messages WHERE id = ? AND group_id = ?', [messageId, groupId]);
+        if (messages.length === 0) return res.status(404).json({ success: false, message: "Message not found" });
+  
+        if (Number(messages[0].user_id) !== Number(userId)) {
+            return res.status(403).json({ success: false, message: "You can only delete your own messages." });
+        }
+
+        await db.query('DELETE FROM group_messages WHERE id = ?', [messageId]);
+        res.json({ success: true, message: "Message deleted" });
+    } catch (err) {
+        console.error('Delete message error:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

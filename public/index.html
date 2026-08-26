@@ -591,7 +591,7 @@
             transition: width 0.3s ease;
         }
 
-        /* --- Group Chat Styles --- */
+        /* --- Group Chat Styles (Upgraded) --- */
         .group-split-view {
             display: flex;
             gap: 25px;
@@ -635,8 +635,22 @@
             background: #fdfdfd;
         }
 
+        /* 新增：包裹聊天气泡和删除按钮的容器 */
+        .chat-bubble-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 85%;
+            align-self: flex-start;
+        }
+        
+        .chat-bubble-wrapper.is-me {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
         .chat-bubble {
-            max-width: 80%;
             padding: 10px 14px;
             border-radius: 16px;
             font-size: 14px;
@@ -646,17 +660,41 @@
         }
 
         .chat-me {
-            align-self: flex-end;
             background: var(--accent);
             color: white;
             border-bottom-right-radius: 4px;
         }
 
         .chat-other {
-            align-self: flex-start;
             background: #e9ecef;
             color: #333;
             border-bottom-left-radius: 4px;
+        }
+
+        /* 隐藏的悬停删除按钮 */
+        .msg-delete-btn {
+            opacity: 0;
+            cursor: pointer;
+            color: var(--danger);
+            background: #fee2e2;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s ease, transform 0.1s;
+            font-size: 12px;
+            border: none;
+            flex-shrink: 0;
+        }
+        
+        .msg-delete-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-bubble-wrapper:hover .msg-delete-btn {
+            opacity: 1;
         }
 
         .chat-sender {
@@ -802,6 +840,7 @@
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 40px 0;">
 
             <div id="group-detail-view" style="display: none; background: var(--surface); padding: 32px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid rgba(0,0,0,0.03);">
+                
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 24px;">
                     <div style="flex:1;">
                         <h2 id="gd-title" style="margin: 0 0 10px 0; color: var(--primary); font-size: 24px;">Group Name</h2>
@@ -1506,6 +1545,7 @@
             }
         }
 
+        /* --- Updated Chat Logic (Dates & Delete) --- */
         async function loadGroupMessages(groupId) {
             try {
                 const latestToken = localStorage.getItem('mutice_token') || token;
@@ -1517,15 +1557,20 @@
                 
                 messages.forEach(m => {
                     const isMe = Number(m.sender_id) === currentUserId;
-                    const time = new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    // Format Date & Time: e.g. "Aug 26, 11:37 PM"
+                    const dateObj = new Date(m.created_at);
+                    const timeStr = dateObj.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit', hour12: true });
                     
                     let senderName = m.sender_name.replace(/Quek\s*/i, '').trim() || 'User';
 
                     html += `
-                        <div class="chat-bubble ${isMe ? 'chat-me' : 'chat-other'}">
-                            ${!isMe ? `<div class="chat-sender">${senderName}</div>` : ''}
-                            <div>${m.message}</div>
-                            <div class="chat-time">${time}</div>
+                        <div class="chat-bubble-wrapper ${isMe ? 'is-me' : ''}">
+                            <div class="chat-bubble ${isMe ? 'chat-me' : 'chat-other'}">
+                                ${!isMe ? `<div class="chat-sender">${senderName}</div>` : ''}
+                                <div>${m.message}</div>
+                                <div class="chat-time">${timeStr}</div>
+                            </div>
+                            ${isMe ? `<button class="msg-delete-btn" onclick="deleteGroupMessage(${groupId}, ${m.id})" title="Delete Message">🗑️</button>` : ''}
                         </div>
                     `;
                 });
@@ -1554,6 +1599,28 @@
                 });
                 loadGroupMessages(activeGroupId);
             } catch (e) {}
+        }
+
+        function deleteGroupMessage(groupId, messageId) {
+            showConfirmModal("Delete Message", "Are you sure you want to delete this message?", async () => {
+                try {
+                    const latestToken = localStorage.getItem('mutice_token') || token;
+                    const res = await fetch(`${API}/groups/${groupId}/messages/${messageId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${latestToken}` }
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        document.getElementById('chat-messages').dataset.count = "-1";
+                        loadGroupMessages(groupId);
+                    } else {
+                        showAlert(data.message || "Failed to delete message", "Error");
+                    }
+                } catch (e) {
+                    showAlert("Server error", "Error");
+                }
+            });
         }
 
         function openShareModal(scoreId) {
