@@ -1017,13 +1017,11 @@
                 </div>
                 
                 <div class="group-split-view">
-                    <!-- Left: Shared Scores -->
                     <div class="group-split-left">
                         <h3 style="margin-top: 0;">Shared Scores</h3>
                         <div id="gd-scores" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));"></div>
                     </div>
                     
-                    <!-- Right: Group Chat -->
                     <div class="group-split-right">
                         <div class="chat-header">Group Chat</div>
                         <div class="chat-messages" id="chat-messages">
@@ -1037,68 +1035,78 @@
             </div>
         </div>
 
-        <!-- Upload (Public) -->
+        <!-- 🌟 Upload (Public) Split Screen Layout -->
         <div id="upload" class="section">
             <h1>Upload Score (Public Library)</h1>
-            <form id="upForm" onsubmit="handleUpload(event); return false;" style="background:var(--surface); padding:40px; border-radius:var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); max-width: 700px; margin: 0 auto; transition: var(--transition);">
+            <form id="upForm" onsubmit="handleUpload(event); return false;" style="background:var(--surface); padding:40px; border-radius:var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); max-width: 900px; margin: 0 auto; transition: var(--transition); display: flex; gap: 40px; flex-wrap: wrap;">
                 
-                <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Score Title</p>
-                <input type="text" id="u-title" class="input-box" placeholder="e.g. Moonlight Sonata" required>
+                <!-- Left Side: Form Details -->
+                <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column;">
+                    <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Score Title</p>
+                    <input type="text" id="u-title" class="input-box" placeholder="e.g. Moonlight Sonata" required>
 
-                <p style="margin:16px 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Composer</p>
-                <input type="text" id="u-composer" class="input-box" placeholder="e.g. Beethoven">
+                    <p style="margin:16px 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Composer</p>
+                    <input type="text" id="u-composer" class="input-box" placeholder="e.g. Beethoven">
 
-                <div style="display: flex; gap: 20px; margin-top: 16px;">
-                    <div style="flex: 1;">
-                        <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Instrument</p>
-                        <select id="u-inst" class="input-box">
-                            <option value="All Instrument">All Instrument</option>
-                            <option value="Piano">Piano</option>
-                            <option value="Violin">Violin</option>
-                            <option value="Guitar">Guitar</option>
-                            <option value="Flute">Flute</option>
-                            <option value="Oboe">Oboe</option>
-                            <option value="Clarinet">Clarinet</option>
-                            <option value="Bass Clarinet">Bass Clarinet</option>
-                            <option value="Basson">Basson</option>
-                            <option value="Soprano Saxophone">Soprano Saxophone</option>
-                            <option value="Alto Saxophone">Alto Saxophone</option>
-                            <option value="Tenor Saxophone">Tenor Saxophone</option>
-                            <option value="Baritone Saxophone">Baritone Saxophone</option>
-                            <option value="Trumpet">Trumpet</option>
-                            <option value="French Horn">French Horn</option>
-                            <option value="Trombone">Trombone</option>
-                            <option value="Euphonium">Euphonium</option>
-                            <option value="Tuba">Tuba</option>
-                            <option value="Percussion">Percussion</option>
-                        </select>
+                    <div style="display: flex; gap: 20px; margin-top: 16px;">
+                        <div style="flex: 1;">
+                            <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Instrument</p>
+                            <select id="u-inst" class="input-box">
+                                <option value="All Instrument">All Instrument</option>
+                                <option value="Piano">Piano</option>
+                                <option value="Violin">Violin</option>
+                                <option value="Guitar">Guitar</option>
+                                <option value="Flute">Flute</option>
+                                <option value="Oboe">Oboe</option>
+                                <option value="Clarinet">Clarinet</option>
+                                <option value="Bass Clarinet">Bass Clarinet</option>
+                                <option value="Basson">Basson</option>
+                                <option value="Soprano Saxophone">Soprano Saxophone</option>
+                                <option value="Alto Saxophone">Alto Saxophone</option>
+                                <option value="Tenor Saxophone">Tenor Saxophone</option>
+                                <option value="Baritone Saxophone">Baritone Saxophone</option>
+                                <option value="Trumpet">Trumpet</option>
+                                <option value="French Horn">French Horn</option>
+                                <option value="Trombone">Trombone</option>
+                                <option value="Euphonium">Euphonium</option>
+                                <option value="Tuba">Tuba</option>
+                                <option value="Percussion">Percussion</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Difficulty</p>
+                            <select id="u-diff" class="input-box">
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
+                        </div>
                     </div>
-                    <div style="flex: 1;">
-                        <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Difficulty</p>
-                        <select id="u-diff" class="input-box">
-                            <option value="Beginner">Beginner</option>
-                            <option value="Intermediate">Intermediate</option>
-                            <option value="Advanced">Advanced</option>
-                        </select>
+
+                    <div style="background: var(--bg); padding: 15px; border-radius: 12px; margin-bottom: 24px; border: 2px dashed var(--border-color); text-align: center; transition: var(--transition);">
+                        <p style="margin:0 0 10px 0; font-size: 13px; color: var(--text-muted); font-weight: 500;">Upload Local File (PDF or Image, max 1GB)</p>
+                        <input type="file" id="u-file" accept="image/*,.pdf" style="display:block; margin: 0 auto; width: 100%; max-width: 250px; font-size: 12px; cursor: pointer;" required onchange="handleFileSelect(this, 'u-title', 'u-composer', 'u-preview-box', 'u-preview-pdf', 'u-preview-img', 'u-preview-placeholder')">
+                    </div>
+
+                    <div id="progress-wrapper" class="progress-wrapper" style="margin-bottom: 20px;">
+                        <div id="progress-bar" class="progress-bar"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-start" id="upBtn" style="padding: 14px; font-size: 16px; width: 100%; margin-top: auto;">Upload to Public Library</button>
+                </div>
+
+                <!-- Right Side: Sticky Preview Area -->
+                <div style="flex: 1; min-width: 300px; background: var(--bg); border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow: hidden; position: relative; min-height: 400px; transition: var(--transition);">
+                    <div id="u-preview-placeholder" style="color: var(--text-muted); text-align: center;">
+                        <div style="font-size: 40px; margin-bottom: 10px; opacity: 0.5;">📄</div>
+                        <div style="font-size: 14px; font-weight: 500;">Preview will appear here</div>
+                    </div>
+                    <div id="u-preview-box" style="display: none; width: 100%; height: 100%; text-align: center;">
+                        <iframe id="u-preview-pdf" style="width: 100%; height: 100%; border: none; border-radius: 8px; display: none; background: white;"></iframe>
+                        <img id="u-preview-img" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; display: none; margin: 0 auto; background: transparent;" />
                     </div>
                 </div>
 
-                <div style="background: var(--bg); padding: 24px; border-radius: 12px; margin: 24px 0; border: 2px dashed var(--text-muted); text-align: center; transition: var(--transition);">
-                    <p style="margin:0 0 12px 0; font-size: 14px; color: var(--text-muted); font-weight: 500;">Upload Local File (PDF or Image, max 1GB)</p>
-                    <input type="file" id="u-file" accept="image/*,.pdf" style="display:block; margin: 0 auto; max-width: 250px;" class="input-box" required onchange="handleFileSelect(this, 'u-title', 'u-composer', 'u-preview-box', 'u-preview-pdf', 'u-preview-img')">
-                    
-                    <!-- 🌟 Public Preview Box -->
-                    <div id="u-preview-box" style="display: none; margin-top: 20px; text-align: center;">
-                        <p style="font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 8px;">👀 File Preview</p>
-                        <iframe id="u-preview-pdf" style="width: 100%; height: 350px; border: 1px solid var(--border-color); border-radius: 8px; display: none; background: white;"></iframe>
-                        <img id="u-preview-img" style="max-width: 100%; max-height: 350px; border-radius: 8px; border: 1px solid var(--border-color); display: none; margin: 0 auto; background: white;" />
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-start" id="upBtn" style="padding: 14px; font-size: 16px; width: 100%;">Upload to Public Library</button>
-                <div id="progress-wrapper" class="progress-wrapper">
-                    <div id="progress-bar" class="progress-bar"></div>
-                </div>
             </form>
         </div>
 
@@ -1194,66 +1202,78 @@
         </div>
     </div>
 
-    <!-- Group Upload Private Score Modal -->
+    <!-- 🌟 Group Upload Private Score Modal (Split Screen Layout) -->
     <div id="group-upload-modal" class="modal-overlay">
-        <div class="modal-content" style="width: 480px;">
+        <div class="modal-content" style="width: 800px; max-width: 90vw;">
             <h3 style="margin-top: 0; color: var(--primary); font-size: 20px;">Upload Private Score</h3>
             <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">This score will only be visible to members of this group.</p>
-            <form onsubmit="submitGroupUpload(event); return false;" style="text-align: left;">
-                <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Score Title</p>
-                <input type="text" id="gu-title" class="input-box" style="margin-bottom: 15px;" placeholder="e.g. My Band Practice" required>
+            <form onsubmit="submitGroupUpload(event); return false;" style="text-align: left; display: flex; gap: 30px; flex-wrap: wrap;">
+                
+                <!-- Left Side -->
+                <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column;">
+                    <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Score Title</p>
+                    <input type="text" id="gu-title" class="input-box" style="margin-bottom: 15px;" placeholder="e.g. My Band Practice" required>
 
-                <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Composer (Optional)</p>
-                <input type="text" id="gu-composer" class="input-box" style="margin-bottom: 15px;" placeholder="e.g. Beethoven">
+                    <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Composer (Optional)</p>
+                    <input type="text" id="gu-composer" class="input-box" style="margin-bottom: 15px;" placeholder="e.g. Beethoven">
 
-                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                    <div style="flex: 1;">
-                        <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Instrument</p>
-                        <select id="gu-inst" class="input-box" style="margin-bottom:0;">
-                            <option value="All Instrument">All Instrument</option>
-                            <option value="Piano">Piano</option>
-                            <option value="Violin">Violin</option>
-                            <option value="Guitar">Guitar</option>
-                            <option value="Flute">Flute</option>
-                            <option value="Oboe">Oboe</option>
-                            <option value="Clarinet">Clarinet</option>
-                            <option value="Bass Clarinet">Bass Clarinet</option>
-                            <option value="Basson">Basson</option>
-                            <option value="Soprano Saxophone">Soprano Saxophone</option>
-                            <option value="Alto Saxophone">Alto Saxophone</option>
-                            <option value="Tenor Saxophone">Tenor Saxophone</option>
-                            <option value="Baritone Saxophone">Baritone Saxophone</option>
-                            <option value="Trumpet">Trumpet</option>
-                            <option value="French Horn">French Horn</option>
-                            <option value="Trombone">Trombone</option>
-                            <option value="Euphonium">Euphonium</option>
-                            <option value="Tuba">Tuba</option>
-                            <option value="Percussion">Percussion</option>
-                        </select>
+                    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div style="flex: 1;">
+                            <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Instrument</p>
+                            <select id="gu-inst" class="input-box" style="margin-bottom:0;">
+                                <option value="All Instrument">All Instrument</option>
+                                <option value="Piano">Piano</option>
+                                <option value="Violin">Violin</option>
+                                <option value="Guitar">Guitar</option>
+                                <option value="Flute">Flute</option>
+                                <option value="Oboe">Oboe</option>
+                                <option value="Clarinet">Clarinet</option>
+                                <option value="Bass Clarinet">Bass Clarinet</option>
+                                <option value="Basson">Basson</option>
+                                <option value="Soprano Saxophone">Soprano Saxophone</option>
+                                <option value="Alto Saxophone">Alto Saxophone</option>
+                                <option value="Tenor Saxophone">Tenor Saxophone</option>
+                                <option value="Baritone Saxophone">Baritone Saxophone</option>
+                                <option value="Trumpet">Trumpet</option>
+                                <option value="French Horn">French Horn</option>
+                                <option value="Trombone">Trombone</option>
+                                <option value="Euphonium">Euphonium</option>
+                                <option value="Tuba">Tuba</option>
+                                <option value="Percussion">Percussion</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Difficulty</p>
+                            <select id="gu-diff" class="input-box" style="margin-bottom:0;">
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
+                        </div>
                     </div>
-                    <div style="flex: 1;">
-                        <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Difficulty</p>
-                        <select id="gu-diff" class="input-box" style="margin-bottom:0;">
-                            <option value="Beginner">Beginner</option>
-                            <option value="Intermediate">Intermediate</option>
-                            <option value="Advanced">Advanced</option>
-                        </select>
+
+                    <div style="background: var(--bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 2px dashed var(--border-color); text-align: center;">
+                        <input type="file" id="gu-file" accept="image/*,.pdf" class="input-box" style="margin-bottom:0; padding:10px; font-size: 12px; cursor: pointer;" required onchange="handleFileSelect(this, 'gu-title', 'gu-composer', 'gu-preview-box', 'gu-preview-pdf', 'gu-preview-img', 'gu-preview-placeholder')">
+                    </div>
+
+                    <div style="display: flex; gap: 12px; margin-top: auto;">
+                        <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('group-upload-modal')">Cancel</button>
+                        <button type="submit" id="gu-btn" class="btn btn-start" style="flex: 1;">Upload & Share</button>
                     </div>
                 </div>
 
-                <div style="background: var(--bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 2px dashed var(--text-muted); text-align: center;">
-                    <input type="file" id="gu-file" accept="image/*,.pdf" class="input-box" style="margin-bottom:0; padding:10px;" required onchange="handleFileSelect(this, 'gu-title', 'gu-composer', 'gu-preview-box', 'gu-preview-pdf', 'gu-preview-img')">
-                    <div id="gu-preview-box" style="display: none; margin-top: 15px; text-align: center;">
-                        <p style="font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 8px;">👀 File Preview</p>
-                        <iframe id="gu-preview-pdf" style="width: 100%; height: 250px; border: 1px solid var(--border-color); border-radius: 8px; display: none; background: white;"></iframe>
-                        <img id="gu-preview-img" style="max-width: 100%; max-height: 250px; border-radius: 8px; border: 1px solid var(--border-color); display: none; margin: 0 auto; background: white;" />
+                <!-- Right Side: Preview -->
+                <div style="flex: 1; min-width: 280px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; position: relative; min-height: 350px;">
+                    <div id="gu-preview-placeholder" style="color: var(--text-muted); text-align: center;">
+                        <div style="font-size: 30px; margin-bottom: 8px; opacity: 0.5;">📄</div>
+                        <div style="font-size: 13px; font-weight: 500;">Preview will appear here</div>
+                    </div>
+                    <div id="gu-preview-box" style="display: none; width: 100%; height: 100%; text-align: center;">
+                        <iframe id="gu-preview-pdf" style="width: 100%; height: 100%; border: none; border-radius: 8px; display: none; background: white;"></iframe>
+                        <img id="gu-preview-img" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; display: none; margin: 0 auto; background: transparent;" />
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 12px;">
-                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('group-upload-modal')">Cancel</button>
-                    <button type="submit" id="gu-btn" class="btn btn-start" style="flex: 1;">Upload & Share</button>
-                </div>
             </form>
         </div>
     </div>
@@ -1288,6 +1308,7 @@
         const svgEye = '<img src="pic/eye.png" width="20" height="20" alt="Show">';
         const svgEyeOff = '<img src="pic/hide.png" width="20" height="20" alt="Hide">';
 
+        // Smart Auto-fill & Preview Engine
         function autoFillFromFilename(fileInput, titleId, composerId) {
             if (!fileInput.files || fileInput.files.length === 0) return;
 
@@ -1323,21 +1344,24 @@
             }
         }
 
-        function handleFileSelect(input, titleId, composerId, previewBoxId, pdfId, imgId) {
+        function handleFileSelect(input, titleId, composerId, previewBoxId, pdfId, imgId, placeholderId) {
             autoFillFromFilename(input, titleId, composerId);
 
             const file = input.files[0];
             const previewBox = document.getElementById(previewBoxId);
             const pdfViewer = document.getElementById(pdfId);
             const imgViewer = document.getElementById(imgId);
+            const placeholder = document.getElementById(placeholderId);
 
             if (!file) {
                 previewBox.style.display = 'none';
+                if(placeholder) placeholder.style.display = 'block';
                 return;
             }
 
             const fileURL = URL.createObjectURL(file);
             previewBox.style.display = 'block';
+            if(placeholder) placeholder.style.display = 'none';
 
             if (file.type === 'application/pdf') {
                 imgViewer.style.display = 'none';
@@ -1349,6 +1373,7 @@
                 imgViewer.src = fileURL;
             } else {
                 previewBox.style.display = 'none';
+                if(placeholder) placeholder.style.display = 'block';
             }
         }
 
@@ -1755,9 +1780,11 @@
             document.getElementById('gu-title').value = '';
             document.getElementById('gu-composer').value = '';
             document.getElementById('gu-file').value = '';
+            
             document.getElementById('gu-preview-box').style.display = 'none';
             document.getElementById('gu-preview-pdf').src = '';
             document.getElementById('gu-preview-img').src = '';
+            document.getElementById('gu-preview-placeholder').style.display = 'block';
 
             document.getElementById('group-upload-modal').style.display = 'flex';
         }
@@ -2539,10 +2566,972 @@
                     showAlert("Upload Successful!", "Success");
                     document.getElementById('upForm').reset();
                     
-                    // Reset Preview
                     document.getElementById('u-preview-box').style.display = 'none';
                     document.getElementById('u-preview-pdf').src = '';
                     document.getElementById('u-preview-img').src = '';
+                    document.getElementById('u-preview-placeholder').style.display = 'block';
+
+                    show('library');
+                } else {
+                    showAlert(`Upload Failed (${res.status}): ` + (data.message || "Error"), "Error");
+                }
+            } catch (err) {
+                showAlert("Server Connection Failed", "Error");
+            } finally {
+                uploadInProgress = false;
+                btn.disabled = false;
+                btn.innerText = "Upload to Public Library";
+                setTimeout(() => { progWrapper.style.display = 'none'; }, 1000);
+            }
+        }
+
+        function canDeleteScore(score) {
+            if (!isLoggedIn || !score) return false;
+            const ownerId = Number(score.uploader_id || 0);
+            if (ownerId > 0 && currentUserId > 0) return ownerId === currentUserId;
+            if (ownerId <= 0 && currentUserName) return String(score.uploader || '').trim() === currentUserName;
+            return false;
+        }
+
+        function removeScore(id) {
+            showConfirmModal("Delete Score", "Are you sure you want to delete this score? This action cannot be undone.", async () => {
+                const target = allScores.find(s => Number(s.id) === Number(id));
+                const ownerId = Number(target?.uploader_id || 0);
+                if (target && ownerId && currentUserId && ownerId !== currentUserId) {
+                    showAlert("This is not your file. You cannot delete it.", "Error");
+                    return;
+                }
+
+                try {
+                    const token = localStorage.getItem('mutice_token') || "";
+                    const res = await fetch(`${API}/scores/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                    const data = await res.json().catch(() => ({}));
+
+                    if (res.ok && data.success) {
+                        await loadLib();
+                        const stillExists = allScores.some(s => Number(s.id) === Number(id));
+                        if (stillExists) showAlert("Delete failed: This is not your file. You cannot delete it.", "Error");
+                        else showAlert("Deleted successfully!", "Success");
+                    } else if (res.status === 403) {
+                        showAlert(data.message || "This is not your file. You cannot delete it.", "Error");
+                    } else if (res.status === 404) {
+                        showAlert(data.message || "File not found.", "Error");
+                    } else {
+                        showAlert("Delete failed: " + (data.message || "Not allowed"), "Error");
+                    }
+                } catch (err) { showAlert("Server error: " + err.message, "Error"); }
+            });
+        }
+
+        function getFavs() {
+            if (!isLoggedIn) return [];
+            return JSON.parse(localStorage.getItem(`mutice_fav_${currentUserId}`) || '[]');
+        }
+
+        function toggleFav(e, id) {
+            e.stopPropagation();
+            if (!isLoggedIn) return showAlert('Please log in to save favorites!');
+            let favs = getFavs();
+            if (favs.includes(id)) favs = favs.filter(f => f !== id);
+            else favs.push(id);
+            localStorage.setItem(`mutice_fav_${currentUserId}`, JSON.stringify(favs));
+            filter();
+        }
+
+        function toggleFavFilter() {
+            showFavOnly = !showFavOnly;
+            const btn = document.getElementById('btn-fav-filter');
+            if (showFavOnly) btn.classList.add('active');
+            else btn.classList.remove('active');
+            filter();
+        }
+
+        function toggleSort(type) {
+            if (currentSort === type) isDesc = !isDesc;
+            else { currentSort = type; isDesc = (type === 'recent'); }
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                if (btn.id !== 'btn-fav-filter') btn.classList.remove('active');
+            });
+            const btn = document.getElementById(`sort-${type}`);
+            if (btn) btn.classList.add('active');
+            filter();
+        }
+
+        function filter() {
+            const q = document.getElementById('s-input').value.toLowerCase();
+            const inst = document.getElementById('s-inst').value;
+            const favs = getFavs();
+
+            let data = allScores.filter(s => {
+                const titleMatch = s.title.toLowerCase().includes(q);
+                const instMatch = (inst === 'all') || (s.instrument === inst) || (inst === 'All Instrument');
+                const favMatch = showFavOnly ? favs.includes(s.id) : true;
+                return titleMatch && instMatch && favMatch;
+            });
+
+            data.sort((a, b) => {
+                let res = 0;
+                if (currentSort === 'recent') res = a.id - b.id;
+                else if (currentSort === 'title') res = a.title.localeCompare(b.title);
+                else if (currentSort === 'instrument') {
+                    res = (a.instrument || "").localeCompare(b.instrument || "");
+                    if (res === 0) res = a.title.localeCompare(b.title);
+                }
+                return isDesc ? -res : res;
+            });
+            render(data);
+        }
+
+        function render(data) {
+            const list = document.getElementById('score-list');
+            if (!list) return;
+            const favs = getFavs();
+
+            const heartOutline = `<svg width="24" height="24" fill="none" stroke="#cbd5e1" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>`;
+            const heartFilled = `<svg width="24" height="24" fill="#ef4444" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>`;
+            const trashIcon = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
+
+            list.innerHTML = data.map(i => {
+                const isFav = favs.includes(i.id);
+                return `
+            <div class="card" onclick="goToPractice(${i.id})">
+                <div style="position: relative; padding-right: 30px;">
+                    <div class="fav-icon" onclick="toggleFav(event, ${i.id})" title="${isFav ? 'Remove from Favorites' : 'Add to Favorites'}">
+                        ${isFav ? heartFilled : heartOutline}
+                    </div>
+                    
+                    <h3 style="color:var(--primary); font-size:18px; line-height:1.3; margin-bottom:8px;">${i.title}</h3>
+                    <p style="color:var(--text-main); font-weight:500; font-size:14px; margin-bottom:12px;">${i.composer || 'Unknown Composer'}</p>
+                    <p style="color:var(--text-muted); font-size:13px; display:flex; align-items:center; gap:6px;">
+                        <span style="background:var(--input-bg); padding:2px 8px; border-radius:4px; border:1px solid var(--border-color);">${i.instrument}</span>
+                        <span style="background:rgba(14, 165, 233, 0.15); color:var(--info); padding:2px 8px; border-radius:4px;">${i.difficulty}</span>
+                    </p>
+                    <p style="font-size: 12px; color:var(--text-muted); margin-top: 12px;">Shared by: ${i.uploader_name || 'System'}</p>
+                </div>
+                
+                <div class="card-actions">
+                    <button type="button" class="btn-sm btn-primary" onclick="event.stopPropagation(); goToPractice(${i.id})">Start</button>
+                    ${canDeleteScore(i) ? `<button type="button" class="btn-icon-danger" title="Delete Private Score" onclick="event.stopPropagation(); removeScore(${i.id})">${trashIcon}</button>` : ''}
+                </div>
+            </div>`
+                }).join('');
+            } catch (err) { scoresContainer.innerHTML = `<p style="color:red;">Error loading shared scores.</p>`; }
+        }
+
+        function removeMember(groupId, memberId, memberName) {
+            showConfirmModal("Kick Member", `Are you sure you want to kick ${memberName} out of the group?`, async () => {
+                try {
+                    const latestToken = localStorage.getItem('mutice_token') || token;
+                    const res = await fetch(`${API}/groups/${groupId}/members/${memberId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${latestToken}` }
+                    });
+                    const data = await res.json();
+                    showAlert(data.message);
+
+                    if (data.success) {
+                        openGroupDetail(activeGroupId, document.getElementById('gd-title').innerText, document.getElementById('gd-code').innerText, activeGroupCreatorId);
+                    }
+                } catch (err) {
+                    showAlert("Server error");
+                }
+            });
+        }
+
+        function openGroupUploadModal() {
+            document.getElementById('gu-title').value = '';
+            document.getElementById('gu-composer').value = '';
+            document.getElementById('gu-file').value = '';
+            
+            document.getElementById('gu-preview-box').style.display = 'none';
+            document.getElementById('gu-preview-pdf').src = '';
+            document.getElementById('gu-preview-img').src = '';
+            document.getElementById('gu-preview-placeholder').style.display = 'block';
+
+            document.getElementById('group-upload-modal').style.display = 'flex';
+        }
+
+        async function submitGroupUpload(e) {
+            e.preventDefault();
+            if(isGroupUploading) return;
+
+            const title = document.getElementById('gu-title').value;
+            const composer = document.getElementById('gu-composer').value;
+            const inst = document.getElementById('gu-inst').value;
+            const diff = document.getElementById('gu-diff').value;
+            const file = document.getElementById('gu-file').files[0];
+
+            if(!file) return showAlert("Please select a file.");
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('composer', composer);
+            formData.append('instrument', inst);
+            formData.append('difficulty', diff);
+            formData.append('scoreFile', file);
+            formData.append('groupId', activeGroupId);
+
+            isGroupUploading = true;
+            document.getElementById('gu-btn').innerText = 'Uploading...';
+            document.getElementById('gu-btn').disabled = true;
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${latestToken}` },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    showAlert("Private score uploaded and shared!", "Success");
+                    closeModal('group-upload-modal');
+                    openGroupDetail(activeGroupId, document.getElementById('gd-title').innerText, document.getElementById('gd-code').innerText, activeGroupCreatorId);
+                } else {
+                    showAlert("Upload failed.");
+                }
+            } catch (err) {
+                showAlert("Server error");
+            } finally {
+                isGroupUploading = false;
+                document.getElementById('gu-btn').innerText = 'Upload & Share';
+                document.getElementById('gu-btn').disabled = false;
+            }
+        }
+
+        async function loadGroupMessages(groupId) {
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/groups/${groupId}/messages`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
+                const messages = await res.json();
+                
+                const container = document.getElementById('chat-messages');
+                let html = '';
+                let lastDateStr = '';
+                
+                messages.forEach(m => {
+                    const isMe = Number(m.sender_id) === currentUserId;
+                    const dateObj = new Date(m.created_at);
+                    
+                    const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute:'2-digit', hour12: true });
+                    
+                    if (dateStr !== lastDateStr) {
+                        html += `
+                            <div class="chat-date-divider">
+                                <span>${dateStr}</span>
+                            </div>
+                        `;
+                        lastDateStr = dateStr;
+                    }
+
+                    let senderName = m.sender_name.replace(/Quek\s*/i, '').trim() || 'User';
+
+                    html += `
+                        <div class="chat-bubble-wrapper ${isMe ? 'is-me' : ''}">
+                            <div class="chat-bubble ${isMe ? 'chat-me' : 'chat-other'}">
+                                ${!isMe ? `<div class="chat-sender">${senderName}</div>` : ''}
+                                <div>${m.message}</div>
+                                <div class="chat-time" style="color: ${isMe ? 'rgba(255,255,255,0.7)' : 'var(--text-muted)'}">${timeStr}</div>
+                            </div>
+                            ${isMe ? `<button class="msg-delete-btn" onclick="deleteGroupMessage(${groupId}, ${m.id})" title="Delete Message">🗑️</button>` : ''}
+                        </div>
+                    `;
+                });
+                
+                if (container.dataset.count !== String(messages.length)) {
+                    container.innerHTML = html || `<p style="text-align:center; color:var(--text-muted); font-size:12px; margin-top:50px;">No messages yet. Say hi!</p>`;
+                    container.scrollTop = container.scrollHeight;
+                    container.dataset.count = messages.length;
+                }
+            } catch (e) { }
+        }
+
+        async function submitGroupMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg || !activeGroupId) return;
+            
+            input.value = ''; 
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                await fetch(`${API}/groups/${activeGroupId}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${latestToken}` },
+                    body: JSON.stringify({ message: msg })
+                });
+                loadGroupMessages(activeGroupId);
+            } catch (e) {}
+        }
+
+        function deleteGroupMessage(groupId, messageId) {
+            showConfirmModal("Delete Message", "Are you sure you want to delete this message?", async () => {
+                try {
+                    const latestToken = localStorage.getItem('mutice_token') || token;
+                    const res = await fetch(`${API}/groups/${groupId}/messages/${messageId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${latestToken}` }
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        document.getElementById('chat-messages').dataset.count = "-1";
+                        loadGroupMessages(groupId);
+                    } else {
+                        showAlert(data.message || "Failed to delete message", "Error");
+                    }
+                } catch (e) {
+                    showAlert("Server error", "Error");
+                }
+            });
+        }
+
+        function openShareModal(scoreId) {
+            if (!isLoggedIn) { showAlert("Please log in first!"); return; }
+            if (myGroupsList.length === 0) {
+                showAlert("You need to create or join a group first before sharing!");
+                show('groups');
+                return;
+            }
+            currentShareScoreId = scoreId;
+            const select = document.getElementById('share-group-select');
+            select.innerHTML = myGroupsList.map(g => `<option value="${g.id}">${g.group_name}</option>`).join('');
+            document.getElementById('share-modal').style.display = 'flex';
+        }
+
+        async function submitShareScore() {
+            const groupId = document.getElementById('share-group-select').value;
+            if (!groupId || !currentShareScoreId) return;
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/groups/${groupId}/scores`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${latestToken}` },
+                    body: JSON.stringify({ scoreId: currentShareScoreId })
+                });
+                const data = await res.json();
+                showAlert(data.message);
+                closeModal('share-modal');
+            } catch (err) {
+                showAlert("Server Error");
+                closeModal('share-modal');
+            }
+        }
+
+        async function loadProfile() {
+            const content = document.getElementById('profile-content');
+            if (!content) return;
+
+            const savedAvatar = localStorage.getItem(`mutice_avatar_${currentUserId}`);
+            let formattedName = currentUserName.replace(/Quek\s*/i, '').trim();
+            if(!formattedName) formattedName = 'User';
+            const initialChar = formattedName.charAt(0).toUpperCase();
+
+            content.innerHTML = `
+                <div class="profile-card">
+                    <div class="avatar-wrapper" onclick="document.getElementById('prof-img-upload').click()">
+                        <img id="prof-avatar-img" class="profile-avatar-img" src="${savedAvatar || ''}" style="display: ${savedAvatar ? 'block' : 'none'};" />
+                        <div class="profile-avatar" id="prof-avatar-text" style="display: ${savedAvatar ? 'none' : 'flex'};">${initialChar}</div>
+                        <div class="avatar-overlay">📷 Change</div>
+                    </div>
+                    <input type="file" id="prof-img-upload" style="display:none" accept="image/*" onchange="handleAvatarUpload(event)">
+                    
+                    <h2 id="prof-name-display" style="margin-top: 0; margin-bottom: 20px; color: var(--primary); font-size: 26px; font-weight: 700;">${formattedName}</h2>
+                    
+                    <button onclick="toggleEditForm()" class="btn btn-secondary" style="font-size:13px; padding: 8px 20px;">Edit Profile</button>
+                    
+                    <form id="profile-edit-form" class="edit-form" onsubmit="return false;">
+                        <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Update Name</p>
+                        <div style="position: relative;">
+                            <input type="text" id="edit-name-input" class="input-box" value="${formattedName}" placeholder="New Name" oninput="verifyNewName()" style="margin-bottom: 5px; padding-right: 40px;">
+                            <span id="name-verify-icon" style="position: absolute; right: 15px; top: 15px; font-size: 16px;"></span>
+                        </div>
+                        <div id="name-error-text" style="color: var(--danger); font-size: 12px; margin-bottom: 15px; display: none;"></div>
+                        
+                        <p style="margin: 20px 0 8px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Change Password</p>
+                        
+                        <div class="password-wrapper" style="margin-bottom: 8px;">
+                            <input type="password" id="edit-pw-old" class="input-box" placeholder="Current Password" oninput="verifyOldPassword()">
+                            <span id="pw-verify-icon" class="pw-verify-status"></span>
+                            <span class="password-toggle-icon" onclick="togglePasswordVisibility('edit-pw-old', this)">
+                                ${svgEyeOff}
+                            </span>
+                        </div>
+                        
+                        <div style="text-align: right; margin-top: -3px; margin-bottom: 16px;">
+                            <a href="#" onclick="handleProfileForgotPassword(event)" style="font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 600; transition: 0.2s;">Forgot password?</a>
+                        </div>
+                        
+                        <div id="pw-error-text" style="color: var(--danger); font-size: 12px; margin-bottom: 15px; display: none;"></div>
+                        
+                        <div class="password-wrapper" style="margin-bottom: 8px;">
+                            <input type="password" id="edit-pw-input" class="input-box" placeholder="New Password" disabled>
+                            <span class="password-toggle-icon" onclick="if(!document.getElementById('edit-pw-input').disabled) togglePasswordVisibility('edit-pw-input', this)">
+                                ${svgEyeOff}
+                            </span>
+                        </div>
+
+                        <div class="password-wrapper" style="margin-bottom: 16px;">
+                            <input type="password" id="edit-pw-confirm" class="input-box" placeholder="Confirm New Password" disabled>
+                            <span class="password-toggle-icon" onclick="if(!document.getElementById('edit-pw-confirm').disabled) togglePasswordVisibility('edit-pw-confirm', this)">
+                                ${svgEyeOff}
+                            </span>
+                        </div>
+                        
+                        <div id="profile-status-msg" style="font-size: 13px; font-weight: bold; text-align: center; display: none; margin-bottom: 16px;"></div>
+
+                        <div style="display: flex; gap: 12px; margin-top: 20px;">
+                            <button type="button" onclick="toggleEditForm()" class="btn btn-secondary" style="flex: 1;">Cancel</button>
+                            <button type="button" id="save-profile-btn" onclick="saveProfileDetails()" class="btn btn-start" style="flex: 1;">Save Changes</button>
+                        </div>
+                    </form>
+
+                    <div class="profile-details">
+                        <p><strong>Account ID</strong> <span style="color: var(--text-main);">#${currentUserId > 0 ? currentUserId : 'N/A'}</span></p>
+                        <p><strong>Lifetime Practice Time</strong> <span id="prof-total-time" style="color: var(--text-main);">Loading...</span></p>
+                        <p><strong>Lifetime Sessions</strong> <span id="prof-total-sessions" style="color: var(--text-main);">Loading...</span></p>
+                    </div>
+                </div>
+            `;
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/logs`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
+                if (!res.ok) throw new Error("Failed");
+                const logs = await res.json();
+
+                const totalSeconds = logs.reduce((acc, log) => acc + (Number(log.durationSeconds) || 0), 0);
+                let totalMin = Math.round(totalSeconds / 60);
+                if (totalSeconds > 0 && totalMin === 0) totalMin = 1;
+
+                document.getElementById('prof-total-time').innerHTML = `<b style="color:var(--primary); font-size:16px;">${totalMin}</b> mins`;
+                document.getElementById('prof-total-sessions').innerHTML = `<b style="color:var(--primary); font-size:16px;">${logs.length}</b>`;
+            } catch (err) {
+                document.getElementById('prof-total-time').innerText = "Data Unavailable";
+                document.getElementById('prof-total-sessions').innerText = "Data Unavailable";
+            }
+        }
+
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const base64Str = e.target.result;
+                localStorage.setItem(`mutice_avatar_${currentUserId}`, base64Str);
+
+                document.getElementById('prof-avatar-img').src = base64Str;
+                document.getElementById('prof-avatar-img').style.display = 'block';
+                document.getElementById('prof-avatar-text').style.display = 'none';
+
+                updateNavbarUserDisplay();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function toggleEditForm() {
+            const form = document.getElementById('profile-edit-form');
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
+
+            document.getElementById('edit-name-input').value = currentUserName;
+            document.getElementById('name-verify-icon').innerText = "";
+            document.getElementById('name-error-text').style.display = "none";
+            isNameValid = true;
+
+            document.getElementById('edit-pw-old').value = "";
+            document.getElementById('edit-pw-input').value = "";
+            document.getElementById('edit-pw-confirm').value = "";
+            document.getElementById('pw-verify-icon').innerText = "";
+            document.getElementById('pw-error-text').style.display = "none";
+            
+            document.getElementById('edit-pw-input').disabled = true;
+            document.getElementById('edit-pw-confirm').disabled = true;
+            isOldPwValid = false;
+            
+            document.getElementById('edit-pw-old').type = "password";
+            document.getElementById('edit-pw-input').type = "password";
+            document.getElementById('edit-pw-confirm').type = "password";
+            const icons = document.querySelectorAll('#profile-edit-form .password-toggle-icon');
+            icons.forEach(i => i.innerHTML = svgEyeOff);
+
+            document.getElementById('profile-status-msg').style.display = "none";
+        }
+
+        async function verifyNewName() {
+            const nameInput = document.getElementById('edit-name-input');
+            const newName = nameInput.value.trim();
+            const iconEl = document.getElementById('name-verify-icon');
+            const errorTextEl = document.getElementById('name-error-text');
+            const statusMsg = document.getElementById('profile-status-msg');
+
+            iconEl.innerText = "";
+            errorTextEl.style.display = "none";
+            statusMsg.style.display = "none";
+            clearTimeout(nameVerifyTimer);
+
+            if (!newName) {
+                isNameValid = false;
+                return;
+            }
+
+            if (newName === currentUserName) {
+                isNameValid = true;
+                return;
+            }
+
+            nameVerifyTimer = setTimeout(async () => {
+                if (nameInput.value.trim() !== newName) return;
+
+                try {
+                    const latestToken = localStorage.getItem('mutice_token') || token;
+                    const res = await fetch(`${API}/users/check-username`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${latestToken}`
+                        },
+                        body: JSON.stringify({ username: newName })
+                    });
+
+                    if (nameInput.value.trim() !== newName) return;
+                    if (!res.ok) throw new Error("Server Error");
+
+                    const data = await res.json();
+
+                    if (data.isAvailable) {
+                        iconEl.innerHTML = "<span style='color:var(--accent);'>✓</span>";
+                        errorTextEl.style.display = "none";
+                        isNameValid = true;
+                    } else {
+                        iconEl.innerHTML = "<span style='color:var(--danger);'>✗</span>";
+                        errorTextEl.innerText = "This username is already taken.";
+                        errorTextEl.style.display = "block";
+                        isNameValid = false;
+                    }
+                } catch (e) {
+                    if (nameInput.value.trim() !== newName) return;
+                    iconEl.innerHTML = "<span style='color:var(--danger);'>✗</span>";
+                    errorTextEl.innerText = "Check failed. Please verify connection.";
+                    errorTextEl.style.display = "block";
+                    isNameValid = false;
+                }
+            }, 1000);
+        }
+
+        async function verifyOldPassword() {
+            const oldPwInput = document.getElementById('edit-pw-old');
+            const oldPw = oldPwInput.value;
+            const iconEl = document.getElementById('pw-verify-icon');
+            const errorTextEl = document.getElementById('pw-error-text');
+            const newPwInput = document.getElementById('edit-pw-input');
+            const confirmPwInput = document.getElementById('edit-pw-confirm');
+            const statusMsg = document.getElementById('profile-status-msg');
+
+            iconEl.innerText = "";
+            errorTextEl.style.display = "none";
+            statusMsg.style.display = "none";
+            newPwInput.disabled = true;
+            confirmPwInput.disabled = true;
+            isOldPwValid = false;
+            clearTimeout(pwVerifyTimer);
+
+            if (!oldPw) {
+                newPwInput.value = "";
+                confirmPwInput.value = "";
+                return;
+            }
+
+            pwVerifyTimer = setTimeout(async () => {
+                if (!oldPwInput.value) return;
+
+                try {
+                    const latestToken = localStorage.getItem('mutice_token') || token;
+                    const res = await fetch(`${API}/users/verify-password`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${latestToken}`
+                        },
+                        body: JSON.stringify({ password: oldPw })
+                    });
+
+                    if (oldPwInput.value !== oldPw) return;
+                    if (!res.ok) throw new Error("Server Error");
+
+                    const data = await res.json();
+
+                    if (data.isValid) {
+                        iconEl.innerHTML = "<span style='color:var(--accent);'>✓</span>";
+                        errorTextEl.style.display = "none";
+                        newPwInput.disabled = false;
+                        confirmPwInput.disabled = false;
+                        isOldPwValid = true;
+                    } else {
+                        iconEl.innerHTML = "<span style='color:var(--danger);'>✗</span>";
+                        errorTextEl.innerText = "Incorrect current password.";
+                        errorTextEl.style.display = "block";
+
+                        newPwInput.disabled = true;
+                        confirmPwInput.disabled = true;
+                        newPwInput.value = "";
+                        confirmPwInput.value = "";
+                        isOldPwValid = false;
+                    }
+                } catch (e) {
+                    if (oldPwInput.value !== oldPw) return;
+                    iconEl.innerHTML = "<span style='color:var(--danger);'>✗</span>";
+                    errorTextEl.innerText = "Verification failed. Please check your connection.";
+                    errorTextEl.style.display = "block";
+                    isOldPwValid = false;
+                }
+            }, 1000);
+        }
+
+        function displayProfileStatus(msg, isError) {
+            const statusEl = document.getElementById('profile-status-msg');
+            statusEl.innerText = msg;
+            statusEl.style.color = isError ? "var(--danger)" : "var(--accent)";
+            statusEl.style.display = "block";
+        }
+
+        async function saveProfileDetails() {
+            const newName = document.getElementById('edit-name-input').value.trim();
+            const oldPw = document.getElementById('edit-pw-old').value;
+            const newPw = document.getElementById('edit-pw-input').value;
+            const confirmPw = document.getElementById('edit-pw-confirm').value;
+            const btn = document.getElementById('save-profile-btn');
+
+            document.getElementById('profile-status-msg').style.display = "none";
+
+            if (!newName) {
+                displayProfileStatus("Name cannot be empty.", true);
+                return;
+            }
+
+            if (!isNameValid) {
+                displayProfileStatus("Please provide a valid, available username.", true);
+                return;
+            }
+
+            if (oldPw || newPw || confirmPw) {
+                if (!isOldPwValid) {
+                    displayProfileStatus("Please verify your current password first.", true);
+                    return;
+                }
+                if (newPw !== confirmPw) {
+                    displayProfileStatus("New passwords do not match.", true);
+                    return;
+                }
+                if (newPw.length < 6) {
+                    displayProfileStatus("New password must be at least 6 characters.", true);
+                    return;
+                }
+            }
+
+            if (newName === currentUserName && !newPw) {
+                displayProfileStatus("No changes detected.", true);
+                setTimeout(() => toggleEditForm(), 1500);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Saving...";
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+
+                const res = await fetch(`${API}/users/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${latestToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: newName !== currentUserName ? newName : undefined,
+                        password: newPw ? newPw : undefined,
+                        oldPassword: oldPw ? oldPw : undefined
+                    })
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok) {
+                    displayProfileStatus(`Failed: ${data.message || 'Error occurred'}`, true);
+                    btn.disabled = false;
+                    btn.innerText = "Save Changes";
+                    return;
+                }
+
+                if (newName && newName !== currentUserName) {
+                    currentUserName = newName;
+                    localStorage.setItem('mutice_user', newName);
+                    
+                    let formattedName = newName.replace(/Quek\s*/i, '').trim();
+                    if(!formattedName) formattedName = 'User';
+
+                    document.getElementById('prof-name-display').innerText = formattedName;
+                    document.getElementById('prof-avatar-text').innerText = formattedName.charAt(0).toUpperCase();
+                    updateNavbarUserDisplay();
+                }
+
+                displayProfileStatus("Profile updated successfully!", false);
+
+                document.getElementById('edit-pw-old').value = "";
+                document.getElementById('edit-pw-input').value = "";
+                document.getElementById('edit-pw-confirm').value = "";
+                document.getElementById('pw-verify-icon').innerText = "";
+                document.getElementById('edit-pw-input').disabled = true;
+                document.getElementById('edit-pw-confirm').disabled = true;
+                isOldPwValid = false;
+                
+                document.getElementById('edit-pw-old').type = "password";
+                document.getElementById('edit-pw-input').type = "password";
+                document.getElementById('edit-pw-confirm').type = "password";
+                const icons = document.querySelectorAll('#profile-edit-form .password-toggle-icon');
+                icons.forEach(i => i.innerHTML = svgEyeOff);
+
+                setTimeout(() => {
+                    toggleEditForm();
+                }, 1500);
+
+            } catch (err) {
+                displayProfileStatus("Server connection failed.", true);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Save Changes";
+            }
+        }
+
+        async function loadDash() {
+            const content = document.getElementById('dash-content');
+            if (!content) return;
+            if (!isLoggedIn) {
+                content.innerHTML = `<div style="text-align:center; padding:80px 20px; background:var(--surface); border-radius:var(--radius-md); box-shadow:var(--shadow-md); border:1px solid var(--border-color); transition:var(--transition);"><h2 style="margin-bottom:20px; color:var(--primary);">Welcome to MuTice!</h2><p style="color:var(--text-muted); margin-bottom:30px;">Please log in to track your practice sessions and access the library.</p><button class="btn btn-start" onclick="window.location.href='auth.html'" style="width:auto; padding:12px 30px;">Login Now</button></div>`;
+                return;
+            }
+
+            content.innerHTML = `
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="dash-min-title">Minutes</h3>
+                    <div id="total-time" class="stat-value" style="color: var(--accent);">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3 id="dash-ses-title">Sessions</h3>
+                    <div id="total-sessions" class="stat-value" style="color: var(--info);">0</div>
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 24px;">
+                <div style="flex: 2; min-width: 300px; background:var(--surface); padding:30px; border-radius:var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); transition: var(--transition);">
+                    <h3 style="margin-top:0; color:var(--primary); font-size:18px;">Practice Summary</h3>
+                    <div style="position: relative; height: 320px; width: 100%; margin-top: 20px;"><canvas id="practiceChart"></canvas></div>
+                </div>
+                <div style="flex: 1; min-width: 300px; background:var(--surface); padding:30px; border-radius:var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); transition: var(--transition);">
+                    <h3 style="margin-top:0; color:var(--primary); font-size:18px;">Recent Activity</h3>
+                    <div id="practice-songs" style="max-height: 320px; overflow-y: auto; padding-right: 10px; margin-top: 20px;"></div>
+                </div>
+            </div>`;
+
+            function parsePracticeDate(dateValue) {
+                if (dateValue instanceof Date && !isNaN(dateValue.getTime()) && dateValue.getFullYear() > 1970) {
+                    return dateValue;
+                }
+                const text = String(dateValue || '').trim();
+                if (!text) return null;
+                if (text.includes('T') || text.includes('-')) {
+                    const isoDate = new Date(text);
+                    if (!isNaN(isoDate.getTime()) && isoDate.getFullYear() > 1970) return isoDate;
+                }
+                const match = text.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:,\s*(\d{1,2}):(\d{2}):(\d{2}))?$/);
+                if (!match) return null;
+                const [, dd, mm, yyyy, hh = '00', mi = '00', ss = '00'] = match;
+                const parsed = new Date(`${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}T${hh.padStart(2, '0')}:${mi}:${ss}`);
+                if (isNaN(parsed.getTime()) || parsed.getFullYear() <= 1970) return null;
+                return parsed;
+            }
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/logs`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
+                if (!res.ok) return;
+                const logs = await res.json();
+                const now = new Date();
+
+                const filtered = logs.filter(log => {
+                    const d = parsePracticeDate(log.date);
+                    if (!d) return false;
+                    if (d.getFullYear() > now.getFullYear() || (d.getFullYear() === now.getFullYear() && d.getMonth() > now.getMonth())) return false;
+                    return true;
+                });
+
+                const sortedLogsDesc = [...filtered].sort((a, b) => {
+                    return parsePracticeDate(b.date) - parsePracticeDate(a.date);
+                });
+
+                const currentMonthLogs = filtered.filter(log => {
+                    const d = parsePracticeDate(log.date);
+                    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+                });
+
+                const totalSeconds = currentMonthLogs.reduce((acc, log) => acc + (Number(log.durationSeconds) || 0), 0);
+                let totalMin = Math.round(totalSeconds / 60);
+                if (totalSeconds > 0 && totalMin === 0) totalMin = 1;
+
+                document.getElementById('total-time').innerText = totalMin;
+                document.getElementById('total-sessions').innerText = currentMonthLogs.length;
+
+                const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                const currentMonthName = monthNames[now.getMonth()];
+                document.getElementById('dash-min-title').innerText = `${currentMonthName} Practice (Mins)`;
+                document.getElementById('dash-ses-title').innerText = `${currentMonthName} Sessions`;
+
+                const topRecent = sortedLogsDesc.slice(0, 7);
+                let recentHtml = '';
+
+                if (topRecent.length === 0) {
+                    recentHtml = `<div style="text-align:center; color:var(--text-muted); margin-top: 50px; padding: 20px; background: var(--bg); border: 1px dashed var(--border-color); border-radius: 12px; transition: var(--transition);">No practice records yet.<br><br>Go play some music! 🎵</div>`;
+                } else {
+                    topRecent.forEach(log => {
+                        const d = parsePracticeDate(log.date);
+                        const dateStr = d ? d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : 'Unknown Date';
+
+                        const sec = Number(log.durationSeconds) || 0;
+                        const m = Math.floor(sec / 60);
+                        const s = sec % 60;
+                        const timeStr = m > 0 ? `${m}m ${s}s` : `${s}s`;
+
+                        recentHtml += `
+                        <div style="display:flex; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--border-color);">
+                            <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 10px;">
+                                <strong style="color:var(--text-main); font-size: 14px; font-weight:600;">${log.scoreTitle || 'Unknown Score'}</strong>
+                                <div style="font-size:12px; color:var(--text-muted); margin-top: 4px;">${dateStr}</div>
+                            </div>
+                            <div style="color:var(--accent); font-weight:700; font-size: 14px; align-self:center; white-space: nowrap; background: rgba(99, 102, 241, 0.1); padding: 6px 12px; border-radius: 20px;">
+                                ${timeStr}
+                            </div>
+                        </div>`;
+                    });
+                }
+                document.getElementById('practice-songs').innerHTML = recentHtml;
+
+                const monthlySeconds = {};
+                filtered.forEach(log => {
+                    const d = parsePracticeDate(log.date);
+                    const mY = d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                    monthlySeconds[mY] = (monthlySeconds[mY] || 0) + (Number(log.durationSeconds) || 0);
+                });
+
+                const sortedLabels = Object.keys(monthlySeconds).sort((a, b) => new Date(a) - new Date(b));
+                const sortedData = sortedLabels.map(label => {
+                    const sec = monthlySeconds[label];
+                    let min = Math.round(sec / 60);
+                    if (sec > 0 && min === 0) min = 1;
+                    return min;
+                });
+
+                setTimeout(() => { renderChart(sortedLabels, sortedData); }, 50);
+
+            } catch (err) {}
+        }
+
+        function renderChart(l, d) {
+            const canvas = document.getElementById('practiceChart');
+            if (!canvas) return;
+            if (myChart) myChart.destroy();
+            
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            const gridColor = isDark ? '#334155' : '#f1f5f9';
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+
+            Chart.defaults.color = textColor;
+
+            myChart = new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: { labels: l, datasets: [{ label: 'Minutes', data: d, backgroundColor: '#6366f1', hoverBackgroundColor: '#4f46e5', borderRadius: 6 }] },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: gridColor }, border: { display: false } },
+                        x: { grid: { display: false }, border: { display: false } }
+                    }
+                }
+            });
+        }
+
+        async function loadLib() {
+            try {
+                const res = await fetch(`${API}/scores`);
+                allScores = await res.json();
+                
+                if (isLoggedIn && myGroupsList.length === 0) {
+                    const latestToken = localStorage.getItem('mutice_token') || token;
+                    const groupRes = await fetch(`${API}/my-groups`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
+                    if(groupRes.ok) myGroupsList = await groupRes.json();
+                }
+                filter();
+            } catch (e) { }
+        }
+
+        async function handleUpload(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (uploadInProgress) return;
+
+            const titleInput = document.getElementById('u-title').value;
+            const composerInput = (document.getElementById('u-composer')?.value || '').trim() || 'Unknown Composer';
+            const fileInput = document.getElementById('u-file').files[0];
+
+            if (!titleInput || !fileInput) return showAlert("Please provide a Score Title and select a file!");
+
+            const ext = (fileInput.name.split('.').pop() || '').toLowerCase();
+            const allowedExt = ['pdf', 'jpg', 'jpeg', 'png'];
+            if (!allowedExt.includes(ext)) return showAlert('Only PDF, JPG, JPEG, PNG files are allowed.');
+
+            if (fileInput.size > 1024 * 1024 * 1024) return showAlert('File too large. Maximum size is 1GB.');
+
+            const btn = document.getElementById('upBtn');
+            const progWrapper = document.getElementById('progress-wrapper');
+            const progBar = document.getElementById('progress-bar');
+
+            const formData = new FormData();
+            formData.append('title', titleInput);
+            formData.append('composer', composerInput);
+            formData.append('instrument', document.getElementById('u-inst').value);
+            formData.append('difficulty', document.getElementById('u-diff').value);
+            formData.append('scoreFile', fileInput);
+
+            uploadInProgress = true;
+            btn.disabled = true;
+            btn.innerText = "Uploading... Please wait";
+            progWrapper.style.display = 'block';
+            progBar.style.width = '50%';
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${latestToken}` },
+                    body: formData
+                });
+                
+                const rawText = await res.text();
+                let data = {};
+                try { data = rawText ? JSON.parse(rawText) : {}; } catch (e) { data = { message: rawText }; }
+
+                if (res.ok) {
+                    progBar.style.width = '100%';
+                    showAlert("Upload Successful!", "Success");
+                    document.getElementById('upForm').reset();
+                    
+                    document.getElementById('u-preview-box').style.display = 'none';
+                    document.getElementById('u-preview-pdf').src = '';
+                    document.getElementById('u-preview-img').src = '';
+                    document.getElementById('u-preview-placeholder').style.display = 'block';
 
                     show('library');
                 } else {
