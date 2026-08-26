@@ -1085,8 +1085,14 @@
 
                 <div style="background: var(--bg); padding: 24px; border-radius: 12px; margin: 24px 0; border: 2px dashed var(--text-muted); text-align: center; transition: var(--transition);">
                     <p style="margin:0 0 12px 0; font-size: 14px; color: var(--text-muted); font-weight: 500;">Upload Local File (PDF or Image, max 1GB)</p>
-                    <!-- 🌟 自动提取功能的触发器 (Public Upload) -->
-                    <input type="file" id="u-file" accept="image/*,.pdf" style="display:block; margin: 0 auto; max-width: 250px;" class="input-box" required onchange="autoFillFromFilename(this, 'u-title', 'u-composer')">
+                    <input type="file" id="u-file" accept="image/*,.pdf" style="display:block; margin: 0 auto; max-width: 250px;" class="input-box" required onchange="handleFileSelect(this, 'u-title', 'u-composer', 'u-preview-box', 'u-preview-pdf', 'u-preview-img')">
+                    
+                    <!-- 🌟 Public Preview Box -->
+                    <div id="u-preview-box" style="display: none; margin-top: 20px; text-align: center;">
+                        <p style="font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 8px;">👀 File Preview</p>
+                        <iframe id="u-preview-pdf" style="width: 100%; height: 350px; border: 1px solid var(--border-color); border-radius: 8px; display: none; background: white;"></iframe>
+                        <img id="u-preview-img" style="max-width: 100%; max-height: 350px; border-radius: 8px; border: 1px solid var(--border-color); display: none; margin: 0 auto; background: white;" />
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-start" id="upBtn" style="padding: 14px; font-size: 16px; width: 100%;">Upload to Public Library</button>
@@ -1190,7 +1196,7 @@
 
     <!-- Group Upload Private Score Modal -->
     <div id="group-upload-modal" class="modal-overlay">
-        <div class="modal-content" style="width: 450px;">
+        <div class="modal-content" style="width: 480px;">
             <h3 style="margin-top: 0; color: var(--primary); font-size: 20px;">Upload Private Score</h3>
             <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">This score will only be visible to members of this group.</p>
             <form onsubmit="submitGroupUpload(event); return false;" style="text-align: left;">
@@ -1235,8 +1241,14 @@
                     </div>
                 </div>
 
-                <!-- 🌟 自动提取功能的触发器 (Group Private Upload) -->
-                <input type="file" id="gu-file" accept="image/*,.pdf" class="input-box" style="padding:10px; margin-bottom:20px;" required onchange="autoFillFromFilename(this, 'gu-title', 'gu-composer')">
+                <div style="background: var(--bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 2px dashed var(--text-muted); text-align: center;">
+                    <input type="file" id="gu-file" accept="image/*,.pdf" class="input-box" style="margin-bottom:0; padding:10px;" required onchange="handleFileSelect(this, 'gu-title', 'gu-composer', 'gu-preview-box', 'gu-preview-pdf', 'gu-preview-img')">
+                    <div id="gu-preview-box" style="display: none; margin-top: 15px; text-align: center;">
+                        <p style="font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 8px;">👀 File Preview</p>
+                        <iframe id="gu-preview-pdf" style="width: 100%; height: 250px; border: 1px solid var(--border-color); border-radius: 8px; display: none; background: white;"></iframe>
+                        <img id="gu-preview-img" style="max-width: 100%; max-height: 250px; border-radius: 8px; border: 1px solid var(--border-color); display: none; margin: 0 auto; background: white;" />
+                    </div>
+                </div>
 
                 <div style="display: flex; gap: 12px;">
                     <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('group-upload-modal')">Cancel</button>
@@ -1276,7 +1288,6 @@
         const svgEye = '<img src="pic/eye.png" width="20" height="20" alt="Show">';
         const svgEyeOff = '<img src="pic/hide.png" width="20" height="20" alt="Hide">';
 
-        // Smart Auto-fill
         function autoFillFromFilename(fileInput, titleId, composerId) {
             if (!fileInput.files || fileInput.files.length === 0) return;
 
@@ -1286,13 +1297,13 @@
 
             let title = cleanName;
             let composer = "";
+
             if (cleanName.toLowerCase().includes(' by ')) {
                 const parts = cleanName.split(/ by /i);
                 title = parts[0].trim();
                 composer = parts[1].trim();
             } else if (cleanName.includes(' - ')) {
                 const parts = cleanName.split(' - ');
-                // 常见格式是 "Composer - Title"
                 composer = parts[0].trim();
                 title = parts[1].trim();
             } else if (cleanName.includes('-')) {
@@ -1304,13 +1315,40 @@
             const titleEl = document.getElementById(titleId);
             const composerEl = document.getElementById(composerId);
 
-            // 只有当输入框是空的时候，才自动填入，避免覆盖用户自己打的字
             if (titleEl && !titleEl.value) {
-                // 首字母大写美化
                 titleEl.value = title.replace(/\b\w/g, l => l.toUpperCase());
             }
             if (composerEl && !composerEl.value && composer) {
                 composerEl.value = composer.replace(/\b\w/g, l => l.toUpperCase());
+            }
+        }
+
+        function handleFileSelect(input, titleId, composerId, previewBoxId, pdfId, imgId) {
+            autoFillFromFilename(input, titleId, composerId);
+
+            const file = input.files[0];
+            const previewBox = document.getElementById(previewBoxId);
+            const pdfViewer = document.getElementById(pdfId);
+            const imgViewer = document.getElementById(imgId);
+
+            if (!file) {
+                previewBox.style.display = 'none';
+                return;
+            }
+
+            const fileURL = URL.createObjectURL(file);
+            previewBox.style.display = 'block';
+
+            if (file.type === 'application/pdf') {
+                imgViewer.style.display = 'none';
+                pdfViewer.style.display = 'block';
+                pdfViewer.src = fileURL;
+            } else if (file.type.startsWith('image/')) {
+                pdfViewer.style.display = 'none';
+                imgViewer.style.display = 'block';
+                imgViewer.src = fileURL;
+            } else {
+                previewBox.style.display = 'none';
             }
         }
 
@@ -1717,6 +1755,10 @@
             document.getElementById('gu-title').value = '';
             document.getElementById('gu-composer').value = '';
             document.getElementById('gu-file').value = '';
+            document.getElementById('gu-preview-box').style.display = 'none';
+            document.getElementById('gu-preview-pdf').src = '';
+            document.getElementById('gu-preview-img').src = '';
+
             document.getElementById('group-upload-modal').style.display = 'flex';
         }
 
@@ -2496,6 +2538,12 @@
                     progBar.style.width = '100%';
                     showAlert("Upload Successful!", "Success");
                     document.getElementById('upForm').reset();
+                    
+                    // Reset Preview
+                    document.getElementById('u-preview-box').style.display = 'none';
+                    document.getElementById('u-preview-pdf').src = '';
+                    document.getElementById('u-preview-img').src = '';
+
                     show('library');
                 } else {
                     showAlert(`Upload Failed (${res.status}): ` + (data.message || "Error"), "Error");
