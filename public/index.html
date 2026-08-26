@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Light mode*/
+            /* Light Mode Variables */
             --primary: #0f172a;       
             --accent: #6366f1;        
             --accent-hover: #4f46e5;
@@ -36,7 +36,7 @@
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Dark Mode*/
+        /* Dark Mode Variables */
         [data-theme="dark"] {
             --primary: #f8fafc;       
             --accent: #818cf8;        
@@ -67,9 +67,9 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- Navbar --- */
+        /* Navbar */
         .navbar {
-            background: rgba(15, 23, 42, 0.85); /* 导航栏保持深色显得高级 */
+            background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             color: white;
@@ -132,7 +132,85 @@
             margin: 0 10px;
         }
 
-        /* --- Modern Buttons --- */
+        /* 3D Theme Toggle Switch (iOS Style) */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 76px;
+            height: 34px;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #e9ecef;
+            transition: .4s;
+            border-radius: 34px;
+            box-shadow: inset 2px 2px 6px rgba(0,0,0,0.15), inset -2px -2px 6px rgba(255,255,255,0.8);
+            overflow: hidden;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 28px;
+            width: 28px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: .4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border-radius: 50%;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2), -1px -1px 2px rgba(255,255,255,1);
+            z-index: 2;
+        }
+
+        input:checked + .slider {
+            background-color: #10b981; 
+            box-shadow: inset 2px 2px 6px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(42px);
+            box-shadow: -2px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .slider:after {
+            content: "LIGHT";
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
+            transition: .4s;
+            z-index: 1;
+            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.7);
+        }
+
+        input:checked + .slider:after {
+            content: "DARK";
+            left: 12px;
+            right: auto;
+            color: #047857; 
+            text-shadow: none;
+        }
+
+        /* Modern Buttons */
         .btn {
             padding: 10px 24px;
             border: none;
@@ -173,7 +251,6 @@
             background: #f1f5f9 !important;
         }
 
-        /* --- Card Button Styles --- */
         .card-actions {
             margin-top: 24px;
             display: flex;
@@ -230,7 +307,7 @@
             color: var(--danger);
         }
 
-        /* --- Layout & Typography --- */
+        /* Layout & Typography */
         .container {
             max-width: 1200px;
             margin: 40px auto;
@@ -262,7 +339,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- Modern Cards --- */
+        /* Modern Cards */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -318,7 +395,7 @@
             transform: scale(1.15);
         }
 
-        /* --- Inputs & Filters --- */
+        /* Inputs & Filters */
         .input-box {
             width: 100%;
             padding: 14px 20px;
@@ -400,7 +477,7 @@
             box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
         }
 
-        /* --- Dashboard Stats --- */
+        /* Dashboard Stats */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -444,7 +521,7 @@
             margin-top: 10px;
         }
 
-        /* --- Profile Section --- */
+        /* Profile Section */
         .profile-card {
             background: var(--surface);
             padding: 40px;
@@ -547,7 +624,7 @@
             border: 1px solid var(--border-color);
         }
 
-        /* --- Modals --- */
+        /* Modals */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -616,7 +693,7 @@
             font-size: 16px;
         }
 
-        /* --- Progress Bar --- */
+        /* Progress Bar */
         .progress-wrapper {
             width: 100%;
             background: var(--border-color);
@@ -634,7 +711,7 @@
             transition: width 0.3s ease;
         }
 
-        /* --- Group Chat Styles (Upgraded with Theme Variables) --- */
+        /* Group Chat Styles */
         .group-split-view {
             display: flex;
             gap: 25px;
@@ -688,7 +765,6 @@
             transition: var(--transition);
         }
 
-        /* 居中的日期分割线 */
         .chat-date-divider {
             text-align: center;
             margin: 12px 0 4px 0;
@@ -845,11 +921,11 @@
             </div>
         </div>
         <ul class="nav-links">
-            <!-- 🌟 全新的主题切换按钮 -->
-            <li>
-                <button id="theme-btn" class="btn" onclick="toggleTheme()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); font-size: 12px; padding: 6px 14px; margin-right: 12px; display: flex; align-items: center; gap: 6px;">
-                    <span id="theme-icon">🌙</span> <span style="font-weight: 600; letter-spacing: 0.5px;">Light ↔ Dark</span>
-                </button>
+            <li class="theme-switch-wrapper">
+                <label class="theme-switch" title="Toggle Light/Dark Mode">
+                    <input type="checkbox" id="theme-checkbox" onchange="toggleTheme(this)">
+                    <span class="slider"></span>
+                </label>
             </li>
             <li><a id="n-dash" onclick="show('dashboard')">Overview</a></li>
             <li><a id="n-lib" onclick="show('library')">Library</a></li>
@@ -951,7 +1027,6 @@
                     <div class="group-split-right">
                         <div class="chat-header">Group Chat</div>
                         <div class="chat-messages" id="chat-messages">
-                            <!-- Chat messages injected here -->
                         </div>
                         <form class="chat-input-area" onsubmit="submitGroupMessage(event)">
                             <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." autocomplete="off">
@@ -1191,7 +1266,6 @@
         let isNameValid = true;
         let isOldPwValid = false;
 
-        // Group Variables
         let chatInterval = null;
         let activeGroupId = null;
         let activeGroupCreatorId = null; 
@@ -1202,12 +1276,14 @@
 
         function initApp() {
             try {
-                // 🌙 Theme Initialization
                 const savedTheme = localStorage.getItem('mutice_theme') || 'light';
+                const themeCheckbox = document.getElementById('theme-checkbox');
+                
                 if (savedTheme === 'dark') {
                     document.body.setAttribute('data-theme', 'dark');
-                    const icon = document.getElementById('theme-icon');
-                    if (icon) icon.innerText = '☀️';
+                    if (themeCheckbox) themeCheckbox.checked = true;
+                } else {
+                    if (themeCheckbox) themeCheckbox.checked = false;
                 }
 
                 const authNav = document.getElementById('auth-nav-item');
@@ -1224,22 +1300,17 @@
             } catch (error) { console.error("Init Error:", error); }
         }
 
-        // 🌟 Theme Toggle Function
-        function toggleTheme() {
+        function toggleTheme(checkbox) {
             const body = document.body;
-            const icon = document.getElementById('theme-icon');
             
-            if (body.getAttribute('data-theme') === 'dark') {
-                body.removeAttribute('data-theme');
-                localStorage.setItem('mutice_theme', 'light');
-                if (icon) icon.innerText = '🌙';
-            } else {
+            if (checkbox.checked) {
                 body.setAttribute('data-theme', 'dark');
                 localStorage.setItem('mutice_theme', 'dark');
-                if (icon) icon.innerText = '☀️';
+            } else {
+                body.removeAttribute('data-theme');
+                localStorage.setItem('mutice_theme', 'light');
             }
             
-            // Re-render chart to update colors if dashboard is visible
             if (document.getElementById('dashboard').style.display !== 'none') {
                 loadDash(); 
             }
@@ -1602,7 +1673,6 @@
             });
         }
 
-        // Private Score Upload for Group
         function openGroupUploadModal() {
             document.getElementById('gu-title').value = '';
             document.getElementById('gu-composer').value = '';
@@ -1658,7 +1728,6 @@
             }
         }
 
-        /* --- Updated Chat Logic (Dates & Delete) --- */
         async function loadGroupMessages(groupId) {
             try {
                 const latestToken = localStorage.getItem('mutice_token') || token;
@@ -2295,16 +2364,14 @@
 
                 setTimeout(() => { renderChart(sortedLabels, sortedData); }, 50);
 
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) {}
         }
 
         function renderChart(l, d) {
             const canvas = document.getElementById('practiceChart');
             if (!canvas) return;
             if (myChart) myChart.destroy();
-        
+            
             const isDark = document.body.getAttribute('data-theme') === 'dark';
             const gridColor = isDark ? '#334155' : '#f1f5f9';
             const textColor = isDark ? '#94a3b8' : '#64748b';
@@ -2317,19 +2384,10 @@
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: gridColor },
-                            border: { display: false }
-                        },
-                        x: {
-                            grid: { display: false },
-                            border: { display: false }
-                        }
+                        y: { beginAtZero: true, grid: { color: gridColor }, border: { display: false } },
+                        x: { grid: { display: false }, border: { display: false } }
                     }
                 }
             });
@@ -2345,39 +2403,25 @@
                     const groupRes = await fetch(`${API}/my-groups`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
                     if(groupRes.ok) myGroupsList = await groupRes.json();
                 }
-
                 filter();
             } catch (e) { }
         }
 
         async function handleUpload(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
+            if (e) { e.preventDefault(); e.stopPropagation(); }
             if (uploadInProgress) return;
 
             const titleInput = document.getElementById('u-title').value;
             const composerInput = (document.getElementById('u-composer')?.value || '').trim() || 'Unknown Composer';
             const fileInput = document.getElementById('u-file').files[0];
 
-            if (!titleInput || !fileInput) {
-                showAlert("Please provide a Score Title and select a file!");
-                return;
-            }
+            if (!titleInput || !fileInput) return showAlert("Please provide a Score Title and select a file!");
 
             const ext = (fileInput.name.split('.').pop() || '').toLowerCase();
             const allowedExt = ['pdf', 'jpg', 'jpeg', 'png'];
-            if (!allowedExt.includes(ext)) {
-                showAlert('Only PDF, JPG, JPEG, PNG files are allowed.');
-                return;
-            }
+            if (!allowedExt.includes(ext)) return showAlert('Only PDF, JPG, JPEG, PNG files are allowed.');
 
-            const maxSize = 1024 * 1024 * 1024;
-            if (fileInput.size > maxSize) {
-                showAlert('File too large. Maximum size is 1GB.');
-                return;
-            }
+            if (fileInput.size > 1024 * 1024 * 1024) return showAlert('File too large. Maximum size is 1GB.');
 
             const btn = document.getElementById('upBtn');
             const progWrapper = document.getElementById('progress-wrapper');
@@ -2406,11 +2450,7 @@
                 
                 const rawText = await res.text();
                 let data = {};
-                try {
-                    data = rawText ? JSON.parse(rawText) : {};
-                } catch (parseError) {
-                    data = { message: rawText };
-                }
+                try { data = rawText ? JSON.parse(rawText) : {}; } catch (e) { data = { message: rawText }; }
 
                 if (res.ok) {
                     progBar.style.width = '100%';
@@ -2421,7 +2461,7 @@
                     showAlert(`Upload Failed (${res.status}): ` + (data.message || "Error"), "Error");
                 }
             } catch (err) {
-                showAlert("Server Connection Failed: " + (err?.message || "Unknown error"), "Error");
+                showAlert("Server Connection Failed", "Error");
             } finally {
                 uploadInProgress = false;
                 btn.disabled = false;
@@ -2433,12 +2473,8 @@
         function canDeleteScore(score) {
             if (!isLoggedIn || !score) return false;
             const ownerId = Number(score.uploader_id || 0);
-            if (ownerId > 0 && currentUserId > 0) {
-                return ownerId === currentUserId;
-            }
-            if (ownerId <= 0 && currentUserName) {
-                return String(score.uploader || '').trim() === currentUserName;
-            }
+            if (ownerId > 0 && currentUserId > 0) return ownerId === currentUserId;
+            if (ownerId <= 0 && currentUserName) return String(score.uploader || '').trim() === currentUserName;
             return false;
         }
 
@@ -2453,21 +2489,14 @@
 
                 try {
                     const token = localStorage.getItem('mutice_token') || "";
-                    const res = await fetch(`${API}/scores/${id}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-
+                    const res = await fetch(`${API}/scores/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
                     const data = await res.json().catch(() => ({}));
 
                     if (res.ok && data.success) {
                         await loadLib();
                         const stillExists = allScores.some(s => Number(s.id) === Number(id));
-                        if (stillExists) {
-                            showAlert("Delete failed: This is not your file. You cannot delete it.", "Error");
-                        } else {
-                            showAlert("Deleted successfully!", "Success");
-                        }
+                        if (stillExists) showAlert("Delete failed: This is not your file. You cannot delete it.", "Error");
+                        else showAlert("Deleted successfully!", "Success");
                     } else if (res.status === 403) {
                         showAlert(data.message || "This is not your file. You cannot delete it.", "Error");
                     } else if (res.status === 404) {
@@ -2475,9 +2504,7 @@
                     } else {
                         showAlert("Delete failed: " + (data.message || "Not allowed"), "Error");
                     }
-                } catch (err) {
-                    showAlert("Server error: " + err.message, "Error");
-                }
+                } catch (err) { showAlert("Server error: " + err.message, "Error"); }
             });
         }
 
@@ -2488,16 +2515,10 @@
 
         function toggleFav(e, id) {
             e.stopPropagation();
-            if (!isLoggedIn) {
-                showAlert('Please log in to save favorites!');
-                return;
-            }
+            if (!isLoggedIn) return showAlert('Please log in to save favorites!');
             let favs = getFavs();
-            if (favs.includes(id)) {
-                favs = favs.filter(f => f !== id);
-            } else {
-                favs.push(id);
-            }
+            if (favs.includes(id)) favs = favs.filter(f => f !== id);
+            else favs.push(id);
             localStorage.setItem(`mutice_fav_${currentUserId}`, JSON.stringify(favs));
             filter();
         }
@@ -2505,11 +2526,8 @@
         function toggleFavFilter() {
             showFavOnly = !showFavOnly;
             const btn = document.getElementById('btn-fav-filter');
-            if (showFavOnly) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
+            if (showFavOnly) btn.classList.add('active');
+            else btn.classList.remove('active');
             filter();
         }
 
@@ -2517,12 +2535,10 @@
             if (currentSort === type) isDesc = !isDesc;
             else { currentSort = type; isDesc = (type === 'recent'); }
             document.querySelectorAll('.sort-btn').forEach(btn => {
-                if (btn.id !== 'btn-fav-filter') {
-                    btn.classList.remove('active');
-                }
+                if (btn.id !== 'btn-fav-filter') btn.classList.remove('active');
             });
             const btn = document.getElementById(`sort-${type}`);
-            if (btn) { btn.classList.add('active'); }
+            if (btn) btn.classList.add('active');
             filter();
         }
 
@@ -2575,19 +2591,19 @@
                         <span style="background:var(--input-bg); padding:2px 8px; border-radius:4px; border:1px solid var(--border-color);">${i.instrument}</span>
                         <span style="background:rgba(14, 165, 233, 0.15); color:var(--info); padding:2px 8px; border-radius:4px;">${i.difficulty}</span>
                     </p>
-                    <p style="font-size: 12px; color:var(--text-muted); margin-top: 12px;">Shared by: ${i.uploader_name || 'System'}</p>
+                    <p style="font-size: 12px; color:var(--text-muted); margin-top: 12px;">Uploaded by: ${i.uploader || 'System'}</p>
                 </div>
                 
                 <div class="card-actions">
                     <button type="button" class="btn-sm btn-primary" onclick="event.stopPropagation(); goToPractice(${i.id})">Start</button>
-                    ${canDeleteScore(i) ? `<button type="button" class="btn-icon-danger" title="Delete Private Score" onclick="event.stopPropagation(); removeScore(${i.id})">${trashIcon}</button>` : ''}
+                    <button type="button" class="btn-sm btn-secondary" onclick="event.stopPropagation(); openShareModal(${i.id})">Share</button>
+                    ${canDeleteScore(i) ? `<button type="button" class="btn-icon-danger" title="Delete Score" onclick="event.stopPropagation(); removeScore(${i.id})">${trashIcon}</button>` : ''}
                 </div>
-            </div>`
-            }).join('');
+            </div>`}).join('');
         }
 
         function goToPractice(id) {
-            if (!isLoggedIn) { window.location.href = 'auth.html'; }
+            if (!isLoggedIn) window.location.href = 'auth.html';
             else window.location.href = `practice.html?id=${encodeURIComponent(id)}`;
         }
 
