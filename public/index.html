@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <title>MuTice</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -657,7 +657,7 @@
         }
 
         #alert-modal { z-index: 9999; }
-        #crop-modal { z-index: 1001; } /* 🌟 保证裁剪框层级最高 */
+        #crop-modal { z-index: 1001; } 
 
         .password-wrapper {
             position: relative;
@@ -990,52 +990,59 @@
 
         <!-- Groups -->
         <div id="groups" class="section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h1 style="margin: 0;">Private Groups</h1>
-                <div style="display: flex; gap: 12px;">
-                    <button class="btn btn-start" onclick="openCreateGroupModal()">+ Create Group</button>
-                    <button class="btn btn-secondary" onclick="openJoinGroupModal()">Join with Code</button>
-                </div>
+            <h1 style="margin-bottom: 24px;">Private Groups</h1>
+            
+            <!-- 🌟 未登录时的精美锁屏提示 -->
+            <div id="groups-gated" style="display:none; text-align:center; padding:80px 20px; background:var(--surface); border-radius:var(--radius-md); box-shadow:var(--shadow-md); border:1px solid var(--border-color); transition:var(--transition);">
+                <div style="font-size: 44px; margin-bottom: 15px; opacity: 0.8;">🔒</div>
+                <h2 style="margin-bottom:20px; color:var(--primary);">Login Required</h2>
+                <p style="color:var(--text-muted); margin-bottom:30px;">Join exclusive private groups to share scores and chat with your band.</p>
+                <button class="btn btn-start" onclick="window.location.href='auth.html'" style="width:auto; padding:12px 30px;">Login Now</button>
             </div>
 
-            <h3 style="color: var(--text-muted); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">My Groups</h3>
-            <div id="groups-list" class="grid"></div>
-
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 40px 0;">
-
-            <div id="group-detail-view" style="display: none; background: var(--surface); padding: 32px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); transition: var(--transition);">
-                
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 24px;">
-                    <div style="flex:1;">
-                        <h2 id="gd-title" style="margin: 0 0 10px 0; color: var(--primary); font-size: 24px;">Group Name</h2>
-                        <div style="font-size: 14px; color: var(--text-muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                            👥 <span style="font-weight:600;">Members:</span> 
-                            <span id="gd-members" style="display:flex; flex-wrap:wrap; gap:6px;">Loading...</span>
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 15px; margin-left: 20px;">
-                        <button class="btn btn-start" style="padding: 8px 16px; font-size: 13px;" onclick="openGroupUploadModal()">➕ Upload Private Score</button>
-                        <p style="margin: 0; font-size: 14px; color: var(--text-muted);">Invite Code: <strong id="gd-code" style="color: var(--accent); background: rgba(99, 102, 241, 0.1); padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 16px;"></strong></p>
-                        <button id="gd-leave-btn" class="btn" style="background: var(--surface); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; font-size: 13px;">Leave Group</button>
+            <!-- 已登录时的真正内容 -->
+            <div id="groups-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h3 style="margin: 0; color: var(--text-muted); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">My Groups</h3>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-start" onclick="openCreateGroupModal()">+ Create Group</button>
+                        <button class="btn btn-secondary" onclick="openJoinGroupModal()">Join with Code</button>
                     </div>
                 </div>
-                
-                <div class="group-split-view">
-                    <!-- Left: Shared Scores -->
-                    <div class="group-split-left">
-                        <h3 style="margin-top: 0;">Shared Scores</h3>
-                        <div id="gd-scores" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));"></div>
+
+                <div id="groups-list" class="grid"></div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 40px 0;">
+
+                <div id="group-detail-view" style="display: none; background: var(--surface); padding: 32px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); transition: var(--transition);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 24px;">
+                        <div style="flex:1;">
+                            <h2 id="gd-title" style="margin: 0 0 10px 0; color: var(--primary); font-size: 24px;">Group Name</h2>
+                            <div style="font-size: 14px; color: var(--text-muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                👥 <span style="font-weight:600;">Members:</span> 
+                                <span id="gd-members" style="display:flex; flex-wrap:wrap; gap:6px;">Loading...</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px; margin-left: 20px;">
+                            <button class="btn btn-start" style="padding: 8px 16px; font-size: 13px;" onclick="openGroupUploadModal()">➕ Upload Private Score</button>
+                            <p style="margin: 0; font-size: 14px; color: var(--text-muted);">Invite Code: <strong id="gd-code" style="color: var(--accent); background: rgba(99, 102, 241, 0.1); padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 16px;"></strong></p>
+                            <button id="gd-leave-btn" class="btn" style="background: var(--surface); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; font-size: 13px;">Leave Group</button>
+                        </div>
                     </div>
                     
-                    <!-- Right: Group Chat -->
-                    <div class="group-split-right">
-                        <div class="chat-header">Group Chat</div>
-                        <div class="chat-messages" id="chat-messages">
+                    <div class="group-split-view">
+                        <div class="group-split-left">
+                            <h3 style="margin-top: 0;">Shared Scores</h3>
+                            <div id="gd-scores" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));"></div>
                         </div>
-                        <form class="chat-input-area" onsubmit="submitGroupMessage(event)">
-                            <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." autocomplete="off">
-                            <button type="submit" class="chat-send-btn">➤</button>
-                        </form>
+                        <div class="group-split-right">
+                            <div class="chat-header">Group Chat</div>
+                            <div class="chat-messages" id="chat-messages"></div>
+                            <form class="chat-input-area" onsubmit="submitGroupMessage(event)">
+                                <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." autocomplete="off">
+                                <button type="submit" class="chat-send-btn">➤</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1044,6 +1051,15 @@
         <!-- Upload (Public) Split Screen -->
         <div id="upload" class="section">
             <h1>Upload Score (Public Library)</h1>
+
+            <!-- 🌟 未登录时的精美锁屏提示 -->
+            <div id="upload-gated" style="display:none; text-align:center; padding:80px 20px; background:var(--surface); border-radius:var(--radius-md); box-shadow:var(--shadow-md); border:1px solid var(--border-color); transition:var(--transition); max-width: 900px; margin: 0 auto;">
+                <div style="font-size: 44px; margin-bottom: 15px; opacity: 0.8;">🔒</div>
+                <h2 style="margin-bottom:20px; color:var(--primary);">Login Required</h2>
+                <p style="color:var(--text-muted); margin-bottom:30px;">You must be logged in to share your sheet music with the community.</p>
+                <button class="btn btn-start" onclick="window.location.href='auth.html'" style="width:auto; padding:12px 30px;">Login Now</button>
+            </div>
+
             <form id="upForm" onsubmit="handleUpload(event); return false;" style="background:var(--surface); padding:40px; border-radius:var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); max-width: 900px; margin: 0 auto; transition: var(--transition); display: flex; gap: 40px; flex-wrap: wrap;">
                 
                 <!-- Left Side: Form Details -->
@@ -1124,7 +1140,7 @@
     </div>
 
     <!-- ================== MODALS ================== -->
-    <!--Crop Modal-->
+    <!-- Crop Modal -->
     <div id="crop-modal" class="modal-overlay">
         <div class="modal-content" style="width: 400px;">
             <h3 style="margin-top: 0; color: var(--primary); font-size: 20px;">Adjust Profile Picture</h3>
@@ -1328,7 +1344,6 @@
         const svgEye = '<img src="pic/eye.png" width="20" height="20" alt="Show">';
         const svgEyeOff = '<img src="pic/hide.png" width="20" height="20" alt="Hide">';
 
-        // Smart Auto-fill & Preview Engine
         function autoFillFromFilename(fileInput, titleId, composerId) {
             if (!fileInput.files || fileInput.files.length === 0) return;
 
@@ -1566,11 +1581,6 @@
         }
 
         function show(id) {
-            if (!isLoggedIn && (id === 'upload' || id === 'profile' || id === 'groups')) {
-                window.location.href = 'auth.html';
-                return;
-            }
-
             if (id !== 'groups' && chatInterval) {
                 clearInterval(chatInterval);
                 chatInterval = null;
@@ -1587,6 +1597,35 @@
             if (document.getElementById('n-groups')) document.getElementById('n-groups').className = (id === 'groups' ? 'nav-active' : '');
             if (document.getElementById('n-up')) document.getElementById('n-up').className = (id === 'upload' ? 'nav-active' : '');
             if (document.getElementById('n-prof')) document.getElementById('n-prof').className = (id === 'profile' ? 'nav-active' : '');
+            if (!isLoggedIn && (id === 'upload' || id === 'groups' || id === 'profile')) {
+                if (id === 'upload') {
+                    document.getElementById('upForm').style.display = 'none';
+                    document.getElementById('upload-gated').style.display = 'block';
+                } else if (id === 'groups') {
+                    document.getElementById('groups-content').style.display = 'none';
+                    document.getElementById('groups-gated').style.display = 'block';
+                } else if (id === 'profile') {
+                    document.getElementById('profile-content').innerHTML = `
+                        <div style="text-align:center; padding:80px 20px; background:var(--surface); border-radius:var(--radius-md); box-shadow:var(--shadow-md); border:1px solid var(--border-color); transition:var(--transition); max-width: 900px; margin: 0 auto;">
+                            <div style="font-size: 44px; margin-bottom: 15px; opacity: 0.8;">🔒</div>
+                            <h2 style="margin-bottom:20px; color:var(--primary);">Login Required</h2>
+                            <p style="color:var(--text-muted); margin-bottom:30px;">Please log in to view and edit your profile settings.</p>
+                            <button class="btn btn-start" onclick="window.location.href='auth.html'" style="width:auto; padding:12px 30px;">Login Now</button>
+                        </div>`;
+                }
+                return;
+            }
+
+            if (isLoggedIn) {
+                if (id === 'upload') {
+                    document.getElementById('upForm').style.display = 'flex';
+                    if (document.getElementById('upload-gated')) document.getElementById('upload-gated').style.display = 'none';
+                }
+                if (id === 'groups') {
+                    document.getElementById('groups-content').style.display = 'block';
+                    if (document.getElementById('groups-gated')) document.getElementById('groups-gated').style.display = 'none';
+                }
+            }
 
             if (id === 'dashboard') loadDash();
             if (id === 'library') loadLib();
@@ -2097,7 +2136,6 @@
             reader.readAsDataURL(file);
         }
 
-        // 🌟 取消裁剪
         function closeCropModal() {
             document.getElementById('crop-modal').style.display = 'none';
             if (cropper) {
