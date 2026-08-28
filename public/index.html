@@ -990,48 +990,57 @@
 
         <!-- Groups -->
         <div id="groups" class="section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h1 style="margin: 0;">Private Groups</h1>
-                <div style="display: flex; gap: 12px;">
-                    <button class="btn btn-start" onclick="openCreateGroupModal()">+ Create Group</button>
-                    <button class="btn btn-secondary" onclick="openJoinGroupModal()">Join with Code</button>
-                </div>
+            <h1 style="margin-bottom: 24px;">Private Groups</h1>
+            
+            <div id="groups-gated" style="display:none; text-align:center; padding:80px 20px; background:var(--surface); border-radius:var(--radius-md); box-shadow:var(--shadow-md); border:1px solid var(--border-color); transition:var(--transition);">
+                <h2 style="margin-bottom:20px; color:var(--primary);">Login Required</h2>
+                <p style="color:var(--text-muted); margin-bottom:30px;">Join exclusive private groups to share scores and chat with your band.</p>
+                <button class="btn btn-start" onclick="window.location.href='auth.html'" style="width:auto; padding:12px 30px;">Login Now</button>
             </div>
 
-            <h3 style="color: var(--text-muted); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">My Groups</h3>
-            <div id="groups-list" class="grid"></div>
-
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 40px 0;">
-
-            <div id="group-detail-view" style="display: none; background: var(--surface); padding: 32px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); transition: var(--transition);">
-                
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 24px;">
-                    <div style="flex:1;">
-                        <h2 id="gd-title" style="margin: 0 0 10px 0; color: var(--primary); font-size: 24px;">Group Name</h2>
-                        <div style="font-size: 14px; color: var(--text-muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                            👥 <span style="font-weight:600;">Members:</span> 
-                            <span id="gd-members" style="display:flex; flex-wrap:wrap; gap:6px;">Loading...</span>
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 15px; margin-left: 20px;">
-                        <button class="btn btn-start" style="padding: 8px 16px; font-size: 13px;" onclick="openGroupUploadModal()">➕ Upload Private Score</button>
-                        <p style="margin: 0; font-size: 14px; color: var(--text-muted);">Invite Code: <strong id="gd-code" style="color: var(--accent); background: rgba(99, 102, 241, 0.1); padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 16px;"></strong></p>
-                        <button id="gd-leave-btn" class="btn" style="background: var(--surface); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; font-size: 13px;">Leave Group</button>
+            <div id="groups-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h3 style="margin: 0; color: var(--text-muted); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">My Groups</h3>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-start" onclick="openCreateGroupModal()">+ Create Group</button>
+                        <button class="btn btn-secondary" onclick="openJoinGroupModal()">Join with Code</button>
                     </div>
                 </div>
-                
-                <div class="group-split-view">
-                    <div class="group-split-left">
-                        <h3 style="margin-top: 0;">Shared Scores</h3>
-                        <div id="gd-scores" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));"></div>
+
+                <div id="groups-list" class="grid"></div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 40px 0;">
+
+                <div id="group-detail-view" style="display: none; background: var(--surface); padding: 32px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); transition: var(--transition);">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 24px;">
+                        <div style="flex:1;">
+                            <h2 id="gd-title" style="margin: 0 0 10px 0; color: var(--primary); font-size: 24px;">Group Name</h2>
+                            <div style="font-size: 14px; color: var(--text-muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                👥 <span style="font-weight:600;">Members:</span> 
+                                <span id="gd-members" style="display:flex; flex-wrap:wrap; gap:6px;">Loading...</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px; margin-left: 20px;">
+                            <button class="btn btn-start" style="padding: 8px 16px; font-size: 13px;" onclick="openGroupUploadModal()">➕ Upload Private Score</button>
+                            <p style="margin: 0; font-size: 14px; color: var(--text-muted);">Invite Code: <strong id="gd-code" style="color: var(--accent); background: rgba(99, 102, 241, 0.1); padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 16px;"></strong></p>
+                            <button id="gd-leave-btn" class="btn" style="background: var(--surface); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; font-size: 13px;">Leave Group</button>
+                        </div>
                     </div>
-                    <div class="group-split-right">
-                        <div class="chat-header">Group Chat</div>
-                        <div class="chat-messages" id="chat-messages"></div>
-                        <form class="chat-input-area" onsubmit="submitGroupMessage(event)">
-                            <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." autocomplete="off">
-                            <button type="submit" class="chat-send-btn">➤</button>
-                        </form>
+                    
+                    <div class="group-split-view">
+                        <div class="group-split-left">
+                            <h3 style="margin-top: 0;">Shared Scores</h3>
+                            <div id="gd-scores" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));"></div>
+                        </div>
+                        <div class="group-split-right">
+                            <div class="chat-header">Group Chat</div>
+                            <div class="chat-messages" id="chat-messages"></div>
+                            <form class="chat-input-area" onsubmit="submitGroupMessage(event)">
+                                <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." autocomplete="off">
+                                <button type="submit" class="chat-send-btn">➤</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1041,9 +1050,14 @@
         <div id="upload" class="section">
             <h1>Upload Score (Public Library)</h1>
 
+            <div id="upload-gated" style="display:none; text-align:center; padding:80px 20px; background:var(--surface); border-radius:var(--radius-md); box-shadow:var(--shadow-md); border:1px solid var(--border-color); transition:var(--transition); max-width: 900px; margin: 0 auto;">
+                <h2 style="margin-bottom:20px; color:var(--primary);">Login Required</h2>
+                <p style="color:var(--text-muted); margin-bottom:30px;">You must be logged in to share your sheet music with the community.</p>
+                <button class="btn btn-start" onclick="window.location.href='auth.html'" style="width:auto; padding:12px 30px;">Login Now</button>
+            </div>
+
             <form id="upForm" onsubmit="handleUpload(event); return false;" style="background:var(--surface); padding:40px; border-radius:var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); max-width: 900px; margin: 0 auto; transition: var(--transition); display: flex; gap: 40px; flex-wrap: wrap;">
                 
-                <!-- Left Side: Form Details -->
                 <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column;">
                     <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Score Title</p>
                     <input type="text" id="u-title" class="input-box" placeholder="e.g. Moonlight Sonata" required>
@@ -1098,7 +1112,6 @@
                     <button type="submit" class="btn btn-start" id="upBtn" style="padding: 14px; font-size: 16px; width: 100%; margin-top: auto;">Upload to Public Library</button>
                 </div>
 
-                <!-- Right Side: Sticky Preview Area -->
                 <div style="flex: 1; min-width: 300px; background: var(--bg); border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow: hidden; position: relative; min-height: 400px; transition: var(--transition);">
                     <div id="u-preview-placeholder" style="color: var(--text-muted); text-align: center;">
                         <div style="font-size: 40px; margin-bottom: 10px; opacity: 0.5;">📄</div>
@@ -1109,7 +1122,6 @@
                         <img id="u-preview-img" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; display: none; margin: 0 auto; background: transparent;" />
                     </div>
                 </div>
-
             </form>
         </div>
 
@@ -1121,9 +1133,9 @@
     </div>
 
     <!-- ================== MODALS ================== -->
+    <!-- Login Required Modal -->
     <div id="login-required-modal" class="modal-overlay">
         <div class="modal-content" style="width: 400px;">
-            <div style="font-size: 44px; margin-bottom: 15px; opacity: 0.8;">🔒</div>
             <h3 style="margin-top: 0; color: var(--primary); font-size: 20px;">Login Required</h3>
             <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">You need to log in to access this feature. Join the community to share scores and chat with your band!</p>
             <div style="display: flex; gap: 12px;">
@@ -1230,7 +1242,7 @@
         </div>
     </div>
 
-    <!-- Group Upload Private Score Modal -->
+    <!-- Group Upload Private Score Modal (Split Screen Layout) -->
     <div id="group-upload-modal" class="modal-overlay">
         <div class="modal-content" style="width: 800px; max-width: 90vw;">
             <h3 style="margin-top: 0; color: var(--primary); font-size: 20px;">Upload Private Score</h3>
@@ -1593,6 +1605,17 @@
             if (document.getElementById('n-groups')) document.getElementById('n-groups').className = (id === 'groups' ? 'nav-active' : '');
             if (document.getElementById('n-up')) document.getElementById('n-up').className = (id === 'upload' ? 'nav-active' : '');
             if (document.getElementById('n-prof')) document.getElementById('n-prof').className = (id === 'profile' ? 'nav-active' : '');
+
+            if (isLoggedIn) {
+                if (id === 'upload') {
+                    document.getElementById('upForm').style.display = 'flex';
+                    if (document.getElementById('upload-gated')) document.getElementById('upload-gated').style.display = 'none';
+                }
+                if (id === 'groups') {
+                    document.getElementById('groups-content').style.display = 'block';
+                    if (document.getElementById('groups-gated')) document.getElementById('groups-gated').style.display = 'none';
+                }
+            }
 
             if (id === 'dashboard') loadDash();
             if (id === 'library') loadLib();
