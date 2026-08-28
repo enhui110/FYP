@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>MuTice</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- 引入 Cropper.js (头像裁剪库) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
@@ -991,12 +993,6 @@
         <!-- Groups -->
         <div id="groups" class="section">
             <h1 style="margin-bottom: 24px;">Private Groups</h1>
-            
-            <div id="groups-gated" style="display:none; text-align:center; padding:80px 20px; background:var(--surface); border-radius:var(--radius-md); box-shadow:var(--shadow-md); border:1px solid var(--border-color); transition:var(--transition);">
-                <h2 style="margin-bottom:20px; color:var(--primary);">Login Required</h2>
-                <p style="color:var(--text-muted); margin-bottom:30px;">Join exclusive private groups to share scores and chat with your band.</p>
-                <button class="btn btn-start" onclick="window.location.href='auth.html'" style="width:auto; padding:12px 30px;">Login Now</button>
-            </div>
 
             <div id="groups-content">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
@@ -1049,12 +1045,6 @@
         <!-- Upload (Public) Split Screen -->
         <div id="upload" class="section">
             <h1>Upload Score (Public Library)</h1>
-
-            <div id="upload-gated" style="display:none; text-align:center; padding:80px 20px; background:var(--surface); border-radius:var(--radius-md); box-shadow:var(--shadow-md); border:1px solid var(--border-color); transition:var(--transition); max-width: 900px; margin: 0 auto;">
-                <h2 style="margin-bottom:20px; color:var(--primary);">Login Required</h2>
-                <p style="color:var(--text-muted); margin-bottom:30px;">You must be logged in to share your sheet music with the community.</p>
-                <button class="btn btn-start" onclick="window.location.href='auth.html'" style="width:auto; padding:12px 30px;">Login Now</button>
-            </div>
 
             <form id="upForm" onsubmit="handleUpload(event); return false;" style="background:var(--surface); padding:40px; border-radius:var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); max-width: 900px; margin: 0 auto; transition: var(--transition); display: flex; gap: 40px; flex-wrap: wrap;">
                 
@@ -1249,6 +1239,7 @@
             <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">This score will only be visible to members of this group.</p>
             <form onsubmit="submitGroupUpload(event); return false;" style="text-align: left; display: flex; gap: 30px; flex-wrap: wrap;">
                 
+                <!-- Left Side -->
                 <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column;">
                     <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Score Title</p>
                     <input type="text" id="gu-title" class="input-box" style="margin-bottom: 15px;" placeholder="e.g. My Band Practice" required>
@@ -1301,6 +1292,7 @@
                     </div>
                 </div>
 
+                <!-- Right Side: Preview -->
                 <div style="flex: 1; min-width: 280px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; position: relative; min-height: 350px;">
                     <div id="gu-preview-placeholder" style="color: var(--text-muted); text-align: center;">
                         <div style="font-size: 30px; margin-bottom: 8px; opacity: 0.5;">📄</div>
@@ -1510,7 +1502,10 @@
 
         function logout() {
             showConfirmModal("Log Out", "Are you sure you want to securely log out of your account?", () => {
-                localStorage.clear();
+                localStorage.removeItem('mutice_logged_in');
+                localStorage.removeItem('mutice_token');
+                localStorage.removeItem('mutice_user_id');
+                localStorage.removeItem('mutice_user');
                 window.location.href = 'index.html';
             });
         }
@@ -1609,11 +1604,9 @@
             if (isLoggedIn) {
                 if (id === 'upload') {
                     document.getElementById('upForm').style.display = 'flex';
-                    if (document.getElementById('upload-gated')) document.getElementById('upload-gated').style.display = 'none';
                 }
                 if (id === 'groups') {
                     document.getElementById('groups-content').style.display = 'block';
-                    if (document.getElementById('groups-gated')) document.getElementById('groups-gated').style.display = 'none';
                 }
             }
 
