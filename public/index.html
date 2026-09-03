@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <title>MuTice</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- 引入 Cropper.js (头像裁剪库) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
@@ -1048,6 +1046,7 @@
 
             <form id="upForm" onsubmit="handleUpload(event); return false;" style="background:var(--surface); padding:40px; border-radius:var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); max-width: 900px; margin: 0 auto; transition: var(--transition); display: flex; gap: 40px; flex-wrap: wrap;">
                 
+                <!-- Left Side: Form Details -->
                 <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column;">
                     <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Score Title</p>
                     <input type="text" id="u-title" class="input-box" placeholder="e.g. Moonlight Sonata" required>
@@ -1102,6 +1101,7 @@
                     <button type="submit" class="btn btn-start" id="upBtn" style="padding: 14px; font-size: 16px; width: 100%; margin-top: auto;">Upload to Public Library</button>
                 </div>
 
+                <!-- Right Side: Sticky Preview Area -->
                 <div style="flex: 1; min-width: 300px; background: var(--bg); border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow: hidden; position: relative; min-height: 400px; transition: var(--transition);">
                     <div id="u-preview-placeholder" style="color: var(--text-muted); text-align: center;">
                         <div style="font-size: 40px; margin-bottom: 10px; opacity: 0.5;">📄</div>
@@ -1112,6 +1112,7 @@
                         <img id="u-preview-img" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; display: none; margin: 0 auto; background: transparent;" />
                     </div>
                 </div>
+
             </form>
         </div>
 
@@ -1126,6 +1127,7 @@
     <!-- Login Required Modal -->
     <div id="login-required-modal" class="modal-overlay">
         <div class="modal-content" style="width: 400px;">
+            <div style="font-size: 44px; margin-bottom: 15px; opacity: 0.8;">🔒</div>
             <h3 style="margin-top: 0; color: var(--primary); font-size: 20px;">Login Required</h3>
             <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">You need to log in to access this feature. Join the community to share scores and chat with your band!</p>
             <div style="display: flex; gap: 12px;">
@@ -1336,6 +1338,9 @@
         let isGroupUploading = false;
         let cropper = null;
 
+        let backendFavs = [];
+        let currentAvatarUrl = null;
+
         const svgEye = '<img src="pic/eye.png" width="20" height="20" alt="Show">';
         const svgEyeOff = '<img src="pic/hide.png" width="20" height="20" alt="Hide">';
 
@@ -1407,7 +1412,7 @@
             }
         }
 
-        function initApp() {
+        async function initApp() {
             try {
                 const savedTheme = localStorage.getItem('mutice_theme') || 'light';
                 const themeCheckbox = document.getElementById('theme-checkbox');
@@ -1424,6 +1429,24 @@
                     authNav.innerHTML = isLoggedIn ?
                         `<a href="#" onclick="logout()" class="btn" onmouseover="this.style.background='rgba(239,68,68,0.8)'; this.style.borderColor='transparent';" onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.borderColor='rgba(255,255,255,0.2)';" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); transition: 0.3s;">Logout</a>` :
                         `<a href="auth.html" class="btn btn-account">Log in</a>`;
+                }
+
+                if (isLoggedIn) {
+                    try {
+                        const latestToken = localStorage.getItem('mutice_token') || token;
+                        const res = await fetch(`${API}/users/me`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
+                        if (res.ok) {
+                            const data = await res.json();
+                            backendFavs = data.favorites || [];
+                            currentAvatarUrl = data.profile_pic || null;
+                            
+                            if (currentAvatarUrl) {
+                                document.getElementById('nav-avatar-img').style.display = 'block';
+                                document.getElementById('nav-avatar-src').src = currentAvatarUrl;
+                                document.getElementById('nav-avatar-text').style.display = 'none';
+                            }
+                        }
+                    } catch (e) { console.error("Failed to load user data from cloud"); }
                 }
 
                 updateNavbarUserDisplay();
@@ -1458,19 +1481,10 @@
             const welcomeEl = document.getElementById('user-welcome');
             if (welcomeEl) welcomeEl.innerText = `${formattedName}`;
 
-            const savedAvatar = localStorage.getItem(`mutice_avatar_${currentUserId}`);
-            const navImgWrapper = document.getElementById('nav-avatar-img');
-            const navImgSrc = document.getElementById('nav-avatar-src');
-            const navTextWrapper = document.getElementById('nav-avatar-text');
-
-            if (savedAvatar) {
-                navImgSrc.src = savedAvatar;
-                navImgWrapper.style.display = 'block';
-                navTextWrapper.style.display = 'none';
-            } else {
-                navImgWrapper.style.display = 'none';
-                navTextWrapper.style.display = 'flex';
-                navTextWrapper.innerText = formattedName.charAt(0).toUpperCase();
+            if (!currentAvatarUrl) {
+                document.getElementById('nav-avatar-img').style.display = 'none';
+                document.getElementById('nav-avatar-text').style.display = 'flex';
+                document.getElementById('nav-avatar-text').innerText = formattedName.charAt(0).toUpperCase();
             }
         }
 
@@ -1604,9 +1618,11 @@
             if (isLoggedIn) {
                 if (id === 'upload') {
                     document.getElementById('upForm').style.display = 'flex';
+                    if (document.getElementById('upload-gated')) document.getElementById('upload-gated').style.display = 'none';
                 }
                 if (id === 'groups') {
                     document.getElementById('groups-content').style.display = 'block';
+                    if (document.getElementById('groups-gated')) document.getElementById('groups-gated').style.display = 'none';
                 }
             }
 
@@ -1770,10 +1786,9 @@
                 const heartOutline = `<svg width="24" height="24" fill="none" stroke="#cbd5e1" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>`;
                 const heartFilled = `<svg width="24" height="24" fill="#ef4444" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>`;
                 const trashIcon = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
-                const favs = getFavs();
 
                 scoresContainer.innerHTML = scores.map(i => {
-                    const isFav = favs.includes(i.id);
+                    const isFav = backendFavs.includes(i.id);
                     return `
                     <div class="card" onclick="goToPractice(${i.id})">
                         <div style="position: relative; padding-right: 30px;">
@@ -2004,7 +2019,6 @@
             const content = document.getElementById('profile-content');
             if (!content) return;
 
-            const savedAvatar = localStorage.getItem(`mutice_avatar_${currentUserId}`);
             let formattedName = currentUserName.replace(/Quek\s*/i, '').trim();
             if(!formattedName) formattedName = 'User';
             const initialChar = formattedName.charAt(0).toUpperCase();
@@ -2012,8 +2026,8 @@
             content.innerHTML = `
                 <div class="profile-card">
                     <div class="avatar-wrapper" onclick="document.getElementById('prof-img-upload').click()">
-                        <img id="prof-avatar-img" class="profile-avatar-img" src="${savedAvatar || ''}" style="display: ${savedAvatar ? 'block' : 'none'};" />
-                        <div class="profile-avatar" id="prof-avatar-text" style="display: ${savedAvatar ? 'none' : 'flex'};">${initialChar}</div>
+                        <img id="prof-avatar-img" class="profile-avatar-img" src="${currentAvatarUrl || ''}" style="display: ${currentAvatarUrl ? 'block' : 'none'};" />
+                        <div class="profile-avatar" id="prof-avatar-text" style="display: ${currentAvatarUrl ? 'none' : 'flex'};">${initialChar}</div>
                         <div class="avatar-overlay">📷 Change</div>
                     </div>
                     <input type="file" id="prof-img-upload" style="display:none" accept="image/*" onchange="handleAvatarUpload(event)">
@@ -2127,7 +2141,8 @@
             }
         }
 
-        function saveCroppedImage() {
+        // 🌟 核心：将裁剪后的头像真正保存到云端服务器
+        async function saveCroppedImage() {
             if (!cropper) return;
             
             const canvas = cropper.getCroppedCanvas({
@@ -2137,14 +2152,37 @@
 
             const base64Str = canvas.toDataURL('image/jpeg');
 
-            localStorage.setItem(`mutice_avatar_${currentUserId}`, base64Str);
-            
-            document.getElementById('prof-avatar-img').src = base64Str;
-            document.getElementById('prof-avatar-img').style.display = 'block';
-            document.getElementById('prof-avatar-text').style.display = 'none';
-            
-            updateNavbarUserDisplay();
-            closeCropModal();
+            const btn = document.getElementById('crop-save-btn');
+            const origText = btn.innerText;
+            btn.innerText = 'Saving...';
+            btn.disabled = true;
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                const res = await fetch(`${API}/users/avatar`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${latestToken}` },
+                    body: JSON.stringify({ avatarBase64: base64Str })
+                });
+
+                if (res.ok) {
+                    currentAvatarUrl = base64Str;
+                    
+                    document.getElementById('prof-avatar-img').src = base64Str;
+                    document.getElementById('prof-avatar-img').style.display = 'block';
+                    document.getElementById('prof-avatar-text').style.display = 'none';
+                    
+                    updateNavbarUserDisplay();
+                    closeCropModal();
+                } else {
+                    showAlert('Failed to save avatar to server.');
+                }
+            } catch(e) {
+                showAlert('Server connection failed.');
+            } finally {
+                btn.innerText = origText;
+                btn.disabled = false;
+            }
         }
 
         function toggleEditForm() {
@@ -2700,19 +2738,27 @@
             });
         }
 
-        function getFavs() {
-            if (!isLoggedIn) return [];
-            return JSON.parse(localStorage.getItem(`mutice_fav_${currentUserId}`) || '[]');
-        }
-
-        function toggleFav(e, id) {
+        async function toggleFav(e, id) {
             e.stopPropagation();
             if (!isLoggedIn) return showAlert('Please log in to save favorites!');
-            let favs = getFavs();
-            if (favs.includes(id)) favs = favs.filter(f => f !== id);
-            else favs.push(id);
-            localStorage.setItem(`mutice_fav_${currentUserId}`, JSON.stringify(favs));
+            
+            if (backendFavs.includes(id)) {
+                backendFavs = backendFavs.filter(f => f !== id);
+            } else {
+                backendFavs.push(id);
+            }
             filter();
+
+            try {
+                const latestToken = localStorage.getItem('mutice_token') || token;
+                await fetch(`${API}/favorites/toggle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${latestToken}` },
+                    body: JSON.stringify({ scoreId: id })
+                });
+            } catch (err) {
+                console.error("Fav toggle error", err);
+            }
         }
 
         function toggleFavFilter() {
@@ -2737,12 +2783,11 @@
         function filter() {
             const q = document.getElementById('s-input').value.toLowerCase();
             const inst = document.getElementById('s-inst').value;
-            const favs = getFavs();
-
+            
             let data = allScores.filter(s => {
                 const titleMatch = s.title.toLowerCase().includes(q);
                 const instMatch = (inst === 'all') || (s.instrument === inst) || (inst === 'All Instrument');
-                const favMatch = showFavOnly ? favs.includes(s.id) : true;
+                const favMatch = showFavOnly ? backendFavs.includes(s.id) : true;
                 return titleMatch && instMatch && favMatch;
             });
 
@@ -2762,14 +2807,14 @@
         function render(data) {
             const list = document.getElementById('score-list');
             if (!list) return;
-            const favs = getFavs();
 
             const heartOutline = `<svg width="24" height="24" fill="none" stroke="#cbd5e1" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>`;
             const heartFilled = `<svg width="24" height="24" fill="#ef4444" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>`;
             const trashIcon = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
 
             list.innerHTML = data.map(i => {
-                const isFav = favs.includes(i.id);
+                // 🌟 使用云端的 backendFavs 判断是否已收藏
+                const isFav = backendFavs.includes(i.id);
                 return `
             <div class="card" onclick="goToPractice(${i.id})">
                 <div style="position: relative; padding-right: 30px;">
