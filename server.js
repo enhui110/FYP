@@ -382,7 +382,13 @@ app.put('/api/users/update', authGuard, async (req, res) => {
 // ==========================================
 
 app.get('/api/scores', async (req, res) => {
-    const [rows] = await db.query('SELECT * FROM scores WHERE is_public = 1 ORDER BY id DESC');
+    const [rows] = await db.query(`
+        SELECT s.*, COALESCE(u.name, s.uploader) AS uploader 
+        FROM scores s 
+        LEFT JOIN users u ON s.uploader_id = u.id 
+        WHERE s.is_public = 1 
+        ORDER BY s.id DESC
+    `);
     res.json(rows);
 });
 
