@@ -151,10 +151,15 @@
         }
 
         @keyframes fadePage {
-            0% { opacity: 0.4; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 0.4;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
-        
+
         .page-fade {
             animation: fadePage 0.4s ease-out;
         }
@@ -217,7 +222,7 @@
             z-index: 1000;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
-            display: none; 
+            display: none;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             opacity: 0.15;
         }
@@ -229,8 +234,13 @@
             opacity: 1;
         }
 
-        .nav-side-left { left: 20px; }
-        .nav-side-right { right: 20px; }
+        .nav-side-left {
+            left: 20px;
+        }
+
+        .nav-side-right {
+            right: 20px;
+        }
 
         .metro-visualizer {
             width: 14px;
@@ -240,10 +250,12 @@
             transition: background 0.1s ease, box-shadow 0.1s ease;
             display: inline-block;
         }
+
         .metro-visualizer.flash-strong {
             background: #e74c3c;
             box-shadow: 0 0 10px #e74c3c;
         }
+
         .metro-visualizer.flash-weak {
             background: #27ae60;
             box-shadow: 0 0 10px #27ae60;
@@ -259,8 +271,9 @@
                     <div id="view-mode-controls" class="controls-group" style="display: none;">
                         <button id="view-btn" class="btn" style="background:var(--accent); color:white;"
                             onclick="toggleViewMode()">Single View</button>
-                        
-                        <select id="turn-mode-select" class="bpm-input" style="width: auto; font-size: 13px; display: none;">
+
+                        <select id="turn-mode-select" class="bpm-input"
+                            style="width: auto; font-size: 13px; display: none;">
                             <option value="2">Turn 2 Pages (1-2 ➔ 3-4)</option>
                             <option value="1">Shift 1 Page (1-2 ➔ 2-3)</option>
                         </select>
@@ -287,19 +300,28 @@
                 <div class="header-left">
                     <div class="controls-group" style="gap: 8px;">
                         <div id="metro-light" class="metro-visualizer"></div>
-                        
-                        <select id="metro-signature" class="bpm-input" style="width: 75px; font-size: 14px; padding: 6px 2px;" title="Time Signature">
-                            <option value="4">4/4</option>
-                            <option value="3">3/4 (3/8)</option>
-                            <option value="6">6/8</option>
-                            <option value="9">9/8</option>
+
+                        <select id="metro-signature" class="bpm-input"
+                            style="width: 55px; font-size: 14px; padding: 6px 2px;" title="Beats per Measure">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4" selected>4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
                         </select>
 
-                        <input type="number" id="bpm-input" class="bpm-input" value="120" min="40" max="250" title="BPM">
-                        
-                        <label style="display:flex; align-items:center; gap:5px; color:#333; font-size:13px; font-weight:600; cursor:pointer; margin: 0 8px;">
-                            <input type="checkbox" id="metro-first-beat-only" style="width:16px; height:16px; margin:0; cursor:pointer;">
-                            1st Beat Only
+                        <input type="number" id="bpm-input" class="bpm-input" value="120" min="40" max="250"
+                            title="BPM">
+
+                        <label
+                            style="display:flex; align-items:center; gap:5px; color:#333; font-size:13px; font-weight:600; cursor:pointer; margin: 0 8px;">
+                            <input type="checkbox" id="metro-accent-first" checked
+                                style="width:16px; height:16px; margin:0; cursor:pointer;">
+                            Accent 1st Beat
                         </label>
 
                         <button id="metro-btn" class="btn" style="background:var(--info); color:white; min-width: 80px;"
@@ -307,12 +329,13 @@
                     </div>
                 </div>
                 <div class="header-center">
-                    <div id="pagination-controls" class="controls-group" style="display: none; flex-wrap: wrap; justify-content: center;">
+                    <div id="pagination-controls" class="controls-group"
+                        style="display: none; flex-wrap: wrap; justify-content: center;">
                         <span style="font-weight:bold; font-size:16px; min-width: 80px; text-align: center;">
                             Page <span id="page-num">0</span> / <span id="page-count">0</span>
                         </span>
-                        <input type="range" id="page-slider" min="1" max="1" value="1" class="page-slider" 
-                            oninput="document.getElementById('page-num').textContent = this.value" 
+                        <input type="range" id="page-slider" min="1" max="1" value="1" class="page-slider"
+                            oninput="document.getElementById('page-num').textContent = this.value"
                             onchange="sliderTurnPage(this.value)" title="Slide to change page">
                     </div>
                 </div>
@@ -326,9 +349,11 @@
         </div>
 
         <div class="score-wrapper">
-            <button id="btn-prev-page" class="nav-side-btn nav-side-left" onclick="showPrevPage()" title="Previous Page">❮</button>
-            <button id="btn-next-page" class="nav-side-btn nav-side-right" onclick="showNextPage()" title="Next Page">❯</button>
-            
+            <button id="btn-prev-page" class="nav-side-btn nav-side-left" onclick="showPrevPage()"
+                title="Previous Page">❮</button>
+            <button id="btn-next-page" class="nav-side-btn nav-side-right" onclick="showNextPage()"
+                title="Next Page">❯</button>
+
             <div class="canvas-container" id="pdf-container">
                 <canvas id="pdf-render-left"></canvas>
                 <canvas id="pdf-render-right" style="display: none;"></canvas>
@@ -369,7 +394,7 @@
         const setPdfControlsVisible = (visible) => {
             const display = visible ? 'flex' : 'none';
             const btnDisplay = visible ? 'block' : 'none';
-            
+
             const viewControls = document.getElementById('view-mode-controls');
             const zoomControls = document.getElementById('zoom-controls');
             const paginationControls = document.getElementById('pagination-controls');
@@ -421,13 +446,13 @@
             if (!pdfDoc) return;
             isDoublePage = !isDoublePage;
             currentScale = null;
-            
+
             const viewBtn = document.getElementById('view-btn');
             const turnModeSelect = document.getElementById('turn-mode-select');
-            
+
             if (viewBtn) viewBtn.textContent = isDoublePage ? 'Double View' : 'Single View';
             if (turnModeSelect) turnModeSelect.style.display = isDoublePage ? 'inline-block' : 'none';
-            
+
             renderPage(pageNum);
         }
 
@@ -468,15 +493,18 @@
         });
 
         function scheduleNote(beatNumber, time) {
+            // 获取用户有没有勾选重音
+            const accentFirst = document.getElementById('metro-accent-first')?.checked;
+
             const light = document.getElementById('metro-light');
             if (light) {
-                light.className = (beatNumber === 0) ? 'metro-visualizer flash-strong' : 'metro-visualizer flash-weak';
+                // 如果是第一拍 且 开启了重音，才闪红灯，否则一律闪绿灯
+                if (beatNumber === 0 && accentFirst) {
+                    light.className = 'metro-visualizer flash-strong';
+                } else {
+                    light.className = 'metro-visualizer flash-weak';
+                }
                 setTimeout(() => { light.className = 'metro-visualizer'; }, 100);
-            }
-
-            const onlyFirstBeat = document.getElementById('metro-first-beat-only')?.checked;
-            if (onlyFirstBeat && beatNumber !== 0) {
-                return; 
             }
 
             const osc = audioContext.createOscillator();
@@ -485,10 +513,10 @@
             osc.connect(envelope);
             envelope.connect(audioContext.destination);
 
-            if (beatNumber === 0) {
-                osc.frequency.value = 1000; // "di"
+            if (beatNumber === 0 && accentFirst) {
+                osc.frequency.value = 1000; // "di" (High Pitch)
             } else {
-                osc.frequency.value = 750;  // "da"
+                osc.frequency.value = 750;  // "da" (Low Pitch)
             }
 
             envelope.gain.setValueAtTime(1, time);
@@ -502,7 +530,7 @@
             const bpm = Number(document.getElementById('bpm-input').value) || 120;
             const secondsPerBeat = 60.0 / bpm;
             nextNoteTime += secondsPerBeat;
-            
+
             currentBeatInBar++;
             if (currentBeatInBar >= beatsPerMeasure) {
                 currentBeatInBar = 0;
@@ -520,13 +548,13 @@
         function stopMetronome() {
             isPlaying = false;
             clearTimeout(timerID);
-            
+
             const btn = document.getElementById('metro-btn');
             if (btn) {
                 btn.innerHTML = '▷ Play';
                 btn.style.background = 'var(--info)';
             }
-            
+
             if (audioContext && audioContext.state !== 'closed') {
                 audioContext.suspend();
             }
@@ -542,14 +570,14 @@
                 if (audioContext.state === 'suspended') {
                     audioContext.resume();
                 }
-                
+
                 beatsPerMeasure = Number(document.getElementById('metro-signature').value) || 4;
                 currentBeatInBar = 0;
-                nextNoteTime = audioContext.currentTime + 0.05; 
-                
+                nextNoteTime = audioContext.currentTime + 0.05;
+
                 scheduler();
                 isPlaying = true;
-                
+
                 const btn = document.getElementById('metro-btn');
                 if (btn) {
                     btn.innerHTML = '⏹ Stop';
@@ -561,7 +589,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const sigSelect = document.getElementById('metro-signature');
             if (sigSelect) {
-                sigSelect.addEventListener('change', function() {
+                sigSelect.addEventListener('change', function () {
                     beatsPerMeasure = Number(this.value);
                 });
             }
@@ -588,7 +616,7 @@
                     },
                     body: JSON.stringify({
                         scoreTitle: scoreTitle,
-                        durationSeconds: elapsedSeconds, 
+                        durationSeconds: elapsedSeconds,
                         durationMinutes: 0
                     })
                 });
@@ -596,10 +624,10 @@
                 if (!res.ok) {
                     const errData = await res.json();
                     alert(`Save Failed \nReason: ${errData.message || 'Unknown Error'}`);
-                    
+
                     if (res.status === 401 || res.status === 403) {
                         window.location.href = 'auth.html';
-                        return; 
+                        return;
                     }
                 }
             } catch (err) {
@@ -612,7 +640,7 @@
         const triggerPageAnimation = () => {
             canvasL.classList.remove('page-fade');
             canvasR.classList.remove('page-fade');
-            void canvasL.offsetWidth; 
+            void canvasL.offsetWidth;
             canvasL.classList.add('page-fade');
             canvasR.classList.add('page-fade');
         }
@@ -627,8 +655,8 @@
                 if (document.fullscreenElement) {
                     const header = document.querySelector('.practice-header');
                     const headerH = header ? header.offsetHeight : 0;
-                    availableHeight = window.innerHeight - headerH - 40; 
-                    availableWidth = window.innerWidth - 140; 
+                    availableHeight = window.innerHeight - headerH - 40;
+                    availableWidth = window.innerWidth - 140;
                 } else {
                     const wrapperWidth = document.querySelector('.score-wrapper')?.clientWidth || 0;
                     availableWidth = Math.max(wrapperWidth - 40, window.innerWidth * 0.9 - 40, 320);
@@ -637,7 +665,7 @@
 
                 const targetWidth = isDoublePage ? availableWidth / 2.05 : availableWidth;
                 currentScale = Math.min(targetWidth / viewport.width, availableHeight / viewport.height);
-                if (currentScale > 3) currentScale = 3; 
+                if (currentScale > 3) currentScale = 3;
             }
 
             const viewport = page.getViewport({ scale: currentScale });
@@ -652,7 +680,7 @@
 
             if (pageNumEl) pageNumEl.textContent = num;
             if (pageCountEl) pageCountEl.textContent = pdfDoc.numPages;
-            
+
             if (pageSlider) {
                 pageSlider.max = pdfDoc.numPages;
                 pageSlider.value = num;
@@ -726,7 +754,7 @@
             if (!pdfDoc) return;
 
             if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-                return; 
+                return;
             }
 
             const isHorizontalScrollable = scoreWrapper.scrollWidth > scoreWrapper.clientWidth;
@@ -735,11 +763,11 @@
                 const atRight = Math.ceil(scoreWrapper.scrollLeft + scoreWrapper.clientWidth) >= scoreWrapper.scrollWidth - 2;
                 const atLeft = scoreWrapper.scrollLeft <= 2;
 
-                if (e.deltaX > 0 && !atRight) return; 
-                if (e.deltaX < 0 && !atLeft) return;  
+                if (e.deltaX > 0 && !atRight) return;
+                if (e.deltaX < 0 && !atLeft) return;
             }
 
-            e.preventDefault(); 
+            e.preventDefault();
 
             if (scrollCooldown) return;
 
@@ -771,7 +799,7 @@
 
                     scoreUrl = score.url;
                     scoreTitle = score.title || 'Untitled Session';
-                    
+
                     const baseServerUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : window.location.origin;
                     fullUrl = scoreUrl.startsWith('http')
                         ? scoreUrl
