@@ -135,7 +135,7 @@
 
         .canvas-container {
             display: flex;
-            justify-content: center; /* Centered for fit-to-screen */
+            justify-content: center;
             gap: 10px;
             align-items: flex-start;
             width: fit-content;
@@ -231,6 +231,23 @@
 
         .nav-side-left { left: 20px; }
         .nav-side-right { right: 20px; }
+
+        .metro-visualizer {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #bdc3c7;
+            transition: background 0.1s ease, box-shadow 0.1s ease;
+            display: inline-block;
+        }
+        .metro-visualizer.flash-strong {
+            background: #e74c3c;
+            box-shadow: 0 0 10px #e74c3c;
+        }
+        .metro-visualizer.flash-weak {
+            background: #27ae60;
+            box-shadow: 0 0 10px #27ae60;
+        }
     </style>
 </head>
 
@@ -268,11 +285,20 @@
             </div>
             <div class="header-row">
                 <div class="header-left">
-                    <div class="controls-group">
-                        <strong>Metronome</strong>
-                        <input type="number" id="bpm-input" class="bpm-input" value="120" min="40" max="250">
-                        <button id="metro-btn" class="btn" style="background:var(--info); color:white;"
-                            onclick="toggleMetronome()">▷</button>
+                    <div class="controls-group" style="gap: 8px;">
+                        <div id="metro-light" class="metro-visualizer"></div>
+                        
+                        <select id="metro-signature" class="bpm-input" style="width: 75px; font-size: 14px; padding: 6px 2px;" title="Time Signature">
+                            <option value="4">4/4</option>
+                            <option value="3">3/4 (3/8)</option>
+                            <option value="6">6/8</option>
+                            <option value="9">9/8</option>
+                        </select>
+
+                        <input type="number" id="bpm-input" class="bpm-input" value="120" min="40" max="250" title="BPM">
+                        
+                        <button id="metro-btn" class="btn" style="background:var(--info); color:white; min-width: 80px;"
+                            onclick="toggleMetronome()">▷ Play</button>
                     </div>
                 </div>
                 <div class="header-center">
@@ -322,9 +348,13 @@
         let practiceStartTime = Date.now();
         let elapsedSeconds = 0;
         let timerHandle = null;
+
         let audioContext = null;
-        let metroHandle = null;
-        let metroPlaying = false;
+        let isPlaying = false;
+        let beatsPerMeasure = 4;
+        let currentBeatInBar = 0;
+        let nextNoteTime = 0;
+        let timerID;
 
         const canvasL = document.querySelector('#pdf-render-left');
         const canvasR = document.querySelector('#pdf-render-right');
@@ -432,50 +462,103 @@
             rerenderCurrentPage();
         });
 
-        function stopMetronome() {
-            if (metroHandle) {
-                clearInterval(metroHandle);
-                metroHandle = null;
+        function scheduleNote(beatNumber, time) {
+            const light = document.getElementById('metro-light');
+            if (light) {
+                light.className = (beatNumber === 0) ? 'metro-visualizer flash-strong' : 'metro-visualizer flash-weak';
+                setTimeout(() => { light.className = 'metro-visualizer'; }, 100);
             }
-            metroPlaying = false;
-            const metroBtn = document.getElementById('metro-btn');
-            if (metroBtn) metroBtn.textContent = '▷';
-            if (audioContext && audioContext.state !== 'closed') {
-                audioContext.close().catch(() => { });
+
+            const osc = audioContext.createOscillator();
+            const envelope = audioContext.createGain();
+
+            osc.connect(envelope);
+            envelope.connect(audioContext.destination);
+
+            // first beat is higher pitch, others are lower
+            if (beatNumber === 0) {
+                osc.frequency.value = 1000; // "di"
+            } else {
+                osc.frequency.value = 750;  // "da"
             }
-            audioContext = null;
+
+            envelope.gain.setValueAtTime(1, time);
+            envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+
+            osc.start(time);
+            osc.stop(time + 0.1);
         }
 
-        function playClick() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        function nextNote() {
+            const bpm = Number(document.getElementById('bpm-input').value) || 120;
+            const secondsPerBeat = 60.0 / bpm;
+            nextNoteTime += secondsPerBeat;
+            
+            currentBeatInBar++;
+            if (currentBeatInBar >= beatsPerMeasure) {
+                currentBeatInBar = 0;
             }
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            oscillator.type = 'square';
-            oscillator.frequency.value = 880;
-            gainNode.gain.value = 0.05;
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + 0.05);
+        }
+
+        function scheduler() {
+            while (nextNoteTime < audioContext.currentTime + 0.1) {
+                scheduleNote(currentBeatInBar, nextNoteTime);
+                nextNote();
+            }
+            timerID = setTimeout(scheduler, 25.0);
+        }
+
+        function stopMetronome() {
+            isPlaying = false;
+            clearTimeout(timerID);
+            
+            const btn = document.getElementById('metro-btn');
+            if (btn) {
+                btn.innerHTML = '▷ Play';
+                btn.style.background = 'var(--info)';
+            }
+            
+            if (audioContext && audioContext.state !== 'closed') {
+                audioContext.suspend();
+            }
         }
 
         function toggleMetronome() {
-            const bpmInput = document.getElementById('bpm-input');
-            const metroBtn = document.getElementById('metro-btn');
-            const bpm = Math.max(40, Math.min(250, Number(bpmInput?.value || 120)));
-            const interval = Math.round(60000 / bpm);
-
-            if (metroPlaying) {
+            if (isPlaying) {
                 stopMetronome();
-                return;
+            } else {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                beatsPerMeasure = Number(document.getElementById('metro-signature').value) || 4;
+                currentBeatInBar = 0;
+                nextNoteTime = audioContext.currentTime + 0.05; // 稍微延迟一丢丢启动
+                
+                scheduler();
+                isPlaying = true;
+                
+                const btn = document.getElementById('metro-btn');
+                if (btn) {
+                    btn.innerHTML = '⏹ Stop';
+                    btn.style.background = 'var(--danger)';
+                }
             }
-            metroPlaying = true;
-            if (metroBtn) metroBtn.textContent = '⏹';
-            playClick();
-            metroHandle = setInterval(playClick, interval);
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sigSelect = document.getElementById('metro-signature');
+            if (sigSelect) {
+                sigSelect.addEventListener('change', function() {
+                    beatsPerMeasure = Number(this.value);
+                });
+            }
+        });
+
+        // ==========================================
 
         async function stopPractice() {
             stopMetronome();
