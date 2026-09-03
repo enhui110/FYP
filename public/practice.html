@@ -297,6 +297,11 @@
 
                         <input type="number" id="bpm-input" class="bpm-input" value="120" min="40" max="250" title="BPM">
                         
+                        <label style="display:flex; align-items:center; gap:5px; color:#333; font-size:13px; font-weight:600; cursor:pointer; margin: 0 8px;">
+                            <input type="checkbox" id="metro-first-beat-only" style="width:16px; height:16px; margin:0; cursor:pointer;">
+                            1st Beat Only
+                        </label>
+
                         <button id="metro-btn" class="btn" style="background:var(--info); color:white; min-width: 80px;"
                             onclick="toggleMetronome()">▷ Play</button>
                     </div>
@@ -469,13 +474,17 @@
                 setTimeout(() => { light.className = 'metro-visualizer'; }, 100);
             }
 
+            const onlyFirstBeat = document.getElementById('metro-first-beat-only')?.checked;
+            if (onlyFirstBeat && beatNumber !== 0) {
+                return; 
+            }
+
             const osc = audioContext.createOscillator();
             const envelope = audioContext.createGain();
 
             osc.connect(envelope);
             envelope.connect(audioContext.destination);
 
-            // first beat is higher pitch, others are lower
             if (beatNumber === 0) {
                 osc.frequency.value = 1000; // "di"
             } else {
@@ -536,7 +545,7 @@
                 
                 beatsPerMeasure = Number(document.getElementById('metro-signature').value) || 4;
                 currentBeatInBar = 0;
-                nextNoteTime = audioContext.currentTime + 0.05; // 稍微延迟一丢丢启动
+                nextNoteTime = audioContext.currentTime + 0.05; 
                 
                 scheduler();
                 isPlaying = true;
@@ -557,8 +566,6 @@
                 });
             }
         });
-
-        // ==========================================
 
         async function stopPractice() {
             stopMetronome();
