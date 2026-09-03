@@ -630,12 +630,21 @@ app.get('/api/users/me', authGuard, async (req, res) => {
     }
 });
 
-// 2. save profile picture to server
+// 2. save profile picture
 app.put('/api/users/avatar', authGuard, async (req, res) => {
     try {
         const { avatarBase64 } = req.body;
-        await db.query('UPDATE users SET profile_pic = ? WHERE id = ?', [avatarBase64, req.user.id]);
-        res.json({ success: true, message: "Avatar saved to server" });
+        if (!avatarBase64) return res.status(400).json({ success: false, message: "No image provided" });        const base64Data = avatarBase64.replace(/^data:image\/\w+;base64,/, "");
+        
+        const fileName = `avatar_${req.user.id}_${Date.now()}.jpg`;
+        const filePath = path.join(__dirname, 'public', 'uploads', fileName);
+    
+        fs.writeFileSync(filePath, base64Data, 'base64');
+
+        const fileUrl = `/uploads/${fileName}`;
+        await db.query('UPDATE users SET profile_pic = ? WHERE id = ?', [fileUrl, req.user.id]);
+        
+        res.json({ success: true, message: "Avatar saved as real file", url: fileUrl });
     } catch(err) {
         res.status(500).json({ success: false, message: err.message });
     }
