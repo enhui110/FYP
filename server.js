@@ -617,6 +617,52 @@ app.delete('/api/groups/:groupId/messages/:messageId', authGuard, async (req, re
     }
 });
 
+app.get('/api/users/me', authGuard, async (req, res) => {
+    try {
+        const [users] = await db.query('SELECT profile_pic FROM users WHERE id = ?', [req.user.id]);
+        const [favs] = await db.query('SELECT score_id FROM user_favorites WHERE user_id = ?', [req.user.id]);
+        res.json({
+            profile_pic: users[0]?.profile_pic || null,
+            favorites: favs.map(f => f.score_id)
+        });
+    } catch(err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 2. save profile picture to server
+app.put('/api/users/avatar', authGuard, async (req, res) => {
+    try {
+        const { avatarBase64 } = req.body;
+        await db.query('UPDATE users SET profile_pic = ? WHERE id = ?', [avatarBase64, req.user.id]);
+        res.json({ success: true, message: "Avatar saved to server" });
+    } catch(err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 3. favorite 
+app.post('/api/favorites/toggle', authGuard, async (req, res) => {
+    try {
+        const { scoreId } = req.body;
+        const userId = req.user.id;
+        // check if the favorite already exists
+        const [existing] = await db.query('SELECT * FROM user_favorites WHERE user_id = ? AND score_id = ?', [userId, scoreId]);
+        
+        if (existing.length > 0) {
+            // if already favorited, remove the favorite
+            await db.query('DELETE FROM user_favorites WHERE user_id = ? AND score_id = ?', [userId, scoreId]);
+            res.json({ success: true, isFav: false });
+        } else {
+            //if no favorite exists, insert a new favorite
+            await db.query('INSERT INTO user_favorites (user_id, score_id) VALUES (?, ?)', [userId, scoreId]);
+            res.json({ success: true, isFav: true });
+        }
+    } catch(err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
