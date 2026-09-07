@@ -14,7 +14,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const SECRET_KEY = process.env.JWT_SECRET || "your_fallback_secret_key";
 
-
 app.use(cors());
 app.use(express.json({ limit: '1GB' }));
 app.use(express.urlencoded({ extended: true }));
@@ -40,7 +39,20 @@ const db = mysql.createPool({
     database: process.env.DB_NAME
 });
 
+// ==========================================
 // Database Initialization Functions
+// ==========================================
+async function ensureSecurityColumns() {
+    try {
+        const [columns] = await db.query("SHOW COLUMNS FROM users LIKE 'security_question'");
+        if (!columns.length) {
+            await db.query("ALTER TABLE users ADD COLUMN security_question VARCHAR(255) NOT NULL DEFAULT 'What is your favorite musical instrument?'");
+            await db.query("ALTER TABLE users ADD COLUMN security_answer VARCHAR(255) NOT NULL DEFAULT 'piano'");
+            console.log("✅ Added security question columns to users table.");
+        }
+    } catch (err) { console.error("ensureSecurityColumns error:", err.message); }
+}
+
 async function ensureScoresComposerColumn() {
     try {
         const [columns] = await db.query("SHOW COLUMNS FROM scores LIKE 'composer'");
@@ -222,6 +234,7 @@ async function fixNullLogDates() {
 }
 
 async function initializeDatabase() {
+    await ensureSecurityColumns();
     await ensureScoresComposerColumn();
     await ensureScoresPublicColumn();
     await ensureLogsTable();
@@ -271,12 +284,20 @@ const upload = multer({
 // AUTH APIs
 // ==========================================
 app.post('/api/signup', async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, security_question, security_answer } = req.body;
     try {
         const [existing] = await db.query('SELECT id FROM users WHERE email=?', [email]);
         if (existing.length) return res.status(400).json({ message: "Email already exists" });
+        
         const hash = await bcrypt.hash(password, 10);
-        await db.query('INSERT INTO users (name,email,password) VALUES (?,?,?)', [name, email, hash]);
+        
+        const sq = security_question || 'What is your favorite musical instrument?';
+        const sa = (security_answer || 'piano').toLowerCase().trim();
+
+        await db.query(
+            'INSERT INTO users (name,email,password,security_question,security_answer) VALUES (?,?,?,?,?)', 
+            [name, email, hash, sq, sa]
+        );
         res.json({ success: true });
     } catch { res.status(500).json({ message: "Database error" }); }
 });
@@ -294,11 +315,27 @@ app.post('/api/login', async (req, res) => {
     } catch { res.status(500).json({ message: "Database error" }); }
 });
 
+app.post('/api/get-security-question', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const [users] = await db.query('SELECT security_question FROM users WHERE email=?', [email]);
+        if (!users.length) return res.status(404).json({ success: false, message: "Email not found." });
+        res.json({ success: true, question: users[0].security_question });
+    } catch (err) { res.status(500).json({ success: false, message: "Server error" }); }
+});
+
 app.post('/api/forgot-password', async (req, res) => {
     try {
-        const { email, newPassword } = req.body;
-        const [users] = await db.query('SELECT id FROM users WHERE email=?', [email]);
-        if (!users.length) return res.status(404).json({ success: false, message: "Email not found in our system." });
+        const { email, security_answer, newPassword } = req.body;
+        if (!security_answer) return res.status(400).json({ success: false, message: "Security answer is missing!"});
+
+        const [users] = await db.query('SELECT id, security_answer FROM users WHERE email=?', [email]);
+        if (!users.length) return res.status(404).json({ success: false, message: "Email not found." });
+        
+        if (users[0].security_answer !== security_answer.toLowerCase().trim()) {
+            return res.status(401).json({ success: false, message: "Security answer is incorrect." });
+        }
+
         const hash = await bcrypt.hash(newPassword, 10);
         await db.query('UPDATE users SET password=? WHERE email=?', [hash, email]);
         res.json({ success: true, message: "Password reset successfully! You can now login." });
@@ -344,8 +381,11 @@ app.post('/api/users/verify-password', authGuard, async (req, res) => {
 app.put('/api/users/update', authGuard, async (req, res) => {    
     try {
         const userId = req.user.id;
-        const { username, password, oldPassword } = req.body; 
-        if (!username && !password) return res.status(400).json({ message: "No data provided for update." });
+        const { username, password, oldPassword, security_question, security_answer } = req.body; 
+        
+        if (!username && !password && !security_question) {
+            return res.status(400).json({ message: "No data provided for update." });
+        }
 
         if (username) {
             const [existing] = await db.query('SELECT id FROM users WHERE name = ? AND id != ?', [username, userId]);
@@ -368,9 +408,17 @@ app.put('/api/users/update', authGuard, async (req, res) => {
             const hashedPassword = await bcrypt.hash(password, 10);
             setClauses.push("password = ?"); queryParams.push(hashedPassword); 
         }
+        
+        if (security_question && security_answer) {
+            setClauses.push("security_question = ?"); 
+            queryParams.push(security_question);
+            setClauses.push("security_answer = ?"); 
+            queryParams.push(security_answer.toLowerCase().trim());
+        }
 
         updateQuery += setClauses.join(", ") + " WHERE id = ?";
         queryParams.push(userId);
+        
         const [result] = await db.query(updateQuery, queryParams);
         if (result.affectedRows === 0) return res.status(500).json({ message: "Failed to update profile." });
         res.json({ success: true, message: "Profile updated successfully!" });
@@ -380,7 +428,6 @@ app.put('/api/users/update', authGuard, async (req, res) => {
 // ==========================================
 // SCORES APIs
 // ==========================================
-
 app.get('/api/scores', async (req, res) => {
     const [rows] = await db.query(`
         SELECT s.*, COALESCE(u.name, s.uploader) AS uploader 
@@ -398,14 +445,13 @@ app.get('/api/scores/:id', async (req, res) => {
     res.json(rows[0]);
 });
 
-// UPLOAD SCORE
 app.post('/api/upload', authGuard, upload.single('scoreFile'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ message: "No file provided" });
 
         const composer = req.body.composer || 'Unknown Composer';
         const groupId = req.body.groupId;
-        const isPublic = groupId ? 0 : 1; //0=private, 1=public
+        const isPublic = groupId ? 0 : 1; 
 
         let fileName = req.file.filename;
         const ext = path.extname(fileName);
@@ -603,18 +649,15 @@ app.post('/api/groups/:groupId/messages', authGuard, async (req, res) => {
     } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// DELETE A MESSAGE
 app.delete('/api/groups/:groupId/messages/:messageId', authGuard, async (req, res) => {
     try {
         const { groupId, messageId } = req.params;
         const userId = req.user.id;
         const [messages] = await db.query('SELECT * FROM group_messages WHERE id = ? AND group_id = ?', [messageId, groupId]);
         if (messages.length === 0) return res.status(404).json({ success: false, message: "Message not found" });
-  
         if (Number(messages[0].user_id) !== Number(userId)) {
             return res.status(403).json({ success: false, message: "You can only delete your own messages." });
         }
-
         await db.query('DELETE FROM group_messages WHERE id = ?', [messageId]);
         res.json({ success: true, message: "Message deleted" });
     } catch (err) {
@@ -636,17 +679,15 @@ app.get('/api/users/me', authGuard, async (req, res) => {
     }
 });
 
-// 2. save profile picture
 app.put('/api/users/avatar', authGuard, async (req, res) => {
     try {
         const { avatarBase64 } = req.body;
-        if (!avatarBase64) return res.status(400).json({ success: false, message: "No image provided" });        const base64Data = avatarBase64.replace(/^data:image\/\w+;base64,/, "");
-        
+        if (!avatarBase64) return res.status(400).json({ success: false, message: "No image provided" });        
+        const base64Data = avatarBase64.replace(/^data:image\/\w+;base64,/, "");
         const fileName = `avatar_${req.user.id}_${Date.now()}.jpg`;
         const filePath = path.join(__dirname, 'public', 'uploads', fileName);
     
         fs.writeFileSync(filePath, base64Data, 'base64');
-
         const fileUrl = `/uploads/${fileName}`;
         await db.query('UPDATE users SET profile_pic = ? WHERE id = ?', [fileUrl, req.user.id]);
         
@@ -656,20 +697,16 @@ app.put('/api/users/avatar', authGuard, async (req, res) => {
     }
 });
 
-// 3. favorite 
 app.post('/api/favorites/toggle', authGuard, async (req, res) => {
     try {
         const { scoreId } = req.body;
         const userId = req.user.id;
-        // check if the favorite already exists
         const [existing] = await db.query('SELECT * FROM user_favorites WHERE user_id = ? AND score_id = ?', [userId, scoreId]);
         
         if (existing.length > 0) {
-            // if already favorited, remove the favorite
             await db.query('DELETE FROM user_favorites WHERE user_id = ? AND score_id = ?', [userId, scoreId]);
             res.json({ success: true, isFav: false });
         } else {
-            //if no favorite exists, insert a new favorite
             await db.query('INSERT INTO user_favorites (user_id, score_id) VALUES (?, ?)', [userId, scoreId]);
             res.json({ success: true, isFav: true });
         }
