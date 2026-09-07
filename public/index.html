@@ -2530,6 +2530,12 @@
 
             const secQuestion = document.getElementById('edit-sec-question')?.value;
             const secAnswer = document.getElementById('edit-sec-answer')?.value.trim();
+
+            if ((secQuestion && !secAnswer) || (!secQuestion && secAnswer)) {
+                displayProfileStatus("Please provide both the question and answer for your security update.", true);
+                return;
+            }
+
             if (secQuestion && secAnswer) {
                 requestBody.security_question = secQuestion;
                 requestBody.security_answer = secAnswer;
