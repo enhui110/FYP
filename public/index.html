@@ -2520,10 +2520,20 @@
             }
 
             const requestBody = {
-                username: newName !== currentUserName ? newName : undefined,
-                password: newPw ? newPw : undefined,
-                oldPassword: oldPw ? oldPw : undefined
+                username: newName || currentUserName
             };
+
+            if (newPw) {
+                requestBody.password = newPw;
+                requestBody.oldPassword = oldPw;
+            }
+
+            const secQuestion = document.getElementById('edit-sec-question')?.value;
+            const secAnswer = document.getElementById('edit-sec-answer')?.value.trim();
+            if (secQuestion && secAnswer) {
+                requestBody.security_question = secQuestion;
+                requestBody.security_answer = secAnswer;
+            }
 
             console.log("Request Body:", requestBody);
 
@@ -2543,7 +2553,7 @@
                 });
 
                 const data = await res.json().catch(() => ({}));
-                console.log("Backend response:", data); // 🌟 看看后端返回什么
+                console.log("Backend response:", data);
 
                 if (!res.ok) {
                     displayProfileStatus(`Failed: ${data.message || 'Error occurred'}`, true);
@@ -2569,6 +2579,8 @@
                 document.getElementById('edit-pw-old').value = "";
                 document.getElementById('edit-pw-input').value = "";
                 document.getElementById('edit-pw-confirm').value = "";
+                document.getElementById('edit-sec-question').value = "";
+                document.getElementById('edit-sec-answer').value = "";
 
                 document.getElementById('pw-verify-icon').innerText = "";
                 document.getElementById('edit-pw-input').disabled = true;
