@@ -12,20 +12,20 @@
     <style>
         :root {
             /* Light Mode Variables */
-            --primary: #0f172a;       
-            --accent: #6366f1;        
+            --primary: #0f172a;
+            --accent: #6366f1;
             --accent-hover: #4f46e5;
-            --bg: #f8fafc;            
+            --bg: #f8fafc;
             --surface: #ffffff;
             --text-main: #334155;
             --text-muted: #64748b;
             --info: #0ea5e9;
             --danger: #ef4444;
             --warning: #f59e0b;
-            
+
             --border-color: #e2e8f0;
             --input-bg: #f1f5f9;
-            
+
             --chat-me: var(--accent);
             --chat-other: #e9ecef;
             --chat-bg: #fdfdfd;
@@ -33,22 +33,22 @@
 
             --radius-md: 16px;
             --radius-full: 9999px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-            --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01);
-            --shadow-hover: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* Dark Mode Variables */
         [data-theme="dark"] {
-            --primary: #f8fafc;       
-            --accent: #818cf8;        
+            --primary: #f8fafc;
+            --accent: #818cf8;
             --accent-hover: #6366f1;
-            --bg: #0f172a;            
+            --bg: #0f172a;
             --surface: #1e293b;
             --text-main: #e2e8f0;
             --text-muted: #94a3b8;
-            
+
             --border-color: #334155;
             --input-bg: #0f172a;
 
@@ -57,8 +57,8 @@
             --chat-bg: #0f172a;
             --chat-input-area: #1e293b;
 
-            --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.5), 0 8px 10px -6px rgba(0,0,0,0.3);
-            --shadow-hover: 0 20px 25px -5px rgba(0,0,0,0.6), 0 10px 10px -5px rgba(0,0,0,0.4);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
         }
 
         body {
@@ -158,11 +158,14 @@
         .slider {
             position: absolute;
             cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background-color: #e9ecef;
             transition: .4s;
             border-radius: 34px;
-            box-shadow: inset 2px 2px 6px rgba(0,0,0,0.15), inset -2px -2px 6px rgba(255,255,255,0.8);
+            box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.15), inset -2px -2px 6px rgba(255, 255, 255, 0.8);
             overflow: hidden;
         }
 
@@ -176,18 +179,18 @@
             background-color: #ffffff;
             transition: .4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             border-radius: 50%;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.2), -1px -1px 2px rgba(255,255,255,1);
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2), -1px -1px 2px rgba(255, 255, 255, 1);
             z-index: 2;
         }
 
-        input:checked + .slider {
-            background-color: #10b981; 
-            box-shadow: inset 2px 2px 6px rgba(0,0,0,0.2);
+        input:checked+.slider {
+            background-color: #10b981;
+            box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.2);
         }
 
-        input:checked + .slider:before {
+        input:checked+.slider:before {
             transform: translateX(42px);
-            box-shadow: -2px 2px 5px rgba(0,0,0,0.2);
+            box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .slider:after {
@@ -202,14 +205,14 @@
             transition: .4s;
             z-index: 1;
             letter-spacing: 0.5px;
-            text-shadow: 1px 1px 0px rgba(255,255,255,0.7);
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.7);
         }
 
-        input:checked + .slider:after {
+        input:checked+.slider:after {
             content: "DARK";
             left: 12px;
             right: auto;
-            color: #047857; 
+            color: #047857;
             text-shadow: none;
         }
 
@@ -247,9 +250,9 @@
         .btn-account {
             background: white !important;
             color: #0f172a !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         .btn-account:hover {
             background: #f1f5f9 !important;
         }
@@ -299,7 +302,7 @@
             cursor: pointer;
             border: none;
             transition: var(--transition);
-            margin-left: auto; 
+            margin-left: auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -326,7 +329,8 @@
             transition: color 0.3s;
         }
 
-        h2, h3 {
+        h2,
+        h3 {
             font-weight: 600;
             color: var(--primary);
             transition: color 0.3s;
@@ -338,8 +342,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Modern Cards */
@@ -368,7 +379,10 @@
         .card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; height: 4px;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
             background: linear-gradient(90deg, var(--accent), var(--info));
             opacity: 0;
             transition: var(--transition);
@@ -436,7 +450,7 @@
             background-size: 16px;
             padding-right: 40px;
         }
-        
+
         [data-theme="dark"] select.input-box {
             background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
         }
@@ -503,11 +517,19 @@
         .stat-card::after {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; height: 4px;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
         }
-        
-        .stat-card:nth-child(1)::after { background: var(--accent); }
-        .stat-card:nth-child(2)::after { background: var(--info); }
+
+        .stat-card:nth-child(1)::after {
+            background: var(--accent);
+        }
+
+        .stat-card:nth-child(2)::after {
+            background: var(--info);
+        }
 
         .stat-card h3 {
             margin-top: 0;
@@ -545,7 +567,7 @@
             cursor: pointer;
             border-radius: 50%;
             overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
             background: linear-gradient(135deg, var(--accent), var(--info));
             border: 4px solid var(--surface);
         }
@@ -631,7 +653,10 @@
         .modal-overlay {
             display: none;
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
@@ -652,12 +677,24 @@
         }
 
         @keyframes modalScale {
-            from { opacity: 0; transform: scale(0.95) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
 
-        #alert-modal { z-index: 9999; }
-        #crop-modal { z-index: 1001; } 
+        #alert-modal {
+            z-index: 9999;
+        }
+
+        #crop-modal {
+            z-index: 1001;
+        }
 
         .password-wrapper {
             position: relative;
@@ -665,9 +702,9 @@
             align-items: center;
             width: 100%;
         }
-        
+
         .password-wrapper input {
-            padding-right: 70px; 
+            padding-right: 70px;
             margin-bottom: 0;
         }
 
@@ -684,7 +721,7 @@
             opacity: 0.5;
             transition: var(--transition);
         }
-        
+
         .password-toggle-icon:hover {
             opacity: 1;
         }
@@ -739,7 +776,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            height: 500px; 
+            height: 500px;
             transition: var(--transition);
         }
 
@@ -751,7 +788,7 @@
             text-align: center;
             transition: var(--transition);
         }
-        
+
         [data-theme="dark"] .chat-header {
             background: #0f172a;
             color: white;
@@ -792,7 +829,7 @@
             max-width: 85%;
             align-self: flex-start;
         }
-        
+
         .chat-bubble-wrapper.is-me {
             align-self: flex-end;
             flex-direction: row-reverse;
@@ -836,7 +873,7 @@
             border: none;
             flex-shrink: 0;
         }
-        
+
         .msg-delete-btn:hover {
             transform: scale(1.1);
             background: var(--danger);
@@ -900,7 +937,7 @@
         .chat-send-btn:hover {
             background: #2980b9;
         }
-        
+
         hr {
             border-color: var(--border-color) !important;
         }
@@ -914,14 +951,18 @@
                 🎵 MuTice
             </div>
 
-            <div style="border-left: 1px solid rgba(255, 255, 255, 0.2); padding-left: 20px; margin-left: 20px; display: flex; align-items: center;">
-                <div id="nav-avatar-img" style="width: 36px; height: 36px; border-radius: 50%; background: white; overflow: hidden; display: none; border: 2px solid rgba(255,255,255,0.8);">
+            <div
+                style="border-left: 1px solid rgba(255, 255, 255, 0.2); padding-left: 20px; margin-left: 20px; display: flex; align-items: center;">
+                <div id="nav-avatar-img"
+                    style="width: 36px; height: 36px; border-radius: 50%; background: white; overflow: hidden; display: none; border: 2px solid rgba(255,255,255,0.8);">
                     <img id="nav-avatar-src" src="" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <div id="nav-avatar-text" style="width: 36px; height: 36px; border-radius: 50%; background: white; color: #0f172a; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; display: none; border: 2px solid rgba(255,255,255,0.8);">
+                <div id="nav-avatar-text"
+                    style="width: 36px; height: 36px; border-radius: 50%; background: white; color: #0f172a; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; display: none; border: 2px solid rgba(255,255,255,0.8);">
                     👤
                 </div>
-                <span id="user-welcome" style="margin-left: 12px; font-size: 15px; color: #ffffff; font-weight: 600; letter-spacing: 0.2px;"></span>
+                <span id="user-welcome"
+                    style="margin-left: 12px; font-size: 15px; color: #ffffff; font-weight: 600; letter-spacing: 0.2px;"></span>
             </div>
         </div>
         <ul class="nav-links">
@@ -952,9 +993,12 @@
         <div id="library" class="section">
             <h1>Score Library</h1>
             <div class="filter-container">
-                <input type="text" id="s-input" class="input-box" style="margin: 0; height: 46px; flex: 2; min-width: 200px;" placeholder="Search by title or composer..." oninput="filter()">
-                
-                <select id="s-inst" class="input-box" style="margin: 0; height: 46px; flex: 1; min-width: 160px;" onchange="filter()">
+                <input type="text" id="s-input" class="input-box"
+                    style="margin: 0; height: 46px; flex: 2; min-width: 200px;"
+                    placeholder="Search by title or composer..." oninput="filter()">
+
+                <select id="s-inst" class="input-box" style="margin: 0; height: 46px; flex: 1; min-width: 160px;"
+                    onchange="filter()">
                     <option value="All Instrument">All Instruments</option>
                     <option value="Piano">Piano</option>
                     <option value="Violin">Violin</option>
@@ -977,12 +1021,17 @@
                 </select>
 
                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                    <button id="btn-fav-filter" class="sort-btn" style="height: 46px; margin: 0;" onclick="toggleFavFilter()">❤️ Favorites</button>
+                    <button id="btn-fav-filter" class="sort-btn" style="height: 46px; margin: 0;"
+                        onclick="toggleFavFilter()">❤️ Favorites</button>
                     <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 8px;"></div>
-                    <span style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-right: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Sort:</span>
-                    <button id="sort-recent" class="sort-btn active" style="height: 46px; margin: 0;" onclick="toggleSort('recent')">Recent</button>
-                    <button id="sort-title" class="sort-btn" style="height: 46px; margin: 0;" onclick="toggleSort('title')">Song</button>
-                    <button id="sort-instrument" class="sort-btn" style="height: 46px; margin: 0;" onclick="toggleSort('instrument')">Instrument</button>
+                    <span
+                        style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-right: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Sort:</span>
+                    <button id="sort-recent" class="sort-btn active" style="height: 46px; margin: 0;"
+                        onclick="toggleSort('recent')">Recent</button>
+                    <button id="sort-title" class="sort-btn" style="height: 46px; margin: 0;"
+                        onclick="toggleSort('title')">Song</button>
+                    <button id="sort-instrument" class="sort-btn" style="height: 46px; margin: 0;"
+                        onclick="toggleSort('instrument')">Instrument</button>
                 </div>
             </div>
             <div id="score-list" class="grid"></div>
@@ -994,7 +1043,9 @@
 
             <div id="groups-content">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                    <h3 style="margin: 0; color: var(--text-muted); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">My Groups</h3>
+                    <h3
+                        style="margin: 0; color: var(--text-muted); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        My Groups</h3>
                     <div style="display: flex; gap: 12px;">
                         <button class="btn btn-start" onclick="openCreateGroupModal()">+ Create Group</button>
                         <button class="btn btn-secondary" onclick="openJoinGroupModal()">Join with Code</button>
@@ -1005,33 +1056,45 @@
 
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 40px 0;">
 
-                <div id="group-detail-view" style="display: none; background: var(--surface); padding: 32px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); transition: var(--transition);">
-                    
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 24px;">
+                <div id="group-detail-view"
+                    style="display: none; background: var(--surface); padding: 32px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); transition: var(--transition);">
+
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 24px;">
                         <div style="flex:1;">
-                            <h2 id="gd-title" style="margin: 0 0 10px 0; color: var(--primary); font-size: 24px;">Group Name</h2>
-                            <div style="font-size: 14px; color: var(--text-muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                                👥 <span style="font-weight:600;">Members:</span> 
+                            <h2 id="gd-title" style="margin: 0 0 10px 0; color: var(--primary); font-size: 24px;">Group
+                                Name</h2>
+                            <div
+                                style="font-size: 14px; color: var(--text-muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                👥 <span style="font-weight:600;">Members:</span>
                                 <span id="gd-members" style="display:flex; flex-wrap:wrap; gap:6px;">Loading...</span>
                             </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 15px; margin-left: 20px;">
-                            <button class="btn btn-start" style="padding: 8px 16px; font-size: 13px;" onclick="openGroupUploadModal()">➕ Upload Private Score</button>
-                            <p style="margin: 0; font-size: 14px; color: var(--text-muted);">Invite Code: <strong id="gd-code" style="color: var(--accent); background: rgba(99, 102, 241, 0.1); padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 16px;"></strong></p>
-                            <button id="gd-leave-btn" class="btn" style="background: var(--surface); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; font-size: 13px;">Leave Group</button>
+                            <button class="btn btn-start" style="padding: 8px 16px; font-size: 13px;"
+                                onclick="openGroupUploadModal()">➕ Upload Private Score</button>
+                            <p style="margin: 0; font-size: 14px; color: var(--text-muted);">Invite Code: <strong
+                                    id="gd-code"
+                                    style="color: var(--accent); background: rgba(99, 102, 241, 0.1); padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 16px;"></strong>
+                            </p>
+                            <button id="gd-leave-btn" class="btn"
+                                style="background: var(--surface); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; font-size: 13px;">Leave
+                                Group</button>
                         </div>
                     </div>
-                    
+
                     <div class="group-split-view">
                         <div class="group-split-left">
                             <h3 style="margin-top: 0;">Shared Scores</h3>
-                            <div id="gd-scores" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));"></div>
+                            <div id="gd-scores" class="grid"
+                                style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));"></div>
                         </div>
                         <div class="group-split-right">
                             <div class="chat-header">Group Chat</div>
                             <div class="chat-messages" id="chat-messages"></div>
                             <form class="chat-input-area" onsubmit="submitGroupMessage(event)">
-                                <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." autocomplete="off">
+                                <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..."
+                                    autocomplete="off">
                                 <button type="submit" class="chat-send-btn">➤</button>
                             </form>
                         </div>
@@ -1044,19 +1107,23 @@
         <div id="upload" class="section">
             <h1>Upload Score (Public Library)</h1>
 
-            <form id="upForm" onsubmit="handleUpload(event); return false;" style="background:var(--surface); padding:40px; border-radius:var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); max-width: 900px; margin: 0 auto; transition: var(--transition); display: flex; gap: 40px; flex-wrap: wrap;">
-                
+            <form id="upForm" onsubmit="handleUpload(event); return false;"
+                style="background:var(--surface); padding:40px; border-radius:var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); max-width: 900px; margin: 0 auto; transition: var(--transition); display: flex; gap: 40px; flex-wrap: wrap;">
+
                 <!-- Left Side: Form Details -->
                 <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column;">
-                    <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Score Title</p>
+                    <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Score Title
+                    </p>
                     <input type="text" id="u-title" class="input-box" placeholder="e.g. Moonlight Sonata" required>
 
-                    <p style="margin:16px 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Composer</p>
+                    <p style="margin:16px 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Composer
+                    </p>
                     <input type="text" id="u-composer" class="input-box" placeholder="e.g. Beethoven">
 
                     <div style="display: flex; gap: 20px; margin-top: 16px;">
                         <div style="flex: 1;">
-                            <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Instrument</p>
+                            <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">
+                                Instrument</p>
                             <select id="u-inst" class="input-box">
                                 <option value="All Instrument">All Instrument</option>
                                 <option value="Piano">Piano</option>
@@ -1080,7 +1147,8 @@
                             </select>
                         </div>
                         <div style="flex: 1;">
-                            <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Difficulty</p>
+                            <p style="margin:0 0 8px 0; font-size: 14px; font-weight: 600; color: var(--text-main);">
+                                Difficulty</p>
                             <select id="u-diff" class="input-box">
                                 <option value="Beginner">Beginner</option>
                                 <option value="Intermediate">Intermediate</option>
@@ -1089,27 +1157,37 @@
                         </div>
                     </div>
 
-                    <div style="background: var(--bg); padding: 15px; border-radius: 12px; margin-bottom: 24px; border: 2px dashed var(--border-color); text-align: center; transition: var(--transition);">
-                        <p style="margin:0 0 10px 0; font-size: 13px; color: var(--text-muted); font-weight: 500;">Upload Local File (PDF or Image)</p>
-                        <input type="file" id="u-file" accept="image/*,.pdf" style="display:block; margin: 0 auto; width: 100%; max-width: 250px; font-size: 12px; cursor: pointer;" required onchange="handleFileSelect(this, 'u-title', 'u-composer', 'u-preview-box', 'u-preview-pdf', 'u-preview-img', 'u-preview-placeholder')">
+                    <div
+                        style="background: var(--bg); padding: 15px; border-radius: 12px; margin-bottom: 24px; border: 2px dashed var(--border-color); text-align: center; transition: var(--transition);">
+                        <p style="margin:0 0 10px 0; font-size: 13px; color: var(--text-muted); font-weight: 500;">
+                            Upload Local File (PDF or Image)</p>
+                        <input type="file" id="u-file" accept="image/*,.pdf"
+                            style="display:block; margin: 0 auto; width: 100%; max-width: 250px; font-size: 12px; cursor: pointer;"
+                            required
+                            onchange="handleFileSelect(this, 'u-title', 'u-composer', 'u-preview-box', 'u-preview-pdf', 'u-preview-img', 'u-preview-placeholder')">
                     </div>
 
                     <div id="progress-wrapper" class="progress-wrapper" style="margin-bottom: 20px;">
                         <div id="progress-bar" class="progress-bar"></div>
                     </div>
 
-                    <button type="submit" class="btn btn-start" id="upBtn" style="padding: 14px; font-size: 16px; width: 100%; margin-top: auto;">Upload to Public Library</button>
+                    <button type="submit" class="btn btn-start" id="upBtn"
+                        style="padding: 14px; font-size: 16px; width: 100%; margin-top: auto;">Upload to Public
+                        Library</button>
                 </div>
 
                 <!-- Right Side: Sticky Preview Area -->
-                <div style="flex: 1; min-width: 300px; background: var(--bg); border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow: hidden; position: relative; min-height: 400px; transition: var(--transition);">
+                <div
+                    style="flex: 1; min-width: 300px; background: var(--bg); border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow: hidden; position: relative; min-height: 400px; transition: var(--transition);">
                     <div id="u-preview-placeholder" style="color: var(--text-muted); text-align: center;">
                         <div style="font-size: 40px; margin-bottom: 10px; opacity: 0.5;">📄</div>
                         <div style="font-size: 14px; font-weight: 500;">Preview will appear here</div>
                     </div>
                     <div id="u-preview-box" style="display: none; width: 100%; height: 100%; text-align: center;">
-                        <iframe id="u-preview-pdf" style="width: 100%; height: 100%; border: none; border-radius: 8px; display: none; background: white;"></iframe>
-                        <img id="u-preview-img" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; display: none; margin: 0 auto; background: transparent;" />
+                        <iframe id="u-preview-pdf"
+                            style="width: 100%; height: 100%; border: none; border-radius: 8px; display: none; background: white;"></iframe>
+                        <img id="u-preview-img"
+                            style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; display: none; margin: 0 auto; background: transparent;" />
                     </div>
                 </div>
 
@@ -1129,10 +1207,13 @@
         <div class="modal-content" style="width: 400px;">
             <div style="font-size: 44px; margin-bottom: 15px; opacity: 0.8;">🔒</div>
             <h3 style="margin-top: 0; color: var(--primary); font-size: 20px;">Login Required</h3>
-            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">You need to log in to access this feature. Join the community to share scores and chat with your band!</p>
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">You need to log in to access this
+                feature. Join the community to share scores and chat with your band!</p>
             <div style="display: flex; gap: 12px;">
-                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('login-required-modal')">Cancel</button>
-                <button type="button" class="btn btn-start" style="flex: 1;" onclick="window.location.href='auth.html'">Login Now</button>
+                <button type="button" class="btn btn-secondary" style="flex: 1;"
+                    onclick="closeModal('login-required-modal')">Cancel</button>
+                <button type="button" class="btn btn-start" style="flex: 1;"
+                    onclick="window.location.href='auth.html'">Login Now</button>
             </div>
         </div>
     </div>
@@ -1141,12 +1222,15 @@
     <div id="crop-modal" class="modal-overlay">
         <div class="modal-content" style="width: 400px;">
             <h3 style="margin-top: 0; color: var(--primary); font-size: 20px;">Adjust Profile Picture</h3>
-            <div style="max-height: 400px; overflow: hidden; margin-bottom: 20px; border-radius: 8px; background: var(--bg);">
+            <div
+                style="max-height: 400px; overflow: hidden; margin-bottom: 20px; border-radius: 8px; background: var(--bg);">
                 <img id="crop-image" style="max-width: 100%; display: block;">
             </div>
             <div style="display: flex; gap: 12px;">
-                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeCropModal()">Cancel</button>
-                <button type="button" id="crop-save-btn" class="btn btn-start" style="flex: 1;" onclick="saveCroppedImage()">Apply</button>
+                <button type="button" class="btn btn-secondary" style="flex: 1;"
+                    onclick="closeCropModal()">Cancel</button>
+                <button type="button" id="crop-save-btn" class="btn btn-start" style="flex: 1;"
+                    onclick="saveCroppedImage()">Apply</button>
             </div>
         </div>
     </div>
@@ -1154,9 +1238,12 @@
     <div id="alert-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="alert-title" style="margin-top: 0; color: var(--primary); font-size: 20px;">Notification</h3>
-            <p id="alert-msg" style="font-size: 15px; color: var(--text-muted); white-space: pre-wrap; margin: 20px 0; line-height: 1.5;"></p>
+            <p id="alert-msg"
+                style="font-size: 15px; color: var(--text-muted); white-space: pre-wrap; margin: 20px 0; line-height: 1.5;">
+            </p>
             <div style="display: flex; justify-content: center; margin-top: 24px;">
-                <button type="button" class="btn btn-start" style="width: 100%; padding: 12px;" onclick="closeModal('alert-modal')">Got it</button>
+                <button type="button" class="btn btn-start" style="width: 100%; padding: 12px;"
+                    onclick="closeModal('alert-modal')">Got it</button>
             </div>
         </div>
     </div>
@@ -1164,9 +1251,11 @@
     <div id="profile-forgot-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top: 0; color: var(--primary); font-size: 20px;">Reset Password</h3>
-            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">Enter your registered email and your new password:</p>
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">Enter your registered email and
+                your new password:</p>
             <form onsubmit="return false;" style="margin:0; padding:0; text-align: left;">
-                <input type="email" id="pf-email" class="input-box" placeholder="Your Registered Email" style="margin-bottom: 16px;">
+                <input type="email" id="pf-email" class="input-box" placeholder="Your Registered Email"
+                    style="margin-bottom: 16px;">
                 <div class="password-wrapper" style="margin-bottom: 16px;">
                     <input type="password" id="pf-new-pw" class="input-box" placeholder="New Password (min 6 chars)">
                     <span class="password-toggle-icon" onclick="togglePasswordVisibility('pf-new-pw', this)">
@@ -1180,8 +1269,10 @@
                     </span>
                 </div>
                 <div style="display: flex; gap: 12px;">
-                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('profile-forgot-modal')">Cancel</button>
-                    <button type="button" class="btn btn-start" style="flex: 1;" onclick="submitProfileForgot()">Reset</button>
+                    <button type="button" class="btn btn-secondary" style="flex: 1;"
+                        onclick="closeModal('profile-forgot-modal')">Cancel</button>
+                    <button type="button" class="btn btn-start" style="flex: 1;"
+                        onclick="submitProfileForgot()">Reset</button>
                 </div>
             </form>
         </div>
@@ -1192,8 +1283,10 @@
             <h3 id="confirm-title" style="margin-top: 0; color: var(--primary); font-size: 20px;">Confirm Action</h3>
             <p id="confirm-msg" style="font-size: 15px; color: var(--text-muted); margin: 20px 0;"></p>
             <div style="display: flex; gap: 12px; margin-top: 24px;">
-                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('confirm-modal')">Cancel</button>
-                <button type="button" id="confirm-yes-btn" class="btn" style="background: var(--danger); color: white; flex: 1;">Confirm</button>
+                <button type="button" class="btn btn-secondary" style="flex: 1;"
+                    onclick="closeModal('confirm-modal')">Cancel</button>
+                <button type="button" id="confirm-yes-btn" class="btn"
+                    style="background: var(--danger); color: white; flex: 1;">Confirm</button>
             </div>
         </div>
     </div>
@@ -1201,11 +1294,14 @@
     <div id="share-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top: 0; color: var(--primary); font-size: 20px;">Share Score</h3>
-            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Select a private group to share this score with:</p>
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Select a private group to share
+                this score with:</p>
             <select id="share-group-select" class="input-box" style="margin-bottom: 24px;"></select>
             <div style="display: flex; gap: 12px;">
-                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('share-modal')">Cancel</button>
-                <button type="button" class="btn btn-start" style="flex: 1;" onclick="submitShareScore()">Share Score</button>
+                <button type="button" class="btn btn-secondary" style="flex: 1;"
+                    onclick="closeModal('share-modal')">Cancel</button>
+                <button type="button" class="btn btn-start" style="flex: 1;" onclick="submitShareScore()">Share
+                    Score</button>
             </div>
         </div>
     </div>
@@ -1213,11 +1309,15 @@
     <div id="create-group-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top: 0; color: var(--primary); font-size: 20px;">Create Group</h3>
-            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Enter a name for your new private group:</p>
-            <input type="text" id="new-group-name" class="input-box" placeholder="e.g. My Band, Piano Class" style="margin-bottom: 24px;">
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Enter a name for your new private
+                group:</p>
+            <input type="text" id="new-group-name" class="input-box" placeholder="e.g. My Band, Piano Class"
+                style="margin-bottom: 24px;">
             <div style="display: flex; gap: 12px;">
-                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('create-group-modal')">Cancel</button>
-                <button type="button" class="btn btn-start" style="flex: 1;" onclick="submitCreateGroup()">Create</button>
+                <button type="button" class="btn btn-secondary" style="flex: 1;"
+                    onclick="closeModal('create-group-modal')">Cancel</button>
+                <button type="button" class="btn btn-start" style="flex: 1;"
+                    onclick="submitCreateGroup()">Create</button>
             </div>
         </div>
     </div>
@@ -1225,11 +1325,15 @@
     <div id="join-group-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top: 0; color: var(--primary); font-size: 20px;">Join Group</h3>
-            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Enter the 6-character Invite Code:</p>
-            <input type="text" id="join-group-code" class="input-box" placeholder="e.g. A1B2C3" style="text-transform: uppercase; margin-bottom: 24px; text-align: center; font-size: 20px; letter-spacing: 2px;">
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Enter the 6-character Invite
+                Code:</p>
+            <input type="text" id="join-group-code" class="input-box" placeholder="e.g. A1B2C3"
+                style="text-transform: uppercase; margin-bottom: 24px; text-align: center; font-size: 20px; letter-spacing: 2px;">
             <div style="display: flex; gap: 12px;">
-                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('join-group-modal')">Cancel</button>
-                <button type="button" class="btn btn-start" style="flex: 1;" onclick="submitJoinGroup()">Join Group</button>
+                <button type="button" class="btn btn-secondary" style="flex: 1;"
+                    onclick="closeModal('join-group-modal')">Cancel</button>
+                <button type="button" class="btn btn-start" style="flex: 1;" onclick="submitJoinGroup()">Join
+                    Group</button>
             </div>
         </div>
     </div>
@@ -1238,20 +1342,27 @@
     <div id="group-upload-modal" class="modal-overlay">
         <div class="modal-content" style="width: 800px; max-width: 90vw;">
             <h3 style="margin-top: 0; color: var(--primary); font-size: 20px;">Upload Private Score</h3>
-            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">This score will only be visible to members of this group.</p>
-            <form onsubmit="submitGroupUpload(event); return false;" style="text-align: left; display: flex; gap: 30px; flex-wrap: wrap;">
-                
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">This score will only be visible
+                to members of this group.</p>
+            <form onsubmit="submitGroupUpload(event); return false;"
+                style="text-align: left; display: flex; gap: 30px; flex-wrap: wrap;">
+
                 <!-- Left Side -->
                 <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column;">
-                    <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Score Title</p>
-                    <input type="text" id="gu-title" class="input-box" style="margin-bottom: 15px;" placeholder="e.g. My Band Practice" required>
+                    <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Score Title
+                    </p>
+                    <input type="text" id="gu-title" class="input-box" style="margin-bottom: 15px;"
+                        placeholder="e.g. My Band Practice" required>
 
-                    <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Composer (Optional)</p>
-                    <input type="text" id="gu-composer" class="input-box" style="margin-bottom: 15px;" placeholder="e.g. Beethoven">
+                    <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Composer
+                        (Optional)</p>
+                    <input type="text" id="gu-composer" class="input-box" style="margin-bottom: 15px;"
+                        placeholder="e.g. Beethoven">
 
                     <div style="display: flex; gap: 15px; margin-bottom: 15px;">
                         <div style="flex: 1;">
-                            <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Instrument</p>
+                            <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">
+                                Instrument</p>
                             <select id="gu-inst" class="input-box" style="margin-bottom:0;">
                                 <option value="All Instrument">All Instrument</option>
                                 <option value="Piano">Piano</option>
@@ -1275,7 +1386,8 @@
                             </select>
                         </div>
                         <div style="flex: 1;">
-                            <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Difficulty</p>
+                            <p style="margin:0 0 5px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">
+                                Difficulty</p>
                             <select id="gu-diff" class="input-box" style="margin-bottom:0;">
                                 <option value="Beginner">Beginner</option>
                                 <option value="Intermediate">Intermediate</option>
@@ -1284,25 +1396,32 @@
                         </div>
                     </div>
 
-                    <div style="background: var(--bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 2px dashed var(--border-color); text-align: center;">
-                        <input type="file" id="gu-file" accept="image/*,.pdf" class="input-box" style="margin-bottom:0; padding:10px; font-size: 12px; cursor: pointer;" required onchange="handleFileSelect(this, 'gu-title', 'gu-composer', 'gu-preview-box', 'gu-preview-pdf', 'gu-preview-img', 'gu-preview-placeholder')">
+                    <div
+                        style="background: var(--bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 2px dashed var(--border-color); text-align: center;">
+                        <input type="file" id="gu-file" accept="image/*,.pdf" class="input-box"
+                            style="margin-bottom:0; padding:10px; font-size: 12px; cursor: pointer;" required
+                            onchange="handleFileSelect(this, 'gu-title', 'gu-composer', 'gu-preview-box', 'gu-preview-pdf', 'gu-preview-img', 'gu-preview-placeholder')">
                     </div>
 
                     <div style="display: flex; gap: 12px; margin-top: auto;">
-                        <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('group-upload-modal')">Cancel</button>
+                        <button type="button" class="btn btn-secondary" style="flex: 1;"
+                            onclick="closeModal('group-upload-modal')">Cancel</button>
                         <button type="submit" id="gu-btn" class="btn btn-start" style="flex: 1;">Upload & Share</button>
                     </div>
                 </div>
 
                 <!-- Right Side: Preview -->
-                <div style="flex: 1; min-width: 280px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; position: relative; min-height: 350px;">
+                <div
+                    style="flex: 1; min-width: 280px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; position: relative; min-height: 350px;">
                     <div id="gu-preview-placeholder" style="color: var(--text-muted); text-align: center;">
                         <div style="font-size: 30px; margin-bottom: 8px; opacity: 0.5;">📄</div>
                         <div style="font-size: 13px; font-weight: 500;">Preview will appear here</div>
                     </div>
                     <div id="gu-preview-box" style="display: none; width: 100%; height: 100%; text-align: center;">
-                        <iframe id="gu-preview-pdf" style="width: 100%; height: 100%; border: none; border-radius: 8px; display: none; background: white;"></iframe>
-                        <img id="gu-preview-img" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; display: none; margin: 0 auto; background: transparent;" />
+                        <iframe id="gu-preview-pdf"
+                            style="width: 100%; height: 100%; border: none; border-radius: 8px; display: none; background: white;"></iframe>
+                        <img id="gu-preview-img"
+                            style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; display: none; margin: 0 auto; background: transparent;" />
                     </div>
                 </div>
 
@@ -1334,7 +1453,7 @@
 
         let chatInterval = null;
         let activeGroupId = null;
-        let activeGroupCreatorId = null; 
+        let activeGroupCreatorId = null;
         let isGroupUploading = false;
         let cropper = null;
 
@@ -1390,13 +1509,13 @@
 
             if (!file) {
                 previewBox.style.display = 'none';
-                if(placeholder) placeholder.style.display = 'block';
+                if (placeholder) placeholder.style.display = 'block';
                 return;
             }
 
             const fileURL = URL.createObjectURL(file);
             previewBox.style.display = 'block';
-            if(placeholder) placeholder.style.display = 'none';
+            if (placeholder) placeholder.style.display = 'none';
 
             if (file.type === 'application/pdf') {
                 imgViewer.style.display = 'none';
@@ -1408,7 +1527,7 @@
                 imgViewer.src = fileURL;
             } else {
                 previewBox.style.display = 'none';
-                if(placeholder) placeholder.style.display = 'block';
+                if (placeholder) placeholder.style.display = 'block';
             }
         }
 
@@ -1416,7 +1535,7 @@
             try {
                 const savedTheme = localStorage.getItem('mutice_theme') || 'light';
                 const themeCheckbox = document.getElementById('theme-checkbox');
-                
+
                 if (savedTheme === 'dark') {
                     document.body.setAttribute('data-theme', 'dark');
                     if (themeCheckbox) themeCheckbox.checked = true;
@@ -1439,7 +1558,7 @@
                             const data = await res.json();
                             backendFavs = data.favorites || [];
                             currentAvatarUrl = data.profile_pic || null;
-                            
+
                             if (currentAvatarUrl) {
                                 document.getElementById('nav-avatar-img').style.display = 'block';
                                 document.getElementById('nav-avatar-src').src = currentAvatarUrl;
@@ -1458,7 +1577,7 @@
 
         function toggleTheme(checkbox) {
             const body = document.body;
-            
+
             if (checkbox.checked) {
                 body.setAttribute('data-theme', 'dark');
                 localStorage.setItem('mutice_theme', 'dark');
@@ -1466,9 +1585,9 @@
                 body.removeAttribute('data-theme');
                 localStorage.setItem('mutice_theme', 'light');
             }
-            
+
             if (document.getElementById('dashboard').style.display !== 'none') {
-                loadDash(); 
+                loadDash();
             }
         }
 
@@ -1476,7 +1595,7 @@
             if (!isLoggedIn) return;
 
             let formattedName = currentUserName.replace(/Quek\s*/i, '').trim();
-            if(!formattedName) formattedName = 'User';
+            if (!formattedName) formattedName = 'User';
 
             const welcomeEl = document.getElementById('user-welcome');
             if (welcomeEl) welcomeEl.innerText = `${formattedName}`;
@@ -1501,16 +1620,16 @@
         function showConfirmModal(title, message, onConfirm) {
             document.getElementById('confirm-title').innerText = title;
             document.getElementById('confirm-msg').innerText = message;
-            
+
             const yesBtn = document.getElementById('confirm-yes-btn');
             const newYesBtn = yesBtn.cloneNode(true);
             yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
-            
+
             newYesBtn.onclick = () => {
                 closeModal('confirm-modal');
                 onConfirm();
             };
-            
+
             document.getElementById('confirm-modal').style.display = 'flex';
         }
 
@@ -1528,7 +1647,7 @@
             const input = document.getElementById(inputId);
             if (input.type === "password") {
                 input.type = "text";
-                iconEl.innerHTML = svgEye; 
+                iconEl.innerHTML = svgEye;
             } else {
                 input.type = "password";
                 iconEl.innerHTML = svgEyeOff;
@@ -1540,7 +1659,7 @@
             document.getElementById('pf-email').value = '';
             document.getElementById('pf-new-pw').value = '';
             document.getElementById('pf-confirm-pw').value = '';
-            
+
             document.getElementById('pf-new-pw').type = "password";
             document.getElementById('pf-confirm-pw').type = "password";
             const icons = document.querySelectorAll('#profile-forgot-modal .password-toggle-icon');
@@ -1571,9 +1690,9 @@
                 const latestToken = localStorage.getItem('mutice_token') || token;
                 const res = await fetch(`${API}/profile-forgot-password`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${latestToken}` 
+                        'Authorization': `Bearer ${latestToken}`
                     },
                     body: JSON.stringify({ email, newPassword })
                 });
@@ -1742,10 +1861,10 @@
             scoresContainer.innerHTML = `<p style="color:var(--text-muted); font-size:14px;">Loading scores...</p>`;
 
             activeGroupId = groupId;
-            activeGroupCreatorId = creatorId; 
+            activeGroupCreatorId = creatorId;
             loadGroupMessages(groupId);
-            
-            if(chatInterval) clearInterval(chatInterval);
+
+            if (chatInterval) clearInterval(chatInterval);
             chatInterval = setInterval(() => {
                 if (document.getElementById('group-detail-view').style.display !== 'none' && activeGroupId === groupId) {
                     loadGroupMessages(groupId);
@@ -1765,8 +1884,8 @@
                                 let n = m.name.replace(/Quek\s*/i, '').trim() || 'User';
                                 let isThisMemberOwner = Number(m.id) === Number(creatorId);
                                 let roleBadge = isThisMemberOwner ? '<span style="font-size:12px; margin-left:4px;" title="Group Owner">👑</span>' : '';
-                                let removeBtn = (amIOwner && !isThisMemberOwner) 
-                                    ? `<span style="color:var(--danger); cursor:pointer; font-size:10px; margin-left:8px; padding:2px 5px; background:var(--surface); border-radius:4px; border:1px solid #fee2e2; transition:0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='var(--surface)'" onclick="event.stopPropagation(); removeMember(${groupId}, ${m.id}, '${n}')" title="Kick Member">❌</span>` 
+                                let removeBtn = (amIOwner && !isThisMemberOwner)
+                                    ? `<span style="color:var(--danger); cursor:pointer; font-size:10px; margin-left:8px; padding:2px 5px; background:var(--surface); border-radius:4px; border:1px solid #fee2e2; transition:0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='var(--surface)'" onclick="event.stopPropagation(); removeMember(${groupId}, ${m.id}, '${n}')" title="Kick Member">❌</span>`
                                     : '';
                                 return `<div style="display:inline-flex; align-items:center; background:var(--input-bg); padding:4px 12px; border-radius:20px; font-size:13px; color:var(--text-main); border:1px solid var(--border-color);">${n} ${roleBadge} ${removeBtn}</div>`;
                             }).join('');
@@ -1837,7 +1956,7 @@
             document.getElementById('gu-title').value = '';
             document.getElementById('gu-composer').value = '';
             document.getElementById('gu-file').value = '';
-            
+
             document.getElementById('gu-preview-box').style.display = 'none';
             document.getElementById('gu-preview-pdf').src = '';
             document.getElementById('gu-preview-img').src = '';
@@ -1848,7 +1967,7 @@
 
         async function submitGroupUpload(e) {
             e.preventDefault();
-            if(isGroupUploading) return;
+            if (isGroupUploading) return;
 
             const title = document.getElementById('gu-title').value;
             const composer = document.getElementById('gu-composer').value;
@@ -1856,7 +1975,7 @@
             const diff = document.getElementById('gu-diff').value;
             const file = document.getElementById('gu-file').files[0];
 
-            if(!file) return showAlert("Please select a file.");
+            if (!file) return showAlert("Please select a file.");
 
             const formData = new FormData();
             formData.append('title', title);
@@ -1899,18 +2018,18 @@
                 const latestToken = localStorage.getItem('mutice_token') || token;
                 const res = await fetch(`${API}/groups/${groupId}/messages`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
                 const messages = await res.json();
-                
+
                 const container = document.getElementById('chat-messages');
                 let html = '';
                 let lastDateStr = '';
-                
+
                 messages.forEach(m => {
                     const isMe = Number(m.sender_id) === currentUserId;
                     const dateObj = new Date(m.created_at);
-                    
+
                     const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                    const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute:'2-digit', hour12: true });
-                    
+                    const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
                     if (dateStr !== lastDateStr) {
                         html += `
                             <div class="chat-date-divider">
@@ -1933,7 +2052,7 @@
                         </div>
                     `;
                 });
-                
+
                 if (container.dataset.count !== String(messages.length)) {
                     container.innerHTML = html || `<p style="text-align:center; color:var(--text-muted); font-size:12px; margin-top:50px;">No messages yet. Say hi!</p>`;
                     container.scrollTop = container.scrollHeight;
@@ -1947,8 +2066,8 @@
             const input = document.getElementById('chat-input');
             const msg = input.value.trim();
             if (!msg || !activeGroupId) return;
-            
-            input.value = ''; 
+
+            input.value = '';
             try {
                 const latestToken = localStorage.getItem('mutice_token') || token;
                 await fetch(`${API}/groups/${activeGroupId}/messages`, {
@@ -1957,7 +2076,7 @@
                     body: JSON.stringify({ message: msg })
                 });
                 loadGroupMessages(activeGroupId);
-            } catch (e) {}
+            } catch (e) { }
         }
 
         function deleteGroupMessage(groupId, messageId) {
@@ -1969,7 +2088,7 @@
                         headers: { 'Authorization': `Bearer ${latestToken}` }
                     });
                     const data = await res.json();
-                    
+
                     if (data.success) {
                         document.getElementById('chat-messages').dataset.count = "-1";
                         loadGroupMessages(groupId);
@@ -2020,7 +2139,7 @@
             if (!content) return;
 
             let formattedName = currentUserName.replace(/Quek\s*/i, '').trim();
-            if(!formattedName) formattedName = 'User';
+            if (!formattedName) formattedName = 'User';
             const initialChar = formattedName.charAt(0).toUpperCase();
 
             content.innerHTML = `
@@ -2129,19 +2248,19 @@
             reader.onload = function (e) {
                 const cropModal = document.getElementById('crop-modal');
                 const cropImage = document.getElementById('crop-image');
-                
+
                 cropImage.src = e.target.result;
                 cropModal.style.display = 'flex';
 
-                if (cropper) cropper.destroy(); 
+                if (cropper) cropper.destroy();
                 cropper = new Cropper(cropImage, {
-                    aspectRatio: 1, 
+                    aspectRatio: 1,
                     viewMode: 1,
                     autoCropArea: 1,
                     background: false,
                 });
-                
-                event.target.value = ''; 
+
+                event.target.value = '';
             };
             reader.readAsDataURL(file);
         }
@@ -2156,7 +2275,7 @@
 
         async function saveCroppedImage() {
             if (!cropper) return;
-            
+
             const canvas = cropper.getCroppedCanvas({
                 width: 300,
                 height: 300,
@@ -2179,17 +2298,17 @@
 
                 if (res.ok) {
                     currentAvatarUrl = base64Str;
-                    
+
                     document.getElementById('prof-avatar-img').src = base64Str;
                     document.getElementById('prof-avatar-img').style.display = 'block';
                     document.getElementById('prof-avatar-text').style.display = 'none';
-                    
+
                     updateNavbarUserDisplay();
                     closeCropModal();
                 } else {
                     showAlert('Failed to save avatar to server.');
                 }
-            } catch(e) {
+            } catch (e) {
                 showAlert('Server connection failed.');
             } finally {
                 btn.innerText = origText;
@@ -2211,14 +2330,14 @@
             document.getElementById('edit-pw-confirm').value = "";
             document.getElementById('pw-verify-icon').innerText = "";
             document.getElementById('pw-error-text').style.display = "none";
-            
+
             document.getElementById('edit-sec-question').value = "";
             document.getElementById('edit-sec-answer').value = "";
-            
+
             document.getElementById('edit-pw-input').disabled = true;
             document.getElementById('edit-pw-confirm').disabled = true;
             isOldPwValid = false;
-            
+
             document.getElementById('edit-pw-old').type = "password";
             document.getElementById('edit-pw-input').type = "password";
             document.getElementById('edit-pw-confirm').type = "password";
@@ -2370,10 +2489,7 @@
             const oldPw = document.getElementById('edit-pw-old').value;
             const newPw = document.getElementById('edit-pw-input').value;
             const confirmPw = document.getElementById('edit-pw-confirm').value;
-            
-            const secQuestion = document.getElementById('edit-sec-question').value;
-            const secAnswer = document.getElementById('edit-sec-answer').value.trim();
-            
+
             const btn = document.getElementById('save-profile-btn');
 
             document.getElementById('profile-status-msg').style.display = "none";
@@ -2385,11 +2501,6 @@
 
             if (!isNameValid) {
                 displayProfileStatus("Please provide a valid, available username.", true);
-                return;
-            }
-            
-            if (secQuestion && !secAnswer) {
-                displayProfileStatus("Please provide an answer for your new security question.", true);
                 return;
             }
 
@@ -2408,11 +2519,13 @@
                 }
             }
 
-            if (newName === currentUserName && !newPw && !secQuestion) {
-                displayProfileStatus("No changes detected.", true);
-                setTimeout(() => toggleEditForm(), 1500);
-                return;
-            }
+            const requestBody = {
+                username: newName !== currentUserName ? newName : undefined,
+                password: newPw ? newPw : undefined,
+                oldPassword: oldPw ? oldPw : undefined
+            };
+
+            console.log("Request Body:", requestBody);
 
             btn.disabled = true;
             btn.innerText = "Saving...";
@@ -2426,16 +2539,11 @@
                         'Authorization': `Bearer ${latestToken}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        username: newName !== currentUserName ? newName : undefined,
-                        password: newPw ? newPw : undefined,
-                        oldPassword: oldPw ? oldPw : undefined,
-                        security_question: secQuestion ? secQuestion : undefined,
-                        security_answer: secAnswer ? secAnswer : undefined
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
                 const data = await res.json().catch(() => ({}));
+                console.log("Backend response:", data); // 🌟 看看后端返回什么
 
                 if (!res.ok) {
                     displayProfileStatus(`Failed: ${data.message || 'Error occurred'}`, true);
@@ -2447,9 +2555,9 @@
                 if (newName && newName !== currentUserName) {
                     currentUserName = newName;
                     localStorage.setItem('mutice_user', newName);
-                    
+
                     let formattedName = newName.replace(/Quek\s*/i, '').trim();
-                    if(!formattedName) formattedName = 'User';
+                    if (!formattedName) formattedName = 'User';
 
                     document.getElementById('prof-name-display').innerText = formattedName;
                     document.getElementById('prof-avatar-text').innerText = formattedName.charAt(0).toUpperCase();
@@ -2461,14 +2569,12 @@
                 document.getElementById('edit-pw-old').value = "";
                 document.getElementById('edit-pw-input').value = "";
                 document.getElementById('edit-pw-confirm').value = "";
-                document.getElementById('edit-sec-question').value = "";
-                document.getElementById('edit-sec-answer').value = "";
-                
+
                 document.getElementById('pw-verify-icon').innerText = "";
                 document.getElementById('edit-pw-input').disabled = true;
                 document.getElementById('edit-pw-confirm').disabled = true;
                 isOldPwValid = false;
-                
+
                 document.getElementById('edit-pw-old').type = "password";
                 document.getElementById('edit-pw-input').type = "password";
                 document.getElementById('edit-pw-confirm').type = "password";
@@ -2480,6 +2586,7 @@
                 }, 1500);
 
             } catch (err) {
+                console.error("Backend request error:", err);
                 displayProfileStatus("Server connection failed.", true);
             } finally {
                 btn.disabled = false;
@@ -2617,14 +2724,14 @@
 
                 setTimeout(() => { renderChart(sortedLabels, sortedData); }, 50);
 
-            } catch (err) {}
+            } catch (err) { }
         }
 
         function renderChart(l, d) {
             const canvas = document.getElementById('practiceChart');
             if (!canvas) return;
             if (myChart) myChart.destroy();
-            
+
             const isDark = document.body.getAttribute('data-theme') === 'dark';
             const gridColor = isDark ? '#334155' : '#f1f5f9';
             const textColor = isDark ? '#94a3b8' : '#64748b';
@@ -2634,8 +2741,8 @@
             myChart = new Chart(canvas.getContext('2d'), {
                 type: 'bar',
                 data: { labels: l, datasets: [{ label: 'Minutes', data: d, backgroundColor: '#6366f1', hoverBackgroundColor: '#4f46e5', borderRadius: 6 }] },
-                options: { 
-                    responsive: true, 
+                options: {
+                    responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
@@ -2650,11 +2757,11 @@
             try {
                 const res = await fetch(`${API}/scores`);
                 allScores = await res.json();
-                
+
                 if (isLoggedIn && myGroupsList.length === 0) {
                     const latestToken = localStorage.getItem('mutice_token') || token;
                     const groupRes = await fetch(`${API}/my-groups`, { headers: { 'Authorization': `Bearer ${latestToken}` } });
-                    if(groupRes.ok) myGroupsList = await groupRes.json();
+                    if (groupRes.ok) myGroupsList = await groupRes.json();
                 }
                 filter();
             } catch (e) { }
@@ -2700,7 +2807,7 @@
                     headers: { 'Authorization': `Bearer ${latestToken}` },
                     body: formData
                 });
-                
+
                 const rawText = await res.text();
                 let data = {};
                 try { data = rawText ? JSON.parse(rawText) : {}; } catch (e) { data = { message: rawText }; }
@@ -2709,7 +2816,7 @@
                     progBar.style.width = '100%';
                     showAlert("Upload Successful!", "Success");
                     document.getElementById('upForm').reset();
-                    
+
                     document.getElementById('u-preview-box').style.display = 'none';
                     document.getElementById('u-preview-pdf').src = '';
                     document.getElementById('u-preview-img').src = '';
@@ -2770,7 +2877,7 @@
         async function toggleFav(e, id) {
             e.stopPropagation();
             if (!isLoggedIn) return showAlert('Please log in to save favorites!');
-            
+
             if (backendFavs.includes(id)) {
                 backendFavs = backendFavs.filter(f => f !== id);
             } else {
@@ -2812,7 +2919,7 @@
         function filter() {
             const q = document.getElementById('s-input').value.toLowerCase();
             const inst = document.getElementById('s-inst').value;
-            
+
             let data = allScores.filter(s => {
                 const titleMatch = s.title.toLowerCase().includes(q);
                 const instMatch = (inst === 'all') || (s.instrument === inst) || (inst === 'All Instrument');
