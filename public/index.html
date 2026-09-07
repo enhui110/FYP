@@ -2044,6 +2044,19 @@
                         </div>
                         <div id="name-error-text" style="color: var(--danger); font-size: 12px; margin-bottom: 15px; display: none;"></div>
                         
+                        <p style="margin: 20px 0 8px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Update Security Question (For Password Recovery)</p>
+                        <select id="edit-sec-question" class="input-box" style="margin-bottom: 8px;">
+                            <option value="" disabled selected>Select a Security Question...</option>
+                            <option value="What is your favorite musical instrument?">What is your favorite musical instrument?</option>
+                            <option value="Who is your favorite music composer or artist?">Who is your favorite music composer or artist?</option>
+                            <option value="What was the name of your first music teacher?">What was the name of your first music teacher?</option>
+                            <option value="What was the first song or piece you learned to play?">What was the first song or piece you learned to play?</option>
+                            <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                            <option value="In what city were you born?">In what city were you born?</option>
+                            <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                        </select>
+                        <input type="text" id="edit-sec-answer" class="input-box" placeholder="Your Answer (Required if updating question)" style="margin-bottom: 16px;">
+
                         <p style="margin: 20px 0 8px 0; font-size: 13px; font-weight: 600; color: var(--text-main);">Change Password</p>
                         
                         <div class="password-wrapper" style="margin-bottom: 8px;">
@@ -2141,7 +2154,6 @@
             }
         }
 
-        // 🌟 核心：将裁剪后的头像真正保存到云端服务器
         async function saveCroppedImage() {
             if (!cropper) return;
             
@@ -2199,6 +2211,9 @@
             document.getElementById('edit-pw-confirm').value = "";
             document.getElementById('pw-verify-icon').innerText = "";
             document.getElementById('pw-error-text').style.display = "none";
+            
+            document.getElementById('edit-sec-question').value = "";
+            document.getElementById('edit-sec-answer').value = "";
             
             document.getElementById('edit-pw-input').disabled = true;
             document.getElementById('edit-pw-confirm').disabled = true;
@@ -2355,6 +2370,10 @@
             const oldPw = document.getElementById('edit-pw-old').value;
             const newPw = document.getElementById('edit-pw-input').value;
             const confirmPw = document.getElementById('edit-pw-confirm').value;
+            
+            const secQuestion = document.getElementById('edit-sec-question').value;
+            const secAnswer = document.getElementById('edit-sec-answer').value.trim();
+            
             const btn = document.getElementById('save-profile-btn');
 
             document.getElementById('profile-status-msg').style.display = "none";
@@ -2366,6 +2385,11 @@
 
             if (!isNameValid) {
                 displayProfileStatus("Please provide a valid, available username.", true);
+                return;
+            }
+            
+            if (secQuestion && !secAnswer) {
+                displayProfileStatus("Please provide an answer for your new security question.", true);
                 return;
             }
 
@@ -2384,7 +2408,7 @@
                 }
             }
 
-            if (newName === currentUserName && !newPw) {
+            if (newName === currentUserName && !newPw && !secQuestion) {
                 displayProfileStatus("No changes detected.", true);
                 setTimeout(() => toggleEditForm(), 1500);
                 return;
@@ -2405,7 +2429,9 @@
                     body: JSON.stringify({
                         username: newName !== currentUserName ? newName : undefined,
                         password: newPw ? newPw : undefined,
-                        oldPassword: oldPw ? oldPw : undefined
+                        oldPassword: oldPw ? oldPw : undefined,
+                        security_question: secQuestion ? secQuestion : undefined,
+                        security_answer: secAnswer ? secAnswer : undefined
                     })
                 });
 
@@ -2435,6 +2461,9 @@
                 document.getElementById('edit-pw-old').value = "";
                 document.getElementById('edit-pw-input').value = "";
                 document.getElementById('edit-pw-confirm').value = "";
+                document.getElementById('edit-sec-question').value = "";
+                document.getElementById('edit-sec-answer').value = "";
+                
                 document.getElementById('pw-verify-icon').innerText = "";
                 document.getElementById('edit-pw-input').disabled = true;
                 document.getElementById('edit-pw-confirm').disabled = true;
@@ -2813,7 +2842,6 @@
             const trashIcon = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
 
             list.innerHTML = data.map(i => {
-                // 🌟 使用云端的 backendFavs 判断是否已收藏
                 const isFav = backendFavs.includes(i.id);
                 return `
             <div class="card" onclick="goToPractice(${i.id})">
