@@ -20,8 +20,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
         }
 
         .auth-card {
@@ -31,7 +32,13 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             width: 350px;
             text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
         }
+
+        /* 隐藏滚动条但保留滚动功能 */
+        .auth-card::-webkit-scrollbar { display: none; }
+        .auth-card { -ms-overflow-style: none; scrollbar-width: none; }
 
         h2 {
             color: #2c3e50;
@@ -39,7 +46,7 @@
             margin-bottom: 25px;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 12px;
             margin-bottom: 15px;
@@ -47,9 +54,11 @@
             border-radius: 6px;
             box-sizing: border-box;
             transition: 0.2s;
+            font-family: inherit;
+            font-size: 14px;
         }
 
-        input:focus {
+        input:focus, select:focus {
             border-color: #27ae60;
             outline: none;
             box-shadow: 0 0 5px rgba(39, 174, 96, 0.2);
@@ -68,7 +77,6 @@
             padding-right: 45px;
         }
 
-        /* 🌟 小眼睛图标样式 */
         .password-toggle-icon {
             position: absolute;
             right: 12px;
@@ -146,22 +154,26 @@
             font-weight: bold;
         }
 
-        #signup-form {
+        #signup-form, #reset-form {
             display: none;
         }
 
-        #reset-form {
-            display: none;
+        .warning-box {
+            background: rgba(243, 156, 18, 0.1);
+            border-left: 3px solid var(--warning);
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: #666;
+            text-align: left;
+            line-height: 1.4;
         }
 
         /* Modal Styles */
         .modal-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.5);
             z-index: 1000;
             align-items: center;
@@ -179,21 +191,15 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 
 <body>
     <div class="auth-card">
+        <!-- ================= LOGIN FORM ================= -->
         <div id="login-form">
             <h2>Welcome Back</h2>
             <form onsubmit="handleAuth(event, 'login')">
@@ -212,6 +218,7 @@
             <span class="toggle-link" onclick="toggleForm('signup')">Don't have an account? Sign Up</span>
         </div>
 
+        <!-- ================= SIGNUP FORM ================= -->
         <div id="signup-form">
             <h2>Create Account</h2>
             <form onsubmit="handleAuth(event, 'signup')">
@@ -219,18 +226,35 @@
                 <input type="email" id="signup-email" placeholder="Email Address" required>
 
                 <div class="password-wrapper">
-                    <input type="password" id="signup-password" placeholder="Create Password" required>
+                    <input type="password" id="signup-password" placeholder="Create Password" minlength="6" required>
                     <span class="password-toggle-icon" onclick="togglePasswordVisibility('signup-password', this)">
                         <img src="pic/hide.png" width="20" height="20" alt="Hide">
                     </span>
                 </div>
 
-                <div class="password-wrapper">
-                    <input type="password" id="signup-confirm-password" placeholder="Confirm Password" required>
-                    <span class="password-toggle-icon"
-                        onclick="togglePasswordVisibility('signup-confirm-password', this)">
+                <div class="password-wrapper" style="margin-bottom: 25px;">
+                    <input type="password" id="signup-confirm-password" placeholder="Confirm Password" minlength="6" required>
+                    <span class="password-toggle-icon" onclick="togglePasswordVisibility('signup-confirm-password', this)">
                         <img src="pic/hide.png" width="20" height="20" alt="Hide">
                     </span>
+                </div>
+
+                <div style="border-top: 1px dashed #ccc; padding-top: 20px; margin-bottom: 15px;">
+                    <div class="warning-box">
+                        <strong>Important:</strong> Please choose a security question. You will absolutely need this answer to recover your account if you forget your password.
+                    </div>
+                    
+                    <select id="signup-sec-question" required>
+                        <option value="" disabled selected>Select a Security Question...</option>
+                        <option value="What is your favorite musical instrument?">What is your favorite musical instrument?</option>
+                        <option value="Who is your favorite music composer or artist?">Who is your favorite music composer or artist?</option>
+                        <option value="What was the name of your first music teacher?">What was the name of your first music teacher?</option>
+                        <option value="What was the first song or piece you learned to play?">What was the first song or piece you learned to play?</option>
+                        <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                        <option value="In what city were you born?">In what city were you born?</option>
+                        <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                    </select>
+                    <input type="text" id="signup-sec-answer" placeholder="Your Answer (e.g., piano)" required>
                 </div>
 
                 <button type="submit" class="btn" style="background: #3498db;">Sign Up</button>
@@ -238,56 +262,46 @@
             <span class="toggle-link" onclick="toggleForm('login')">Already have an account? Login</span>
         </div>
 
+        <!-- ================= RESET PASSWORD FORM ================= -->
         <div id="reset-form">
             <h2>Reset Password</h2>
             <form onsubmit="handleForgotPassword(event)">
-                <input type="email" id="reset-email" placeholder="Email Address" required>
-
-                <div class="password-wrapper">
-                    <input type="password" id="reset-password" placeholder="New Password (min 6 chars)" minlength="6"
-                        required>
-                    <span class="password-toggle-icon" onclick="togglePasswordVisibility('reset-password', this)">
-                        <img src="pic/hide.png" width="20" height="20" alt="Hide">
-                    </span>
+                
+                <div id="reset-step-1">
+                    <p style="font-size: 13px; color: #666; margin-bottom: 15px; text-align: left;">Enter your registered email address to retrieve your security question.</p>
+                    <input type="email" id="reset-email" placeholder="Email Address" required>
+                    <button type="button" class="btn" style="background: #22cfe6;" onclick="fetchSecurityQuestion()">Next ➔</button>
                 </div>
 
-                <div class="password-wrapper">
-                    <input type="password" id="reset-confirm-password" placeholder="Confirm New Password" minlength="6"
-                        required>
-                    <span class="password-toggle-icon"
-                        onclick="togglePasswordVisibility('reset-confirm-password', this)">
-                        <img src="pic/hide.png" width="20" height="20" alt="Hide">
-                    </span>
-                </div>
+                <div id="reset-step-2" style="display: none;">
+                    <div style="background: #f8f9fa; border: 1px solid #eee; padding: 12px; border-radius: 6px; margin-bottom: 15px; text-align: left;">
+                        <span style="font-size: 12px; color: #888; text-transform: uppercase;">Security Question:</span>
+                        <div id="display-sec-question" style="font-size: 14px; color: var(--primary); font-weight: 600; margin-top: 5px;"></div>
+                    </div>
+                    
+                    <input type="text" id="reset-sec-answer" placeholder="Your Security Answer" required>
 
-                <button type="submit" class="btn" style="background: #22cfe6;">Reset Password</button>
+                    <div class="password-wrapper">
+                        <input type="password" id="reset-password" placeholder="New Password (min 6 chars)" minlength="6" required>
+                        <span class="password-toggle-icon" onclick="togglePasswordVisibility('reset-password', this)">
+                            <img src="pic/hide.png" width="20" height="20" alt="Hide">
+                        </span>
+                    </div>
+
+                    <div class="password-wrapper">
+                        <input type="password" id="reset-confirm-password" placeholder="Confirm New Password" minlength="6" required>
+                        <span class="password-toggle-icon" onclick="togglePasswordVisibility('reset-confirm-password', this)">
+                            <img src="pic/hide.png" width="20" height="20" alt="Hide">
+                        </span>
+                    </div>
+
+                    <button type="submit" class="btn" style="background: #22cfe6;">Reset Password</button>
+                </div>
             </form>
             <span class="toggle-link" onclick="toggleForm('login')">Back to Login</span>
         </div>
         <a href="index.html" class="back-link">← Back to Dashboard</a>
     </div>
-
-    <select id="security-question" class="input-box" required style="margin-bottom: 16px;">
-        <option value="" disabled selected>Select a Security Question...</option>
-
-        <!--Questions-->
-        <option value="What is your favorite musical instrument?">What is your favorite musical instrument?</option>
-        <option value="Who is your favorite music composer or artist?">Who is your favorite music composer or artist?
-        </option>
-        <option value="What was the name of your first music teacher?">What was the name of your first music teacher?
-        </option>
-        <option value="What was the first song or piece you learned to play?">What was the first song or piece you
-            learned to play?</option>
-        <option value="What was the name of your first pet?">What was the name of your first pet?</option>
-        <option value="In what city were you born?">In what city were you born?</option>
-        <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
-        <option value="What was the name of your first elementary school?">What was the name of your first elementary
-            school?</option>
-        <option value="What was your childhood nickname?">What was your childhood nickname?</option>
-    </select>
-
-    <input type="text" id="security-answer" class="input-box" placeholder="Your Answer" required
-        style="margin-bottom: 24px;">
 
     <!-- Alert Modal -->
     <div id="alert-modal" class="modal-overlay">
@@ -295,14 +309,15 @@
             <h3 id="alert-title" style="margin-top: 0; color: var(--primary);">Notification</h3>
             <p id="alert-msg" style="font-size: 15px; color: #555; white-space: pre-wrap;"></p>
             <div style="display: flex; justify-content: center; margin-top: 20px;">
-                <button type="button" class="btn" style="background: var(--info); color: white; width: 100%;"
-                    onclick="closeModal('alert-modal')">OK</button>
+                <button type="button" class="btn" style="background: var(--info); color: white; width: 100%;" onclick="closeModal('alert-modal')">OK</button>
             </div>
         </div>
     </div>
 
     <script>
         const API = window.location.hostname === 'localhost' ? "http://localhost:3000/api" : "/api";
+        
+        // Localhost fix for fetch
         const originalFetch = window.fetch;
         window.fetch = function (url, options) {
             if (typeof url === 'string' && url.includes('http://localhost:3000')) {
@@ -342,49 +357,65 @@
             document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
             document.getElementById('reset-form').style.display = type === 'reset' ? 'block' : 'none';
 
+            // Reset step views when toggling to Reset Form
+            if(type === 'reset') {
+                document.getElementById('reset-step-1').style.display = 'block';
+                document.getElementById('reset-step-2').style.display = 'none';
+                document.getElementById('reset-email').disabled = false;
+            }
+
             document.querySelectorAll('.password-wrapper input').forEach(input => input.type = 'password');
             document.querySelectorAll('.password-toggle-icon').forEach(icon => icon.innerHTML = svgEyeOff);
         }
 
         async function handleAuth(event, type) {
             event.preventDefault();
-            const btn = event.target.querySelector('button');
+            const btn = event.target.querySelector('button[type="submit"]');
             const originalText = btn.innerText;
             btn.innerText = "Processing...";
             btn.disabled = true;
 
             const email = document.getElementById(`${type}-email`).value.trim();
             const password = document.getElementById(`${type}-password`).value;
-            const name = (type === 'signup') ? document.getElementById('signup-name').value.trim() : null;
+            
+            let payload = { email, password };
 
             if (type === 'signup') {
+                const name = document.getElementById('signup-name').value.trim();
                 const confirmPassword = document.getElementById('signup-confirm-password').value;
+                const secQuestion = document.getElementById('signup-sec-question').value;
+                const secAnswer = document.getElementById('signup-sec-answer').value.trim();
+
                 if (password !== confirmPassword) {
                     showAlert('Password and Confirm Password do not match.');
                     btn.innerText = originalText;
                     btn.disabled = false;
                     return;
                 }
+                
+                payload = { 
+                    name, 
+                    email, 
+                    password, 
+                    security_question: secQuestion, 
+                    security_answer: secAnswer 
+                };
             }
 
             try {
                 const res = await fetch(`${API}/${type}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password })
+                    body: JSON.stringify(payload)
                 });
 
                 const rawText = await res.text();
                 let data = {};
-                try {
-                    data = rawText ? JSON.parse(rawText) : {};
-                } catch (parseError) {
-                    data = { message: "Server connection error." };
-                }
+                try { data = rawText ? JSON.parse(rawText) : {}; } catch (e) { data = { message: "Server error." }; }
 
                 if (res.ok && data.success) {
                     if (type === 'signup') {
-                        showAlert("Account Created! You can now login.", "Success");
+                        showAlert("Account Created! Please login using your new credentials.", "Success");
                         toggleForm('login');
                         event.target.reset();
                     } else {
@@ -405,14 +436,53 @@
             }
         }
 
+        async function fetchSecurityQuestion() {
+            const emailInput = document.getElementById('reset-email');
+            const email = emailInput.value.trim();
+            if(!email) return showAlert("Please enter your email address first.");
+
+            const btn = document.querySelector('#reset-step-1 button');
+            const originalText = btn.innerText;
+            btn.innerText = "Loading...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API}/get-security-question`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await res.json();
+                
+                if(res.ok && data.success) {
+                    document.getElementById('display-sec-question').innerText = data.question;
+                    document.getElementById('reset-step-1').style.display = 'none';
+                    document.getElementById('reset-step-2').style.display = 'block';
+                    emailInput.disabled = true;
+                } else {
+                    showAlert(data.message || "Email not found in our records.");
+                }
+            } catch (err) {
+                showAlert("Server connection failed.");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
         async function handleForgotPassword(event) {
             event.preventDefault();
-            const btn = event.target.querySelector('button');
+            
+            if (document.getElementById('reset-step-1').style.display !== 'none') return;
+
+            const btn = document.querySelector('#reset-step-2 button[type="submit"]');
             const originalText = btn.innerText;
-            btn.innerText = 'Processing...';
+            btn.innerText = 'Verifying...';
             btn.disabled = true;
 
             const email = document.getElementById('reset-email').value.trim();
+            const secAnswer = document.getElementById('reset-sec-answer').value.trim();
             const newPassword = document.getElementById('reset-password').value;
             const confirmNewPassword = document.getElementById('reset-confirm-password').value;
 
@@ -427,23 +497,17 @@
                 const res = await fetch(`${API}/forgot-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, newPassword })
+                    body: JSON.stringify({ email, security_answer: secAnswer, newPassword })
                 });
 
-                const rawText = await res.text();
-                let data = {};
-                try {
-                    data = rawText ? JSON.parse(rawText) : {};
-                } catch {
-                    data = { message: rawText || 'Server error' };
-                }
+                const data = await res.json();
 
                 if (res.ok && data.success) {
                     showAlert(data.message || 'Password reset successful.', "Success");
                     event.target.reset();
                     toggleForm('login');
                 } else {
-                    showAlert(data.message || 'Reset password failed.');
+                    showAlert(data.message || 'Security answer is incorrect.');
                 }
             } catch (err) {
                 showAlert('Server connection failed!');
@@ -454,5 +518,4 @@
         }
     </script>
 </body>
-
 </html>
