@@ -5,7 +5,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-const imgToPDF = require('images-to-pdf');
+const { PDFDocument } = require('pdf-lib');
 const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -24,14 +24,14 @@ app.use((req, res, next) => {
     next();
 });
 
-// Static
+// Static Directories
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 app.use(express.static('public'));
 app.use('/uploads', express.static(uploadDir));
 
-// DB Connection
+// Database Connection
 const db = mysql.createPool({
     host: (process.env.DB_HOST || '127.0.0.1').trim(),
     user: process.env.DB_USER,
@@ -247,7 +247,9 @@ async function initializeDatabase() {
 
 initializeDatabase();
 
-// AUTH GUARD MIDDLEWARE
+// ==========================================
+// Authentication Guard Middleware
+// ==========================================
 const authGuard = (req, res, next) => {
     const token = req.headers['authorization']?.split(' ')[1];
     if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
@@ -259,7 +261,9 @@ const authGuard = (req, res, next) => {
     }
 };
 
-// MULTER SETUP
+// ==========================================
+// Multer Setup
+// ==========================================
 const storage = multer.diskStorage({
     destination: uploadDir,
     filename: (req, file, cb) => {
@@ -454,11 +458,39 @@ app.post('/api/upload', authGuard, upload.single('scoreFile'), async (req, res) 
         const isPublic = groupId ? 0 : 1; 
 
         let fileName = req.file.filename;
-        const ext = path.extname(fileName);
+        const ext = path.extname(fileName).toLowerCase();
 
         if (['.jpg', '.jpeg', '.png'].includes(ext)) {
             const pdfName = fileName.replace(ext, '.pdf');
-            await imgToPDF([req.file.path], path.join(uploadDir, pdfName));
+            const pdfPath = path.join(uploadDir, pdfName);
+
+            // Read the uploaded image file
+            const imageBytes = await fs.promises.readFile(req.file.path);
+            
+            // Create a new PDF document
+            const pdfDoc = await PDFDocument.create();
+            
+            // Embed the image based on its extension
+            let image;
+            if (ext === '.png') {
+                image = await pdfDoc.embedPng(imageBytes);
+            } else {
+                image = await pdfDoc.embedJpg(imageBytes);
+            }
+
+            // Add a page matching the image dimensions and draw the image
+            const page = pdfDoc.addPage([image.width, image.height]);
+            page.drawImage(image, {
+                x: 0,
+                y: 0,
+                width: image.width,
+                height: image.height,
+            });
+
+            // Save the PDF locally
+            const pdfBytes = await pdfDoc.save();
+            await fs.promises.writeFile(pdfPath, pdfBytes);
+
             fileName = pdfName;
         }
 
