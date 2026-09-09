@@ -154,7 +154,6 @@
             0% {
                 opacity: 0.4;
             }
-
             100% {
                 opacity: 1;
             }
@@ -366,6 +365,7 @@
     <script>
         const API = window.location.hostname === 'localhost' ? "http://localhost:3000/api" : "/api";
         const token = localStorage.getItem('mutice_token') || "";
+        const isLoggedIn = localStorage.getItem('mutice_logged_in') === 'true';
         const urlParams = new URLSearchParams(window.location.search);
         const scoreId = urlParams.get('id');
 
@@ -493,12 +493,10 @@
         });
 
         function scheduleNote(beatNumber, time) {
-            // 获取用户有没有勾选重音
             const accentFirst = document.getElementById('metro-accent-first')?.checked;
 
             const light = document.getElementById('metro-light');
             if (light) {
-                // 如果是第一拍 且 开启了重音，才闪红灯，否则一律闪绿灯
                 if (beatNumber === 0 && accentFirst) {
                     light.className = 'metro-visualizer flash-strong';
                 } else {
@@ -514,9 +512,9 @@
             envelope.connect(audioContext.destination);
 
             if (beatNumber === 0 && accentFirst) {
-                osc.frequency.value = 1000; // "di" (High Pitch)
+                osc.frequency.value = 1000;
             } else {
-                osc.frequency.value = 750;  // "da" (Low Pitch)
+                osc.frequency.value = 750;
             }
 
             envelope.gain.setValueAtTime(1, time);
@@ -784,9 +782,15 @@
 
 
         window.onload = () => {
+            if (!isLoggedIn) {
+                alert("Please Login to access the Practice Room!");
+                window.location.replace("auth.html");
+                return;
+            }
+
             if (!scoreId) {
-                alert("No score! Redirecting to library...");
-                window.location.href = "index.html";
+                alert("No score selected! Redirecting to library...");
+                window.location.replace("index.html");
                 return;
             }
 
@@ -823,8 +827,8 @@
                     }
                 })
                 .catch(() => {
-                    alert("Score data not found in database!");
-                    window.location.href = 'index.html';
+                    alert("Score data not found in database! Redirecting to library...");
+                    window.location.replace('index.html');
                 });
         };
     </script>
